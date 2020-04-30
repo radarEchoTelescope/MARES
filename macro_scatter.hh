@@ -39,6 +39,9 @@ public:
 
   Scatter1D(Antenna& tx, Antenna& rx, Cascade& cs);
 
+  std::vector<double> get_amplitude();
+  std::vector<std::vector<double>> get_Er_time();
+
 private:
 
 

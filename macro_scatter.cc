@@ -147,6 +147,8 @@ Scatter1D::Scatter1D(Antenna& tx, Antenna& rx, Cascade& cs):
     run_time_loop();
   }
 
+std::vector<std::vector<double>> Scatter1D::get_Er_time(){ return Er_time; }
+std::vector<double> Scatter1D::get_amplitude(){ return Amplitude; }
 // Set distances, times and E field for segments.
 /* Loop over the 1D segments  */
 void Scatter1D::set_1D_values(){
@@ -246,7 +248,7 @@ void Scatter1D::run_time_loop(){
   Er_time_row.resize(nbin);
   phase_time_row.resize(nbin);
 
-  double timestep= 1.0/(100*freq_obs);    // sampling frequency
+  double timestep= 1.0/(100*tx.frequency());    // sampling frequency
   double t_start = *min_element(Arrivals.begin(), Arrivals.end()) - 5E-9;
   double t_end   = *max_element(Arrivals.begin(), Arrivals.end()) + 5*tau;
   vector<double> time;

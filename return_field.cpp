@@ -1,8 +1,8 @@
 /* Radar computation - return electric field */
 #include "macro_scatter.hh"
+const std::string identifier = "test_time_short_4";
 
 int main(int argc, char** argv){
-  const std::string identifier = "test_time_short_4";
 
   // I/O Setup
   string cs_filepath = argv[1];
@@ -22,32 +22,25 @@ int main(int argc, char** argv){
         // Make the bistatic event.
         Scatter1D event(tx,rx,cs);
 
-        // tx.set_direction(cs);
-        // rx.set_direction(cs);
-        // tx_pos = tx.position();
-        // rx_pos = rx.position();
-        // Compute RCS = 1D OD for now.
-        // vector<double> od_segmented = get_od_cs_1D();
-
-
-
         /* Write out all the information. */
 
         // On screen
+        // cout << event.transmitter().power() << endl;
         // cout << t_start << '\t' << t_end << '\t'<< loops <<endl;
         // This is needed for plotting purposes
 
         // On file.
-        // write_2D_array(position, identifier + "_positions.txt");
-        // write_1D_array(Er_slices, identifier + "_Er_slices.txt");
-        // write_2D_array(phase_array, identifier + "_phase.txt");
 
+        write_1D_array(event.get_amplitude(), identifier + "_Er_slices.txt", 1);
+        // write_1D_array(od_segmented, identifier + "_od_segmented_kmax.txt");
+
+        write_2D_array(event.get_Er_time(), identifier + "_Er_time_profile.txt", 1);
         // write_2D_array(od_cs_1D_time, identifier + "_od_time_profile.txt", 1);
-        // write_2D_array(Er_time, identifier + "_Er_time_profile.txt", 1);
+        // write_2D_array(phase_array, identifier + "_phase.txt");
 
         // vector<vector<double>> density = get_density_profile(cs);
         // write_2D_array(density, identifier + "_density_profile.txt");
-        // write_1D_array(od_segmented, identifier + "_od_segmented_kmax.txt");
+
       }
     }
   }

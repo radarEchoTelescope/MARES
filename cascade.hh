@@ -7,7 +7,7 @@ This file defines the cascade class and all its associated functions
 #include "macro_settings.hh"
 
 // ----- Computational constants -----------------------------------------------
-const int nbin = 5000;                 // # of bins for integration/array filling
+const int nbin = 500;                 // # of bins for integration/array filling
 
 // -----------------------------------------------------------------------------
 class Cascade {

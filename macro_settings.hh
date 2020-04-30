@@ -38,9 +38,9 @@ const double X_0 = 36.08;              // [g/cm^2] radiation length
 const double X_int=25.01;              // [g/cm^2] interraction length
 
     // Plasma parameters--------------------------------------------------------
-const double r_moliere=7;            // [cm] Moliere Radius
-const double tau=20*1E-9;             // [s] Plasma lifetime
-const double mme=1;                     // Plasma to electron mass ratio
+const double r_moliere=7;              // [cm] Moliere Radius
+const double tau=20*1E-9;              // [s] Plasma lifetime
+const double mme=1;                    // Plasma to electron mass ratio
 
 
 

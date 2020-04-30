@@ -6,7 +6,7 @@ This header file defines the antenna positions.
 
 #include "macro_settings.hh"
 
-// ----- Default fpositionpositionpositionpositionpositionpositionpositionpositionpositionrequency -----------------------------------------------------
+// ----- Default frequency -----------------------------------------------------
 const double freq_obs = 1E9;
 
 // -----------------------------------------------------------------------------
