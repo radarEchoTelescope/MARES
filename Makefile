@@ -1,4 +1,4 @@
-TARGET = return_power
+TARGET = return_field
 DIR= ../IceRayTracing/namespace/woROOT/
 
 CC = g++
@@ -8,7 +8,7 @@ LDLIBS= -lgsl
 
 all: $(TARGET) #clean
 
-OBJECTS= $(TARGET).o $(DIR)IceRayTracing.o antenna.o cascade.o
+OBJECTS= $(TARGET).o macro_scatter.o antenna.o cascade.o macro_settings.o $(DIR)IceRayTracing.o
 
 
 # For a given compilind order  xxxx: yyyy zzzz ttttt
@@ -23,16 +23,19 @@ OBJECTS= $(TARGET).o $(DIR)IceRayTracing.o antenna.o cascade.o
 $(DIR)IceRayTracing.o: $(DIR)IceRayTracing.cc $(DIR)IceRayTracing.hh
 	$(CC) $(CFLAGS) -c $@ $<
 
+macro_settings.o: macro_settings.cc macro_settings.hh 
+		$(CC) $(CFLAGS) -c $<
+
 cascade.o: cascade.cc cascade.hh macro_settings.hh
 	$(CC) $(CFLAGS) -c $<
 
-antenna.o: antenna.cc antenna.hh $(DIR)IceRayTracing.hh cascade.hh macro_settings.hh
+antenna.o: antenna.cc antenna.hh macro_settings.hh
 	$(CC) $(CFLAGS) -c $<
 
-macro_scatter.o: macro_scatter.hh antenna.hh cascade.hh
+macro_scatter.o: macro_scatter.cc macro_scatter.hh antenna.hh cascade.hh $(DIR)IceRayTracing.hh
 	$(CC) $(CFLAGS) -c $<
 
-$(TARGET).o: $(TARGET).cpp macro_scatter.hh
+$(TARGET).o: $(TARGET).cpp  macro_scatter.hh
 	$(CC) $(CFLAGS) -c $<
 
 $(TARGET): $(OBJECTS)

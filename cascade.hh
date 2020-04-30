@@ -4,67 +4,46 @@ This file defines the cascade class and all its associated functions
 #ifndef CASCADE_hh
 #define CASCADE_hh
 
-
 #include "macro_settings.hh"
 
-class Antenna;
+// ----- Computational constants -----------------------------------------------
+const int nbin = 5000;                 // # of bins for integration/array filling
 
-// ----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 class Cascade {
 public:
 
-/* You don't want to allow the code to edit these values.
-These are needed if you add the default empty constructor.
+  Cascade(int evt, double cenergy, double xpos, double ypos, double zpos,
+          double czenith, double cazimuth, double nenergy,
+          double nzenith, double nazimuth, double oneweight);
 
-  // Cascade() {}
+  /* Particle (electron) density for penetration length X and radius r. */
+  double dens(double X, double r);      // [g/cm^2, cm, GeV]
 
-  void set_position(double x, double y, double z){ pos = {x,y,z}; }
-  void set_direction_w_sph_ang(double theta_ang, double phi_ang){
-    theta = theta_ang;
-    phi = phi_ang;
-    dir[0] = sin(theta)*cos(phi);
-    dir[1] = sin(theta)*sin(phi);
-    dir[2] = cos(theta);
-  }
-  void set_direction_cartesian(double x, double y, double z){ dir = {x,y,z}; }
-  void set_parent_neutrino(double nenergy, double nazimuth, double nzenith,
-    double oneweight) {neutrino = {nenergy, nzenith , nazimuth, oneweight}; }
-  void set_max_depth(energy){X_tot = 4*(log(energy/E_c)/log(2) )*X_int;}
-*/
-
-  Cascade(int evt, double position, double cenergy, double cazimuth, double czenith,
-  double nenergy, double nzenith, double nazimuth, double oneweight);
-
-  // Accesors
-  double get_event();
-  double get_energy();
-  double* get_sph_ang();
-  double* get_position();
-  double* get_direction();
-  double* get_parent_neutrino();
-  double get_max_depth();
-
-  std::vector<std::vector<double>> get_density();
   std::vector<double> get_rcrit();
+  std::vector<std::vector<double>> get_density();
   std::vector<std::vector<double>> get_reflectivty_2D();
   std::vector<std::vector<double>> get_reflectance_2D();
 
-  std::vector<double> get_od_cs_1D();
+  // Accesors
+  double  event();
+  double  energy();
+  double* sph_angles();
+  double* position();
+  double* direction();
+  double* parent();
 
-  double get_od_cs_0D(double tx_dot_cs, double cs_dot_rx, double lambda);
-  double get_ud_cs_0D();
-  double get_rad_cs_0D();
-
+  double Xtot();
   double get_X_bin();
   double get_r_tot();
   double get_r_bin();
   double get_L_bin();
 
 private:
-  friend class Antenna; // Antena can access private members.
+  friend class Scatter; // Antena can access private members.
 
-  int eventnr;            // Event number.
-  double energy;          // Energy of the cascade.
+  int    evtnr;            // Event number.
+  double E_p;          // Energy of the cascade.
   double sph_ang[2];      // {Theta = zenith, phi= azimuth}
   // Incoming spherical angles (spherical coordinates) w.r.t the detector frame.
   double pos[3];          // Interaction point's position (Shower start, head).
@@ -101,28 +80,37 @@ private:
   std::vector<std::vector<double>> reflectance2D, reflectivity2D;
   void set_reflectivity_2D();
 
-  std::vector<double> od_cs_1D;
-  void set_od_cs_1D();
-
-  double od_cs_0D = 0;
-  void set_od_cs_0D(double tx_dot_cs, double cs_dot_rx, double lambda);
-
-  double ud_cs_0D = 0;
-  void set_ud_cs_0D();
+  // std::vector<double> od_cs_1D;
+  // void set_od_cs_1D();
 
 };
 
-namespace{
+/* You don't want to allow the code to edit these values.
+These are needed if you add the default empty constructor.
 
-  // Helper functions, used by other functions only
+  // Cascade() {}
+
+  void set_position(double x, double y, double z){ pos = {x,y,z}; }
+  void set_direction_w_sph_ang(double theta_ang, double phi_ang){
+    theta = theta_ang;
+    phi = phi_ang;
+    dir[0] = sin(theta)*cos(phi);
+    dir[1] = sin(theta)*sin(phi);
+    dir[2] = cos(theta);
+  }
+  void set_direction_cartesian(double x, double y, double z){ dir = {x,y,z}; }
+  void set_parent_neutrino(double nenergy, double nazimuth, double nzenith,
+    double oneweight) {neutrino = {nenergy, nzenith , nazimuth, oneweight}; }
+  void set_max_depth(E_p){X_tot = 4*(log(E_p/E_c)/log(2) )*X_int;}
+*/
+
+std::vector<Cascade> load_cascade_file(const std::string& cs_filepath);
+
+// Helper functions, used by other functions only
+namespace{
 
   /* Ne, number of particles in the cascade */
   double Ne(double X, double E_p);
-    // Helper?
-
-  /* Particle (electron) density for penetration length X and radius r. */
-  double dens(double X, double r, double E_p);      // [g/cm^2, cm, GeV]
-    // Helper?
 
   /* Shower age */
   double sh_age(double X, double E_p);
@@ -133,12 +121,6 @@ namespace{
   /* Integral of lateral particle distribution between two radii. */
   double intwiv(double r, double delta_r, double s = 1.01);    // [cm, cm, g/cm^2, GeV]
   // "Hard-coded" s = 1 for now. s = 1.01 to avoid divergencies.
-
-  double cosine_rule(double a, double b, double alpha);
-
-  /* Sinc function*/
-  double sinc(double x);
-
 }
 
 #endif

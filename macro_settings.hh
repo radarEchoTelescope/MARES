@@ -11,8 +11,12 @@
 #include <assert.h>   // Debug purposes
 // #define NDEBUG     // Turn off debug.
 
-// ----- Computational constants -----------------------------------------------
-const int nbin = 500;                 // # of bins for integration/array filling
+//---- I/O functions -----------------------------------------------------------
+void write_1D_array(std::vector<double> array, std::string output_path,
+  const bool trigger);
+
+void write_2D_array(std::vector<std::vector<double>> array,
+    std::string output_path, const bool trigger);
 
 // ----- Physical constants ----------------------------------------------------
 
@@ -21,7 +25,6 @@ const double pi=3.1415926535;
 const double c_vac=3E8;               // [m/s]
 const double refindex=1.7;            // refractive index in ice
 const double c_med=c_vac/refindex;    // [m/s] speed of light in ice
-
 
 // ----- Microscopical [ cgs]
 const double cvac_cm=c_vac * 100;      // [cm/s]
@@ -38,6 +41,7 @@ const double X_int=25.01;              // [g/cm^2] interraction length
 const double r_moliere=7;            // [cm] Moliere Radius
 const double tau=20*1E-9;             // [s] Plasma lifetime
 const double mme=1;                     // Plasma to electron mass ratio
+
 
 
 #endif
