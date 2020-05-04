@@ -38,6 +38,7 @@ public:
   double get_r_tot();
   double get_r_bin();
   double get_L_bin();
+  double get_rwaist();
 
 private:
   friend class Scatter; // Antena can access private members.

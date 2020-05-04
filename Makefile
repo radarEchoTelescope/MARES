@@ -23,7 +23,7 @@ OBJECTS= $(TARGET).o macro_scatter.o antenna.o cascade.o macro_settings.o $(DIR)
 $(DIR)IceRayTracing.o: $(DIR)IceRayTracing.cc $(DIR)IceRayTracing.hh
 	$(CC) $(CFLAGS) -c $@ $<
 
-macro_settings.o: macro_settings.cc macro_settings.hh 
+macro_settings.o: macro_settings.cc macro_settings.hh
 		$(CC) $(CFLAGS) -c $<
 
 cascade.o: cascade.cc cascade.hh macro_settings.hh

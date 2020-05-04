@@ -127,6 +127,7 @@ double  Cascade::get_X_bin(){return X_bin;}
 double 	Cascade::get_r_tot(){return r_tot;}
 double  Cascade::get_r_bin(){return r_bin;}
 double  Cascade::get_L_bin(){return L_bin;}
+double  Cascade::get_rwaist(){return r_waist;}
 
 std::vector<std::vector<double>> Cascade::get_density(){
 	if(density.empty()){ set_density(); }

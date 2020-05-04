@@ -1,6 +1,6 @@
 /* Radar computation - return electric field */
 #include "macro_scatter.hh"
-const std::string identifier = "test_time_short_4";
+const std::string identifier = "Particle1to500";
 
 int main(int argc, char** argv){
 
@@ -31,12 +31,19 @@ int main(int argc, char** argv){
 
         // On file.
 
+        write_1D_array(event.get_length(), identifier + "_length.txt", 1);
+        write_1D_array(event.get_xpos(), identifier + "_xpos.txt", 1);
+        write_1D_array(event.get_ypos(), identifier + "_ypos.txt", 1);
+        write_1D_array(event.get_Rt(), identifier + "_Rt.txt", 1);
+        write_1D_array(event.get_Rr(), identifier + "_Rr.txt", 1);
+        write_1D_array(event.get_time(), identifier + "_time.txt", 1);
         write_1D_array(event.get_amplitude(), identifier + "_Er_slices.txt", 1);
         // write_1D_array(od_segmented, identifier + "_od_segmented_kmax.txt");
 
-        write_2D_array(event.get_Er_time(), identifier + "_Er_time_profile.txt", 1);
+        std::vector<std::vector<double>> Er_time = event.get_Er_time();
+        write_2D_array(Er_time, identifier + "_Er_time_profile.txt", 1);
         // write_2D_array(od_cs_1D_time, identifier + "_od_time_profile.txt", 1);
-        // write_2D_array(phase_array, identifier + "_phase.txt");
+        write_2D_array(event.get_phase_time(), identifier + "_phase.txt", 1);
 
         // vector<vector<double>> density = get_density_profile(cs);
         // write_2D_array(density, identifier + "_density_profile.txt");

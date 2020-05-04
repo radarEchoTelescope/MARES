@@ -22,8 +22,10 @@ void write_2D_array(std::vector<std::vector<double>> array,
 
 // ----- Macroscopical [IS]
 const double pi=3.1415926535;
-const double c_vac=3E8;               // [m/s]
-const double refindex=1.7;            // refractive index in ice
+// const double c_vac=3E8;               // [m/s]
+const double c_vac=2.998E8;               // [m/s]
+// const double refindex=1.7;            // refractive index in ice
+const double refindex=1.78;            // refractive index in ice
 const double c_med=c_vac/refindex;    // [m/s] speed of light in ice
 
 // ----- Microscopical [ cgs]

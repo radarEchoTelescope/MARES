@@ -4,9 +4,9 @@ Antenna::Antenna(double power, double xpos, double ypos, double zpos,
                  double theta, double phi, double gain, double frequency):
   power_(power), pos{xpos, ypos, zpos}, polar{theta, phi}, f_obs(frequency){
 
+  w_obs = 2* pi *f_obs;
   k_obs = w_obs/c_med;
   l_obs = c_med/f_obs;
-  w_obs = 2*pi *f_obs;
 
   if (!gain){ power ? gain_ = 1 : gain_ = pow(l_obs,2.0); }
   /* If gain = 0, default , unphysical value, then set default gains

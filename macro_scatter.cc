@@ -143,12 +143,14 @@ void Scatter::set_IRT_direction(Antenna& at){
 Scatter1D::Scatter1D(Antenna& tx, Antenna& rx, Cascade& cs):
   Scatter(tx, rx, cs){
     set_1D_values();
-    get_od_cs_1D();
+    get_od_cs();
     run_time_loop();
   }
 
-std::vector<std::vector<double>> Scatter1D::get_Er_time(){ return Er_time; }
 std::vector<double> Scatter1D::get_amplitude(){ return Amplitude; }
+std::vector<std::vector<double>> Scatter1D::get_Er_time(){ return Er_time; }
+std::vector<std::vector<double>> Scatter1D::get_od_cs_time(){ return od_cs_time; }
+
 // Set distances, times and E field for segments.
 /* Loop over the 1D segments  */
 void Scatter1D::set_1D_values(){
@@ -199,7 +201,8 @@ void Scatter1D::set_1D_values(){
       // Orignal
     //phase = omega*l/cvac + k_obs*(Rr + Rt);
       // Dieder test
-    Phase.push_back(- tx.wavenr()*(rr + rt));
+    Phase.push_back(-tx.wavenr()*(rt + rr));
+    // std::cout << -tx.wavenr()*(rt + rr) << " ";
   }
 
 
@@ -208,9 +211,9 @@ void Scatter1D::set_1D_values(){
 
 /* Compute the overdense area of the cascade in slices.
 The reflectance corrections are only applied to the od sections. */
-void Scatter1D::get_od_cs_1D(){
-  double X, r_bin, L_bin, k_mid, od_cs;
-  od_cs_1D.reserve(nbin);
+void Scatter1D::get_od_cs(){
+  double X, r_bin, L_bin, k_mid, od_cs_tmp;
+  od_cs.reserve(nbin);
 
   std::vector<double> r_crit = cs.get_rcrit();
   std::vector<std::vector<double>> reflectance2D = cs.get_reflectance_2D();
@@ -220,72 +223,75 @@ void Scatter1D::get_od_cs_1D(){
 
     // Number of layers per segment.
     int k_max = (int) r_crit[i]/r_bin;
-    od_cs = 0;
+    od_cs_tmp = 0;
     for (int k = 0; k < nbin; k++){
       // Only layers from od_region are looked, outside-in.
       k >= (nbin - k_max) ? k_mid = nbin - (k + 0.5) : k_mid = 0;
       // To evaluate for the full space as od
       // k_mid = nbin - (k + 0.5);
 
-      od_cs += 2*k_mid*r_bin*reflectance2D[i][k]*L_bin;      // [cm^2]
+      od_cs_tmp += 2*k_mid*r_bin*reflectance2D[i][k]*L_bin;      // [cm^2]
       // Factor of 2 required to account for plasma tube symmetry!
     }
-    od_cs_1D.push_back(od_cs);
+    od_cs.push_back(od_cs_tmp);
   }
 }
 
 /* Run time loop */
 void Scatter1D::run_time_loop(){
 
-  od_cs_1D_time.reserve(nbin);
-  Er_time.reserve(nbin);
+  od_cs_time.reserve(nbin);
+  // Er_time.reserve(nbin);
   phase_time.reserve(nbin);
 
   vector<double> od_time_row;
   vector<double> Er_time_row;
   vector<double> phase_time_row;
-  od_time_row.resize(nbin);
-  Er_time_row.resize(nbin);
-  phase_time_row.resize(nbin);
+  // od_time_row.resize(nbin);
+  // Er_time_row.reserve(nbin);
+  // phase_time_row.resize(nbin);
 
   double timestep= 1.0/(100*tx.frequency());    // sampling frequency
   double t_start = *min_element(Arrivals.begin(), Arrivals.end()) - 5E-9;
   double t_end   = *max_element(Arrivals.begin(), Arrivals.end()) + 5*tau;
-  vector<double> time;
-  time.reserve((t_end - t_start)/timestep);
+  // vector<double> time;
+  test_array.reserve((t_end - t_start)/timestep);
 
   double dieder_phase;
 
+  std::cout << t_start << '\t' << t_end << std::endl;
+
   // Loop over time.
   for (double t = t_start; t<t_end;t += timestep){
-    time.push_back(t);
+    test_array.push_back(t);
     // Loop over depth segments.
     for (int i = 0; i < nbin; i++){
 
       // Select some length values
-       if(i % 2 == 0){
+       // if(i == 0){
+
         // If active, add its contribution.
         if(t>Arrivals[i] && t<(Arrivals[i]+tau)){
 
+          od_time_row.push_back(od_cs[i]);
           //phase = omega*t + k_obs*Rt;
           dieder_phase = tx.omega()*t + Phase[i];
-
-          od_time_row.push_back(od_cs_1D[i]);
+          // phase_time_row.push_back(tx.omega()*(t - Arrivals[i]) + dieder_phase);
+          phase_time_row.push_back(dieder_phase);
           Er_time_row.push_back(Amplitude[i]* cos(dieder_phase));
-          phase_time_row.push_back(tx.omega()*(t - Arrivals[i]) + dieder_phase);
         }
-        // else {
-          //   Er_time_row.push_back(0);
-          //   od_time_row.push_back(0);
-          //   phase_time_row.push_back(0);
-          // }
+        else {
+            Er_time_row.push_back(0);
+            od_time_row.push_back(0);
+            phase_time_row.push_back(0);
+        }
 
-      }
+      // }  // Selection closing
 
     }
 
     Er_time.push_back(Er_time_row);
-    od_cs_1D_time.push_back(od_time_row);
+    od_cs_time.push_back(od_time_row);
     phase_time.push_back(phase_time_row);
 
     Er_time_row.clear();

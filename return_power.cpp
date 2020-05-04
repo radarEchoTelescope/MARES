@@ -4,10 +4,28 @@
 //---- Free (user) parameters---------------------------------------------------
 // const std::string identifier = "return_power_0D";
 
+class Scatter0D: public Scatter {
+public:
 
-double sinc(double x);
-double get_od_cs_0D(Antenna& tx, Antenna& rx, Cascade& cs);
-double get_ud_cs_0D(Cascade & cs);
+  Scatter0D(Antenna& tx, Antenna& rx, Cascade& cs);
+  double get_od_cs(){ if (od_cs == 0) {set_od_cs();} return od_cs; }
+  double get_ud_cs(){ if (ud_cs == 0) {set_ud_cs();} return ud_cs; }
+  double get_power(){ if (power == 0) {set_power();} return power; }
+  int accepted()    {set_power(); return triggered;}
+
+private:
+
+  int triggered;
+  double od_cs;
+  double ud_cs;
+  double power;
+  void set_od_cs();
+  void set_ud_cs();
+  void set_power();
+
+  double sinc(double x);
+
+};
 
 int main(int argc, char** argv){
 
@@ -20,17 +38,41 @@ int main(int argc, char** argv){
   string det_type = "bistatic";
   Detector bistatic(det_type);
 
-  // Compute the return power
-  double Rt, Rr;
-  double eta, Latt, rad_cs, P_r, P_bkg;
-  int triggered;
-
   // For every cascade
   for (auto& cs: Cascades){
     // For every transmitter
     for (auto& tx : bistatic.get_transmitters()){
       // For every receiver
       for (auto& rx : bistatic.get_receivers()){
+
+        Scatter0D event(tx,rx,cs);
+
+        Antenna new_tx =  event.transmitter();
+        Antenna new_rx =  event.receiver();
+        
+        // cout  << new_tx.power() << '\t'
+        //       << new_tx.gain() << '\t'
+        //       << new_rx.gain() << '\t'
+        //       << endl;
+        //
+        // cout  << tx.distance() << '\t'
+        //       << rx.distance() << '\t'
+        //       << new_tx.distance() << '\t'
+        //       << new_rx.distance() << '\t'
+        //       << endl;
+
+        cout <<
+          "Event:" << scientific << '\t' <<
+          "R_t = " << new_tx.distance() << '\t' <<
+          "R_r = " << new_rx.distance() << '\t' <<
+          "od_tot = " << event.get_od_cs()/1E4 << '\t' <<
+          "ud_tot = " << event.get_ud_cs() << '\t' <<
+          // "rad_cs = " << rad_cs << '\t' <<
+          // "P_r = " << P_r << defaultfloat <<
+          "accepted = " << event.accepted() <<
+        endl;
+
+        // cout << rad_cs << '\t'  << P_r << '\t' << triggered << endl;
 
         // cout <<
         //       rx.power() << " " <<
@@ -48,85 +90,26 @@ int main(int argc, char** argv){
         //       rx.dist << " " <<
         // endl;
 
-        Scatter event(tx,rx,cs);
-
-        Antenna new_tx =  event.transmitter();
-        Antenna new_rx =  event.receiver();
-
-        // set_direction(cs.get_position(), cs.get_direction());
-        // rx.set_direction(cs.get_position(), cs.get_direction());
-        Rt = new_tx.distance();
-        Rr = new_rx.distance();
-
-        cout  << Rt << '\t'
-              << Rr << '\t'
-              << tx.distance() << '\t'
-              << rx.distance() << '\t'
-              << endl;
-
-        double od_cs = get_od_cs_0D(new_tx, new_rx, cs);
-        double ud_cs = get_ud_cs_0D(cs);
-
-        vector<vector<double>> dens = cs.get_density();
-      	rad_cs = (od_cs + ud_cs)/1E4;   	     // [m^2] !! Unit change happens here!
-
-	// Inefficiency --------------------------------------------------------------
-      	eta = 1;                     // For testing purposes
-      	// eta=4.4E-3;//*1.d-2          // @450 MHz; 20ns
-      	//eta=0.18d0*1.d-2              // @50 MHz; 1000ns
-      	//eta=2.64d-5                   // @10 MHz superdarn detected @ 200-500 MHz
-
-      	Latt = 1000;                 // [m] attenuation length
-        //Latt=att(freq_obs);        // It should be parametrized depeding on location
-
-      	P_r = eta*tx.power()*tx.gain()*rx.gain()*      // Constants
-      	exp(-2.0*(Rt+Rr)/Latt)/pow(4*pi*Rt*Rr,2)*    // Distance-dependant term
-      	rad_cs;
-
-        cout << tx.power() << '\t'
-              << tx.gain() << '\t'
-              << rx.gain() << '\t'
-              << endl;
-
-        // Check if the event is over thermal background
-      	double k_b=1.3806503E-23;       // [SI] Boltzmann's constant
-      	double T_sys=325;               // [K] system temperature from ARA paper
-      	double deltaf=1E5;              // [Hz]
-
-      	P_bkg=k_b*T_sys*deltaf/1E3;         //[kW]
-      	(P_r > P_bkg) ? triggered = 1 : triggered = 0;
-
       } // Closes antenna loop
     } // Closes transmitter loop
-
-    cout << rad_cs << '\t' << P_r << '\t' << triggered << endl;
-
-/*
-    cout <<
-      "Event:" << scientific << '\t' <<
-      "R_t = " << tx.R + rx.R << '\t' <<
-      //"ud_cs = " << ud_cs << '\t' <<
-      "od_tot = " << od_tot << '\t' <<
-      "rad_cs = " << rad_cs << '\t' <<
-      "P_r = " << P_r << defaultfloat <<
-    endl;
-*/
-
   } // Closes cascade loop
   cout << "END" << endl;
 }
 // End of main
 
+Scatter0D::Scatter0D(Antenna& tx, Antenna& rx, Cascade& cs):
+  Scatter(tx, rx, cs){
+    set_od_cs();
+    set_ud_cs();
+    set_power();
+  }
+
 /* Compute the total overdense surface of the cascade */
-double get_od_cs_0D(Antenna& tx, Antenna& rx, Cascade& cs){
+void Scatter0D::set_od_cs(){
   double X, r, k_mid;       // Variable
-  double od_cs_0D;
-  double X_tot  = cs.Xtot();
-  double X_bin  = cs.get_X_bin();
   double r_bin  = cs.get_r_bin();
-  double lambda = tx.lambda();
-  double tx_dot_cs = tx.projection();
-  double cs_dot_rx = rx.projection();
+  double r_waist = cs.get_rwaist();
+
 	std::vector<double> r_crit = cs.get_rcrit();
   std::vector<std::vector<double>> density = cs.get_density();
 
@@ -135,7 +118,7 @@ double get_od_cs_0D(Antenna& tx, Antenna& rx, Cascade& cs){
 	int i_max;
 	// Loop over cascade depth
 	for (int i = 0; i < nbin; i++){
-		X = i*X_bin;
+		X = i*cs.get_X_bin();
 		r = 0;
 		// Loop over cascade radius
 		for (int j = 0; j < nbin; j++){
@@ -149,9 +132,11 @@ double get_od_cs_0D(Antenna& tx, Antenna& rx, Cascade& cs){
 		}
 	}
 
-  double r_waist = r_crit[i_max];
+  // The shower waist is located by definition at the maximum 	plasma radius.
+  double r_waist2 = *max_element(r_crit.begin(), r_crit.end());
+
 	// // If shower age = 1, r_waist is at the maximum density.
-	// assert(r_waist == r_crit[i_max] && "Ill-defined waist radius.");
+	assert(r_waist2 == r_crit[i_max] && "Ill-defined waist radius.");
 
 	/* Second, find the range of layers of "constant" density.
 		These layers need to keep the radial spacing r_bin.
@@ -161,18 +146,18 @@ double get_od_cs_0D(Antenna& tx, Antenna& rx, Cascade& cs){
 	double dens_layer;            // [g/cm^3]
 	double X_low, X_high;					// [g/cm^2]
 	std::vector<double> length;
-	int k_max = (int) r_waist/r_bin;
+	int k_max = (int) r_waist2/r_bin;
 
 	// Loop over od layers
 	for(int k = 0; k < nbin; k++){
 		k_mid = k + 0.5;
 		// Density of midpoint of k layer at waist
 		dens_layer= cs.dens(X_max,k_mid*r_bin);
-		X_low = X_tot;
+		X_low = cs.Xtot();
 		X_high = 0;
 		// Loop over cascade depth
 		for (int i = 0; i < nbin; i++){
-			X=i*X_bin;
+			X=i*cs.get_X_bin();
 			// Loop over cascade radius until waist, where the od values are defined.
 			for (int j = 0; j < k_max; j++){
 				// Update size of the od layer
@@ -224,14 +209,14 @@ double get_od_cs_0D(Antenna& tx, Antenna& rx, Cascade& cs){
 	double f_geometry, norm_in, f_diff = 0;
 
 		// Compute norm_in
-	norm_in  = 1 - abs(tx_dot_cs);
+	norm_in  = 1 - abs(tx.projection());
 
 		// Compute f_diff
 	double l_max, gam, av_int = 0, ang, steps = 200000.0;
 
 	// Angle: Distance to relative to full internal reflection
 	// "gam" = "alpha" - "beta" in the paper
-	gam = acos(tx_dot_cs) - acos(cs_dot_rx);
+	gam = acos(tx.projection()) - acos(rx.projection());
 // BIG RED FLAG WITH ACOS FUNCTION, IT HAS FAILED IN THE PAST.
 // cos(a) = cos(-a) -> acos(cos(-a)) = a
 
@@ -239,23 +224,21 @@ double get_od_cs_0D(Antenna& tx, Antenna& rx, Cascade& cs){
 	// Average intensity over the -pi/2 to pi/2 region
 	for (int i = 0; i < steps ; i++){
 		ang = (-1/2.0 + (i)/steps)*pi; // Some integration value
-		av_int += pow(sinc((pi*l_max/lambda)*sin(ang)),2);     // Add contibutions
+		av_int += pow(sinc((pi*l_max/tx.lambda())*sin(ang)),2);     // Add contibutions
 	}
 	av_int /= steps;
 	// Intentsity at gamma angle.
-	f_diff =  pow(sinc((pi*l_max/lambda)*sin(gam)),2)/av_int;
+	f_diff =  pow(sinc((pi*l_max/tx.lambda())*sin(gam)),2)/av_int;
 
 	f_geometry=abs(norm_in*f_diff);
 
-	od_cs_0D = od_tot* f_geometry;
+	od_cs = od_tot* f_geometry;
 
-  return od_cs_0D;
 }
 
-
 /* Compute under-dense cross-section */
-double get_ud_cs_0D(Cascade & cs){
-	double ud_cs, N_ch=0, r_bin = cs.get_r_bin();
+void Scatter0D::set_ud_cs(){
+	double N_ch=0, r_bin = cs.get_r_bin();
 	std::vector<double> r_crit = cs.get_rcrit();
   std::vector<std::vector<double>> density = cs.get_density();
 
@@ -268,24 +251,41 @@ double get_ud_cs_0D(Cascade & cs){
 	// Number of ud-scattering electrons for the full length
 	ud_cs = N_ch*cs.get_X_bin()*pow((1/mme),2)*thompson;               // [cm^2]
 	// Where is alpha? Why == 1?? Should not be set to 2 by definition?
-  return ud_cs;
+}
+
+// Compute the return power
+void Scatter0D::set_power(){
+  double Rt, Rr, eta, Latt, rad_cs, P_r, P_bkg;
+
+// Inefficiency --------------------------------------------------------------
+  eta = 1;                     // For testing purposes
+  // eta=4.4E-3;//*1.d-2          // @450 MHz; 20ns
+  //eta=0.18d0*1.d-2              // @50 MHz; 1000ns
+  //eta=2.64d-5                   // @10 MHz superdarn detected @ 200-500 MHz
+
+  Latt = 1000;                 // [m] attenuation length
+  //Latt=att(freq_obs);        // It should be parametrized depeding on location
+
+  Rt = tx.distance();
+  Rr = rx.distance();
+
+  P_r = eta*tx.power()*tx.gain()*rx.gain()*   // Constants
+  exp(-2.0*(Rt+Rr)/Latt)/pow(4*pi*Rt*Rr,2)*   // Distance-dependant term
+  (od_cs + ud_cs)/1E4;   	                    // [m^2] rad_cs!!
+  // Unit change happens here!;
+
+  // Check if the event is over thermal background
+  double k_b=1.3806503E-23;       // [SI] Boltzmann's constant
+  double T_sys=325;               // [K] system temperature from ARA paper
+  double deltaf=1E5;              // [Hz]
+
+  P_bkg=k_b*T_sys*deltaf/1E3;         //[kW]
+  (P_r > P_bkg) ? triggered = 1 : triggered = 0;
 }
 
 /* Sinc function*/
-double sinc(double x){
+double Scatter0D::sinc(double x){
   double tmp = 0;
   abs(x) > 10E-8 ? tmp = sin(x)/x : tmp = 1;
   return tmp;
 }
-//------------------------------------------------------------------------------
-/* NO LONGER IN USE */
-
-/*
-// Parametrized attenuation length for the Ross Ice Shelf, South Pole.
-double att(double freq_obs){
-double a1=469;                  // [m] Attanuation length parameter
-double a2=-0.205;               // Attanuation length parameter
-double a3=4.87E-5;              // Attanuation length parameter
-return a1+a2*freq_obs/1E6+a3*pow(freq_obs/1E6,2);
-}
-*/
