@@ -1,6 +1,10 @@
 /* Radar computation - return electric field */
 #include "macro_scatter.hh"
 
+// ----- Computational constants -----------------------------------------------
+const int nbin = 1E4;                 // # of bins for integration/array filling
+
+
 //---- Free (user) parameters---------------------------------------------------
 // const std::string identifier = "return_power_0D";
 
@@ -49,7 +53,7 @@ int main(int argc, char** argv){
 
         Antenna new_tx =  event.transmitter();
         Antenna new_rx =  event.receiver();
-        
+
         // cout  << new_tx.power() << '\t'
         //       << new_tx.gain() << '\t'
         //       << new_rx.gain() << '\t'

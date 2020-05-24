@@ -116,7 +116,7 @@ void Cascade::set_reflectivity_2D(){
 
 // ----------------------------------------------------------------------------
 // Accesors
-double  Cascade::event(){return evtnr;}
+int  Cascade::event(){return evtnr;}
 double  Cascade::energy(){return E_p;}
 double* Cascade::sph_angles(){return sph_ang;}
 double* Cascade::position(){return pos;}

@@ -12,6 +12,8 @@
 #include "IceRayTracing.hh"
 // #define NDEBUG     // Turn off debug.
 
+// extern const int nbin;
+
 /* Simple scatter event with bistatic configuration*/
 class Scatter {
 public:

@@ -1,6 +1,10 @@
 /* Radar computation - return electric field */
 #include "macro_scatter.hh"
-const std::string identifier = "Particle1to500";
+// const std::string identifier = "Particle1to500";
+
+// ----- Computational constants -----------------------------------------------
+const int nbin = 1E4;                 // # of bins for integration/array filling
+
 
 int main(int argc, char** argv){
 
@@ -12,6 +16,8 @@ int main(int argc, char** argv){
   // Make your detector
   string det_type = "bistatic";
   Detector bistatic(det_type);
+
+  std::string path_out = cs_filepath.substr(0,cs_filepath.find_last_of("."));
 
   // For every cascade
   for (auto& cs: cascade_list){
@@ -31,6 +37,8 @@ int main(int argc, char** argv){
 
         // On file.
 
+        std::string identifier = path_out + "_case_" + std::to_string((int)cs.event());
+
         write_1D_array(event.get_length(), identifier + "_length.txt", 1);
         write_1D_array(event.get_xpos(), identifier + "_xpos.txt", 1);
         write_1D_array(event.get_ypos(), identifier + "_ypos.txt", 1);
@@ -40,8 +48,8 @@ int main(int argc, char** argv){
         write_1D_array(event.get_amplitude(), identifier + "_Er_slices.txt", 1);
         // write_1D_array(od_segmented, identifier + "_od_segmented_kmax.txt");
 
-        std::vector<std::vector<double>> Er_time = event.get_Er_time();
-        write_2D_array(Er_time, identifier + "_Er_time_profile.txt", 1);
+        // std::vector<std::vector<double>> Er_time = event.get_Er_time();
+        write_2D_array(event.get_Er_time(), identifier + "_Er_time_profile.txt", 1);
         // write_2D_array(od_cs_1D_time, identifier + "_od_time_profile.txt", 1);
         write_2D_array(event.get_phase_time(), identifier + "_phase.txt", 1);
 

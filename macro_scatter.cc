@@ -143,7 +143,7 @@ void Scatter::set_IRT_direction(Antenna& at){
 Scatter1D::Scatter1D(Antenna& tx, Antenna& rx, Cascade& cs):
   Scatter(tx, rx, cs){
     set_1D_values();
-    get_od_cs();
+    // get_od_cs();
     run_time_loop();
   }
 
@@ -240,7 +240,8 @@ void Scatter1D::get_od_cs(){
 /* Run time loop */
 void Scatter1D::run_time_loop(){
 
-  od_cs_time.reserve(nbin);
+// TEST
+  // od_cs_time.reserve(nbin);
   // Er_time.reserve(nbin);
   phase_time.reserve(nbin);
 
@@ -273,7 +274,9 @@ void Scatter1D::run_time_loop(){
         // If active, add its contribution.
         if(t>Arrivals[i] && t<(Arrivals[i]+tau)){
 
-          od_time_row.push_back(od_cs[i]);
+// TEST
+          // od_time_row.push_back(od_cs[i]);
+
           //phase = omega*t + k_obs*Rt;
           dieder_phase = tx.omega()*t + Phase[i];
           // phase_time_row.push_back(tx.omega()*(t - Arrivals[i]) + dieder_phase);

@@ -7,7 +7,7 @@ This file defines the cascade class and all its associated functions
 #include "macro_settings.hh"
 
 // ----- Computational constants -----------------------------------------------
-const int nbin = 500;                 // # of bins for integration/array filling
+extern const int nbin;                 // # of bins for integration/array filling
 
 // -----------------------------------------------------------------------------
 class Cascade {
@@ -26,7 +26,7 @@ public:
   std::vector<std::vector<double>> get_reflectance_2D();
 
   // Accesors
-  double  event();
+  int  event();
   double  energy();
   double* sph_angles();
   double* position();
