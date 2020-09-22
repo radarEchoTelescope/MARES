@@ -2,15 +2,25 @@
 
 Scatter::Scatter(Antenna& tx1, Antenna& rx1, Cascade& cs1):
   tx(tx1), rx(rx1), cs(cs1){
+    // set_direction_center(tx);
   set_direction(tx);
   set_direction(rx);
+  set_segments();
 
   // Attenuation model goes here
-}
 
-Antenna Scatter::transmitter(){return tx;}
-Antenna Scatter::receiver(){return rx;}
-Cascade Scatter::cascade(){return cs;}
+  /*
+  // Parametrized attenuation length for the Ross Ice Shelf, South Pole.
+  double att(double freq_obs){
+  double a1=469;                  // [m] Attanuation length parameter
+  double a2=-0.205;               // Attanuation length parameter
+  double a3=4.87E-5;              // Attanuation length parameter
+  return a1+a2*freq_obs/1E6+a3*pow(freq_obs/1E6,2);
+  }
+  */
+
+
+}
 
 /* Set the antennas directions, module and dot product with cs */
 void Scatter::set_direction(Antenna& at){
@@ -40,266 +50,382 @@ void Scatter::set_direction(Antenna& at){
   //Determine inner product between point_tc and cascade direction
   at.dot =  (cs.dir[0]*at.dir[0] + cs.dir[1]*at.dir[1] + cs.dir[2]*at.dir[2])
             /at.dist; //Normalize
+
+  cs.pos[1] > 0 ? at.ang = acos(at.dot) : at.ang = - acos(at.dot);
 }
 
+/* Set the antennas directions, module and dot product with cs */
+void Scatter::set_direction_center(Antenna& at){
 
-/* Set the antennas positions and directions with IceRayTracing corrections */
+  // 2D FOR NOW
 
-/*To add, how to use IRT*/
+  // Find the cascade center
+  double cs_xpos = cs.pos[0] + cs.L_tot/2*cos(cs.sph_ang[1]);
+  double cs_ypos = cs.pos[1] + cs.L_tot/2*sin(cs.sph_ang[1]);
 
-// double * at_to_cs = IceRayTracing::IceRayTracing(x0,z0,x1,z1);
+  // Direction to cascade
+  at.dir[0] = (cs_xpos - at.pos[0]);
+  at.dir[1] = (cs_ypos - at.pos[1]);
+  at.dir[2] = (cs.pos[2] - at.pos[2]);
 
-// Get the 2 rays between tx and cascade
-
-// Get the proper distances from the solutions.
-// Module of distance to cascade is now the optical path length.
-// The cs_angle is the IRT recieved angle for the at_to_cs and the emitted
-// angle for cs_to_rx case.
-
-void Scatter::set_IRT_direction(Antenna& at){
-  double at_r,at_z,cs_r,cs_z;
-  double * at_to_cs;
-
-  at_r = sqrt(pow(at.pos[0],2) + pow(at.pos[1],2));
-  at_z = at.pos[2];
-  cs_r = sqrt(pow(cs.pos[0],2)+pow(cs.pos[1],2));
-  cs_z = cs.pos[2];
-
-  if(at.power()) { // TX case
-    // The antenna emits, the cascade is the one that recieves the signal.
-    at_to_cs = IceRayTracing::IceRayTracing(at_r,at_z,cs_r,cs_z);
-
-  } else { // RX case
-    // The "emitter" now is the cascade and the "antenna" the receiver.
-    at_to_cs = IceRayTracing::IceRayTracing(cs_r,cs_z,at_r,at_z);
-
+  // Correct orientation for the Rx case (cs_to_at).
+  if (at.power_ == 0) {   // Rx
+    at.dir[0] = - at.dir[0];
+    at.dir[1] = - at.dir[1];
+    at.dir[2] = - at.dir[2];
   }
 
-  // Now, let's unpack the values that we recieve from IRT.
-
-  if(at_to_cs[6] == 0){               // No direct ray
-    if(at_to_cs[4] < at_to_cs[5]){    // Reflected is shortest
-      at.IRT_dist[0] = at_to_cs[4]*c_med;        // [m]
-      at.IRT_dist[1] = at_to_cs[5]*c_med;   // [m]
-      at.IRT_angle[0] = at_to_cs[7];      // degrees
-      at.IRT_angle[1] = at_to_cs[8];      // degrees
-
-    } else {
-      at.IRT_dist[0] = at_to_cs[5]*c_med;        // [m]
-      at.IRT_dist[1] = at_to_cs[4]*c_med;
-      at.IRT_angle[0] = at_to_cs[8];
-      at.IRT_angle[1] = at_to_cs[7];      // degrees
-
-    }
-  }
-
-  if(at_to_cs[7] == 0){               // No reflected ray
-    if(at_to_cs[3] < at_to_cs[5]){
-      at.IRT_dist[0] = at_to_cs[3]*c_med;        // [m]
-      at.IRT_dist[1] = at_to_cs[5]*c_med;
-      at.IRT_angle[0] = at_to_cs[6];      // degrees
-      at.IRT_angle[1] = at_to_cs[8];      // degrees
-
-    } else {
-      at.IRT_dist[0] = at_to_cs[5]*c_med;        // [m]
-      at.IRT_dist[1] = at_to_cs[3]*c_med;
-      at.IRT_angle[0] = at_to_cs[8];
-      at.IRT_angle[1] = at_to_cs[6];      // degrees
-
-    }
-  }
-
-  if(at_to_cs[8] == 0){               // No refracted ray
-    if(at_to_cs[3] < at_to_cs[4]){
-      at.IRT_dist[0] = at_to_cs[3]*c_med;        // [m]
-      at.IRT_dist[1] = at_to_cs[4]*c_med;
-      at.IRT_angle[0] = at_to_cs[6];      // degrees
-      at.IRT_angle[1] = at_to_cs[7];      // degrees
-
-    } else {
-      at.IRT_dist[0] = at_to_cs[4]*c_med;        // [m]
-      at.IRT_dist[1] = at_to_cs[3]*c_med;
-      at.IRT_angle[0] = at_to_cs[7];      // degrees
-      at.IRT_angle[1] = at_to_cs[6];      // degrees
-
-    }
-  }
+  // Module of distance to cascade
+  at.dist = sqrt(pow(at.dir[0],2.0)+pow(at.dir[1],2.0)+pow(at.dir[2],2.0));
 
   // Sanity check
-  // In theory, only the first value (shortest distance) needs to be evaluated.
-  assert(at.IRT_dist[0] != 0 && "Cascade overlaps antenna");
+  assert(at.dist!= 0 && "Cascade overlaps antenna");
   /* THIS SHOULD THROW AND EXCEPTION SO YOU CAN CHOOSE HOW TO SOLVE IT
       FOR NOW:
  */
+ if(at.dist== 0) {at.dist = 10*at.l_obs;}
 
- // But both need to be fixed.
- if(at.IRT_dist[0] == 0) {at.IRT_dist[0] = 10*at.l_obs;}
- if(at.IRT_dist[1] == 0) {at.IRT_dist[1] = 10*at.l_obs;}
+  //Determine inner product between point_tc and cascade direction
+  at.dot =  (cs.dir[0]*at.dir[0] + cs.dir[1]*at.dir[1] + cs.dir[2]*at.dir[2])
+            /at.dist; //Normalize
+
+  // std::cout << cs.sph_ang[0] << '\t' << cs.sph_ang[1] << '\n'
+  //           << cs.dir[0] << '\t' << cs.dir[1] << '\t'<< cs.dir[2] << '\n'
+  //           << at.dir[0] << '\t' << at.dir[1] << '\t'<< at.dir[2] << '\n'
+  //           << at.dot << std::endl;
+
+  cs.pos[1] > 0 ? at.ang = acos(at.dot) : at.ang = - acos(at.dot);
 
 }
 
-// ----------------------------------------------------------------------------
-
-Scatter1D::Scatter1D(Antenna& tx, Antenna& rx, Cascade& cs):
-  Scatter(tx, rx, cs){
-    set_1D_values();
-    // get_od_cs();
-    run_time_loop();
-  }
-
-std::vector<double> Scatter1D::get_amplitude(){ return Amplitude; }
-std::vector<std::vector<double>> Scatter1D::get_Er_time(){ return Er_time; }
-std::vector<std::vector<double>> Scatter1D::get_od_cs_time(){ return od_cs_time; }
-
 // Set distances, times and E field for segments.
 /* Loop over the 1D segments  */
-void Scatter1D::set_1D_values(){
+void Scatter::set_segments(){
+  // RN_uniform rand_line(-0.5, 0.5, 42);          // Same seed for debugging.
+  RN_uniform rand_line(-1, 1, 42);          // Same seed for debugging.
+  // RN_uniform rand_line(-1, 1, time(0));  // Different seed for random, independent runs.
 
-  double l,xpos, ypos, rt, rr;
-  Length.reserve(nbin), Xpos.reserve(nbin), Ypos.reserve(nbin),
-  Rt.reserve(nbin), Rr.reserve(nbin), Phase.reserve(nbin),
-  Arrivals.reserve(nbin), Amplitude.reserve(nbin);
+  double l,xpos, ypos, rt, rr, rt0;
+  _phase.reserve(nbin), _arrival.reserve(nbin), _amplitude.reserve(nbin);
+  _segment_coords = std::vector<std::vector<double>>(nbin, vector<double> (5, 0));
 
+  // TO DO proper fomula for Transmitter field.
   double E0 = 100;
-  // TBD proper fomula for Transmitter field.
 
   for(int i = 0 ; i < nbin; i++){
 
     // Distances
-    l= i*cs.get_L_bin();      // [m] distance from the shower head (starting point)
+    l    = (i + rand_line.get()) * cs.get_L_bin();      // [m] distance from the shower head (starting point)
+    // l    = i*cs.get_L_bin();      // [m] distance from the shower head (starting point)
     xpos = cs.position()[0] + l*cos(cs.sph_angles()[1]);
     ypos = cs.position()[1] + l*sin(cs.sph_angles()[1]);
-    rt = sqrt(pow(xpos-tx.position()[0],2)+pow(ypos-tx.position()[1],2));
-    rr = sqrt(pow(xpos-rx.position()[0],2)+pow(ypos-tx.position()[1],2));
+    rt   = distance(xpos, ypos, tx.position()[0], tx.position()[1]);
+    rr   = distance(xpos, ypos, rx.position()[0], rx.position()[1]);
 
-    Length.push_back(l);
-    Xpos.push_back(xpos);
-    Ypos.push_back(ypos);
-    Rt.push_back(rt);
-    Rr.push_back(rr);
+    if(i == 0){rt0 = rt;}
+
+    _segment_coords[i][0] = l;
+    _segment_coords[i][1] = xpos;
+    _segment_coords[i][2] = ypos;
+    _segment_coords[i][3] = rt;
+    _segment_coords[i][4] = rr;
 
     // Time evaluation
     // T0 = 0 by definition when the cascade begins (first element = head).
     //birth = l/c_vac; // time where the i'th segment starts scattering.
 
     // (Retarded) time where the scattered radio signal by the segment is produced.
-    // production = bith - Rt/c_med;
+    // production = birth - Rt/c_med;
 
     // (Advanced) time where the scattered signal by the segments arrives in the receiver.
-    Arrivals.push_back(l/c_vac + rr/c_med);
+    _arrival.push_back(l/c_vac + rr/c_med);
 
     // E field amplitude at reciever from constant and distance dependant factors.
-    // TO ADD ATTENUATION
+
+    // Dieder's Amplitude
+
+    _amplitude.push_back(E0 / (rt * rr) ); // Correct
+    // _amplitude.push_back(E0 / (rr * rr) ); // Dieder, with mistake
 
       // Original
     // Er = E0 / (4*pi*Rt*Rr) * sqrt(rx.area);
 
-      // Dieder Test
-    Amplitude.push_back(E0 / rr);
+    /* Dieder's phase
+    phase = k*(rt + rr) - omega(t + l/c_vac + (rt(0) - rt)/c_med - rr/c_med)
 
-    // Phase
-      // Orignal
-    //phase = omega*l/cvac + k_obs*(Rr + Rt);
-      // Dieder test
-    Phase.push_back(-tx.wavenr()*(rt + rr));
-    // std::cout << -tx.wavenr()*(rt + rr) << " ";
-  }
+    where:
 
+      k*(rt + rr) = tx.wavenr()*(rt + rr); spatial phase
+      l/c_vac; cascade propagation term
+      (rt(0) - rt)/c_med; change in phase for each point w.r.t starting point (i = 0).
+      rt(0) = | cs_pos - tx.pos | = cs.distance if computed from the head.
+      rr/c_med; retardation effects ( = time@receiver - t@cascade)
 
-}
+      This becomes ( with omega/c_med = k):
+      // _phase.push_back( tx.wavenr()*(2*(rt + rr) - rt0 - l/refindex) );
+    */
 
-
-/* Compute the overdense area of the cascade in slices.
-The reflectance corrections are only applied to the od sections. */
-void Scatter1D::get_od_cs(){
-  double X, r_bin, L_bin, k_mid, od_cs_tmp;
-  od_cs.reserve(nbin);
-
-  std::vector<double> r_crit = cs.get_rcrit();
-  std::vector<std::vector<double>> reflectance2D = cs.get_reflectance_2D();
-
-  // Loop over regions.
-  for (int i = 0; i < nbin; i++){
-
-    // Number of layers per segment.
-    int k_max = (int) r_crit[i]/r_bin;
-    od_cs_tmp = 0;
-    for (int k = 0; k < nbin; k++){
-      // Only layers from od_region are looked, outside-in.
-      k >= (nbin - k_max) ? k_mid = nbin - (k + 0.5) : k_mid = 0;
-      // To evaluate for the full space as od
-      // k_mid = nbin - (k + 0.5);
-
-      od_cs_tmp += 2*k_mid*r_bin*reflectance2D[i][k]*L_bin;      // [cm^2]
-      // Factor of 2 required to account for plasma tube symmetry!
-    }
-    od_cs.push_back(od_cs_tmp);
+    // _phase.push_back( tx.wavenr()*(2*(rt + rr) - rt0 - l/refindex) ); // old
+    // _phase.push_back( tx.wavenr()*(rt + rr - rt0 - l/refindex) ); // Simplified, supposedly
+      _phase.push_back( tx.wavenr()*(2*rt + rr - rt0) ); // Simplified from Dieder code
   }
 }
 
 /* Run time loop */
-void Scatter1D::run_time_loop(){
+void Scatter::run_time_loop(){
+// Requires set_segments and set_radar_cs();
 
-// TEST
-  // od_cs_time.reserve(nbin);
-  // Er_time.reserve(nbin);
-  phase_time.reserve(nbin);
+  double t;
+  double t_start  = *min_element(_arrival.begin(), _arrival.end()) - 5E-9;
+  double t_end    = *max_element(_arrival.begin(), _arrival.end()) + 5*tau;
+  // std::cout << t_start << '\t' << t_end << std::endl;
 
-  vector<double> od_time_row;
-  vector<double> Er_time_row;
-  vector<double> phase_time_row;
-  // od_time_row.resize(nbin);
-  // Er_time_row.reserve(nbin);
-  // phase_time_row.resize(nbin);
+  double sampling = (100*tx.frequency());
+  int steps = (t_end - t_start)*sampling;
 
-  double timestep= 1.0/(100*tx.frequency());    // sampling frequency
-  double t_start = *min_element(Arrivals.begin(), Arrivals.end()) - 5E-9;
-  double t_end   = *max_element(Arrivals.begin(), Arrivals.end()) + 5*tau;
-  // vector<double> time;
-  test_array.reserve((t_end - t_start)/timestep);
+  _time       = std::vector<double>(steps, 0);    // The time
+  _waveform   = std::vector<double>(steps, 0);    // The electric field
 
-  double dieder_phase;
-
-  std::cout << t_start << '\t' << t_end << std::endl;
+  _er_time    = std::vector<std::vector<double>>(steps, vector<double> (nbin, 0));
+  _phase_time = std::vector<std::vector<double>>(steps, vector<double> (nbin, 0));
+  _rcs_time   = std::vector<std::vector<double>>(steps, vector<double> (nbin, 0));
 
   // Loop over time.
-  for (double t = t_start; t<t_end;t += timestep){
-    test_array.push_back(t);
-    // Loop over depth segments.
+  for (int j = 0; j < steps; j ++){
+    t = j/sampling + t_start;
+    _time[j] = t;
     for (int i = 0; i < nbin; i++){
 
-      // Select some length values
+      // Select some length values?
        // if(i == 0){
 
         // If active, add its contribution.
-        if(t>Arrivals[i] && t<(Arrivals[i]+tau)){
+        if(t>_arrival[i] && t<(_arrival[i]+tau)){
 
-// TEST
-          // od_time_row.push_back(od_cs[i]);
+          _rcs_time[j][i] = _rcs[i];
+          _phase_time[j][i] = _phase[i] - tx.omega()*t;
+          //_phase_time[j][i] = _phase[i] - tx.omega()*(t-t_start);
 
-          //phase = omega*t + k_obs*Rt;
-          dieder_phase = tx.omega()*t + Phase[i];
-          // phase_time_row.push_back(tx.omega()*(t - Arrivals[i]) + dieder_phase);
-          phase_time_row.push_back(dieder_phase);
-          Er_time_row.push_back(Amplitude[i]* cos(dieder_phase));
-        }
-        else {
-            Er_time_row.push_back(0);
-            od_time_row.push_back(0);
-            phase_time_row.push_back(0);
+          _er_time[j][i] = _amplitude[i]* _rcs[i] * cos(_phase[i] - tx.omega()*t);
         }
 
       // }  // Selection closing
 
     }
 
-    Er_time.push_back(Er_time_row);
-    od_cs_time.push_back(od_time_row);
-    phase_time.push_back(phase_time_row);
+    // The final E field value is the sum of all particles for the timestep.
+    _waveform[j] = std::accumulate(std::begin(_er_time[j]), std::end(_er_time[j]), 0.0);
+  }
+}
 
-    Er_time_row.clear();
-    od_time_row.clear();
-    phase_time_row.clear();
+// Accesors
+Antenna Scatter::transmitter(){return tx;}
+Antenna Scatter::receiver(){return rx;}
+Cascade Scatter::cascade(){return cs;}
+std::vector<double> Scatter::radar_cs(){ return _rcs; }
+
+  // Not set before set_segments()
+std::vector<std::vector<double>> Scatter::segement_coords(){return _segment_coords;}
+std::vector<double> Scatter::amplitude(){ return _amplitude; }
+std::vector<double> Scatter::arrivals(){ return _arrival ; }
+std::vector<double> Scatter::phase(){return _phase;}
+
+
+  // Not set before run_time_loop()
+std::vector<double> Scatter::time(){ return _time ; }
+std::vector<double> Scatter::waveform(){ return _waveform ; }
+std::vector<std::vector<double>> Scatter::rcs_time(){ return _rcs_time; }
+std::vector<std::vector<double>> Scatter::phase_time(){ return _phase_time; }
+std::vector<std::vector<double>> Scatter::wave_time(){ return _er_time; }
+
+// // --------------------------------------------------------------------------
+
+//==============================================================================
+// Line1D is Dieder's model
+
+Line1D::Line1D(Antenna& tx, Antenna& rx, Cascade& cs): Scatter(tx, rx, cs){
+  _rcs = std::vector<double>(nbin, 1); // The line's segments have rcs untiy.
+  run_time_loop();
+  }
+
+// -----------------------------------------------------------------------------
+// THE ROTATED VERSION
+
+Cascade1D::Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs):
+  Scatter(tx, rx, cs){
+    set_rotated_density();
+
+    // write_2D_array(get_density_cs(), "_density_cs.txt", 1);
+    // write_2D_array(get_density_tx(), "_density_tx.txt", 1);
+
+    set_reflectivity();
+    set_radar_cs();
+    run_time_loop();
+  }
+
+double Cascade1D::wplasma(double& dens){return (8980 * sqrt(1/mme) * sqrt(dens));}
+
+double Cascade1D::skin_depth(double& dens){
+  double w, a, b, p, q;
+
+  w = pow(wplasma(dens),2)/( pow(tx.omega(),2) + pow(w_coll,2) );
+  a = 1 - w;
+  b = (w_coll/tx.omega()) * w;
+
+  // p = (w_obs/c_vac)*np.sqrt((np.sqrt(a**2 + b**2) + a) /2 )
+  q = (tx.omega()/c_vac)*sqrt((sqrt(pow(a,2) + pow(b,2)) - a) /2 );
+
+  return (1/q);
+}
+
+double Cascade1D::skin_depth_old(double& dens){return cmed_cm/(2*wplasma(dens));}
+
+
+/* Make 2D-array of density profile */
+void Cascade1D::set_rotated_density(){
+	double l, r, x, y;
+
+  coords = std::vector<std::vector<double>> (nbin, vector<double> (4, 0));
+  density_cs = std::vector<std::vector<double>> (nbin, vector<double> (nbin, 0));
+  density_tx = std::vector<std::vector<double>> (nbin, vector<double> (nbin, 0));
+
+  /* The rotation we have to perform over the angle is: */
+  // Alpha is the rotation of the r lines over the centers in the vertical or horizontal;
+  alpha = pi/2 + tx.angle() - cs.sph_angles()[1];
+  double L_2 = cs.get_L_tot()/2.0 * 100.0; // [cm]
+
+//  std::cout
+//            << cs.get_L_tot()*100/2.0 << '\t'  <<cs.get_r_tot() << '\n'
+//            << tx.angle() << '\t' << cs.sph_angles()[1] << '\t' << alpha << '\n'
+//            << cos(alpha) <<'\t' << sin(alpha) << '\n'
+//            << abs(cs.get_L_tot()*cos(alpha) *100.0) << '\t'
+//            << abs(cs.get_r_tot()*sin(alpha)) << '\n'
+// // << max(cs.get_L_tot()/2.0 * 100.0 * cos(alpha), cs.get_r_tot()*cos(alpha)) << '\t'
+// // <<  max(cs.get_L_tot()/2.0 * 100.0 * sin(alpha), cs.get_r_tot()*sin(alpha)) << '\n'
+// <<  std::endl;
+
+if(abs(cs.get_L_tot()*cos(alpha) *100.0) > abs(cs.get_r_tot()*sin(alpha))){
+  // EDGE-ON MODE: Centers along the l dimension.
+
+  for (int i = 0; i < nbin; i++){
+    l = (2.0*i/nbin - 1) * L_2 ;                // Length from -L/2 to L/2.
+    for (int j = 0; j < nbin; j++){
+      r = (1 - 2.0*j/nbin) * cs.get_r_tot();    // Radius between +r and -r.
+
+        // The minus sign is to correct for the loop order
+        // which is fixed because we need to loop "outside-in".
+        x = l - r*sin(alpha);
+        y = r*sgn(cos(alpha));
+
+        coords[i][0] = l;
+        coords[i][1] = r;
+        coords[i][2] = x;
+        coords[i][3] = y;
+        density_cs[j][i] = cs.dens((l + L_2)*rho_ice,r); // Cascade frame (non-rotated) "green"
+        density_tx[j][i] = cs.dens((x + L_2)*rho_ice,y);
+        // density_cs[i][j] = cs.dens((l + L_2)*rho_ice,r); // Cascade frame (non-rotated) "green"
+        // density_tx[i][j] = cs.dens((x + L_2)*rho_ice,y);
+      }
+    }
+  } else {
+  // FACE-ON: // Centers along the r dimension.
+    std::cout << "WARNING: Face-on" << std::endl;
+    for (int j = 0; j < nbin; j++){
+      r = (1 - 2.0*j/nbin) * cs.get_r_tot();    // Radius between +r and -r.
+      for (int i = 0; i < nbin; i++){
+        l = (2.0*i/nbin - 1) * L_2 ;                // Length from -L/2 to L/2.
+
+        y = r - l*cos(alpha);  //
+        x = l;//*sin(alpha);      //
+        // Due to the limted range, there is not need for sgn() function.
+
+        coords[i][0] = l;
+        coords[i][1] = r;
+        coords[i][2] = x;
+        coords[i][3] = y;
+        density_cs[i][j] = cs.dens((l + L_2)*rho_ice,r); // Cascade frame (non-rotated) "green"
+        density_tx[i][j] = cs.dens((x + L_2)*rho_ice,y);
+      }
+    }
+    // NO NEED FOR TRANSPOSING, THE SWAPPED INDICES ABOVE SHOULLD DO THE TRICK.
+    // density_tx = transpose(density_tx);
+    // density_cs = transpose(density_cs);
   }
 
 }
+
+// TODO FIx the orientation mode.
+void Cascade1D::set_reflectance(){
+	double reflectance, reflectivity;      // Unitless
+  reflectance_matrix = std::vector<std::vector<double>> (nbin, vector<double> (nbin, 0));
+  reflectivity_matrix = std::vector<std::vector<double>> (nbin, vector<double> (nbin, 0));
+
+	// Loop over the density matrix
+	for (int i = 0; i < nbin; i++){
+		reflectance = 0, reflectivity = 0;
+		for (int j = 0; j < nbin; j++){
+
+// TO CHECK: dr = r_bin is valid? exact ????
+			reflectance = (1-reflectivity)*(1-exp(-1*cs.get_r_bin()/skin_depth(density_tx[j][i])));
+			reflectivity += reflectance;
+
+      // std::cout << i << std::endl;
+      // std::cout << j << std::endl;
+
+			assert(reflectivity < 1 && "Reflectivity larger than 1!");
+
+      reflectance_matrix[j][i] = reflectance;
+      reflectivity_matrix[j][i] = reflectivity;
+
+		}
+	}
+}
+
+void Cascade1D::set_reflectivity(){set_reflectance(); }
+
+/* Compute the overdense area of the cascade in slices.
+Integrate the reflectance matrix over the l.o.s. (sum over all the segments)
+The cell (parallelogram) has constant size idependently of the tilt, but it
+changes with r!
+*/
+
+void Cascade1D::set_radar_cs(){
+  double r;
+  if (reflectivity_matrix.empty()) {set_reflectance();}
+  _rcs = std::vector<double> (nbin);
+  for (int i = 0; i < nbin; i++){
+    for (int j = 0; j < nbin; j++){
+      r = (1 - abs(2.0*j/nbin - 1)) * cs.get_r_tot();    // Radius between +r and -r.
+      // CHANGE THIS BY A SINE FUNCTION
+      _rcs[i] += r*cs.get_L_bin()*100 *reflectance_matrix[i][j];      // [cm^2]
+    }
+  }
+}
+// VALID FOR EDGE ON AND FACE ON?! (If we correct the loop order)
+
+// The reflectance corrections are only applied to the od sections.
+// std::vector<double> r_crit = cs.get_rcrit();
+// // Number of layers per segment.
+// int k_max = (int) r_crit[i]/r_bin;
+ // Only layers from od_region are looked, outside-in.
+// k >= (nbin - k_max) ? k_mid = nbin - (k + 0.5) : k_mid = 0;
+
+// for(int i=0; i < rcs.size(); i++) {std::cout << rcs.at(i) << ' ';}
+// std::remove_copy(reflectivity_matrix.back().begin(), reflectivity_matrix.back().end(), v2.begin(), 0);
+// std::cout << v2[0] << std::endl;
+// std::cout << rcs.empty() << std::endl;
+// std::cout << cell_size << std::endl;
+// std::cout << rcs[0] << " " << rcs[nbin - 1] << std::endl;
+
+
+std::vector<std::vector<double>> Cascade1D::get_density_cs(){ return density_cs; }
+std::vector<std::vector<double>> Cascade1D::get_density_tx(){ return density_tx; }
+
+std::vector<std::vector<double>> Cascade1D::get_reflectance(){ return reflectance_matrix; }
+std::vector<std::vector<double>> Cascade1D::get_reflectivity(){ return reflectivity_matrix; }
+
+std::vector<double> Cascade1D::get_radar_cs(){
+  if (_rcs.empty()) {set_radar_cs();}
+  return _rcs;
+}
+// =============================================================================

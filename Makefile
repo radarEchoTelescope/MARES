@@ -4,7 +4,7 @@ DIR= ../IceRayTracing/namespace/woROOT/
 CC = g++
 CFLAGS = -I$(DIR) #-Wall -O -g
 # -O performs optimizations, -g enables debugging
-LDLIBS= -lgsl
+LDLIBS= -lgsl -lgslcblas
 
 all: $(TARGET) #clean
 

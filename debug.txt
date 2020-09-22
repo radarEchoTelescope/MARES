@@ -1,2 +1,0 @@
-g++ -I../IceRayTracing/namespace/woROOT/  -c antenna.cc
-g++ -I../IceRayTracing/namespace/woROOT/  -c cascade.cc

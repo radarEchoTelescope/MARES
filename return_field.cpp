@@ -2,10 +2,6 @@
 #include "macro_scatter.hh"
 // const std::string identifier = "Particle1to500";
 
-// ----- Computational constants -----------------------------------------------
-const int nbin = 1E4;                 // # of bins for integration/array filling
-
-
 int main(int argc, char** argv){
 
   // I/O Setup
@@ -19,6 +15,9 @@ int main(int argc, char** argv){
 
   std::string path_out = cs_filepath.substr(0,cs_filepath.find_last_of("."));
 
+  // std::string identifier = "../Visualization/testing/testing_500_particles";
+  // std::string identifier = "case_2b_new_skin";
+
   // For every cascade
   for (auto& cs: cascade_list){
     // For every transmitter
@@ -26,39 +25,49 @@ int main(int argc, char** argv){
       // For every receiver
       for (auto& rx : bistatic.get_receivers()){
         // Make the bistatic event.
-        Scatter1D event(tx,rx,cs);
+
+        Line1D event0(tx,rx,cs);
+
+        std::string identifier0 = path_out + "_Line1D_" + std::to_string((int)cs.event())  + "_pi_over_24";
+        write_2D_array(event0.segement_coords(), identifier0 + "_coords.txt", 1);
+        write_1D_array(event0.amplitude(), identifier0 + "_Er_slices.txt", 1);
+        write_1D_array(event0.arrivals(), identifier0 + "_t_arrivals.txt", 1);
+        write_1D_array(event0.phase(), identifier0 + "_phases.txt", 1);
+        write_1D_array(event0.time(), identifier0 + "_time.txt", 1);
+        write_1D_array(event0.waveform(), identifier0 + "_waveform.txt", 1);
+        write_2D_array(event0.phase_time(), identifier0 + "_phase_time_profile.txt", 1);
+        write_2D_array(event0.wave_time(), identifier0 + "_Er_time_profile.txt", 1);
+
+        Cascade1D event(tx,rx,cs);
+
+        std::string identifier = path_out + "_Cascade1D_" + std::to_string((int)cs.event()) + "_pi_over_24";
+        write_2D_array(event.get_density_cs(), identifier + "_density_cs.txt", 1);
+        write_2D_array(event.get_density_tx(), identifier + "_density_tx.txt", 1);
+        write_2D_array(event.get_reflectance(), identifier + "_reflectance_matrix.txt", 1);
+        write_2D_array(event.get_reflectivity(), identifier + "_reflectivity_matrix.txt", 1);
+        write_1D_array(event.radar_cs(), identifier + "_radar_cs.txt", 1);
+        write_2D_array(event.segement_coords(), identifier + "_coords.txt", 1);
+        write_1D_array(event.amplitude(), identifier + "_Er_slices.txt", 1);
+        write_1D_array(event.arrivals(), identifier + "_t_arrivals.txt", 1);
+        write_1D_array(event.phase(), identifier + "_phases.txt", 1);
+        write_1D_array(event.time(), identifier + "_time.txt", 1);
+        write_1D_array(event.waveform(), identifier + "_waveform.txt", 1);
+        write_2D_array(event.wave_time(), identifier + "_Er_time_profile.txt", 1);
+        write_2D_array(event.rcs_time(), identifier + "_rcs_time_profile.txt", 1);
+        write_2D_array(event.phase_time(), identifier + "_phase_time_profile.txt", 1);
 
         /* Write out all the information. */
 
         // On screen
-        // cout << event.transmitter().power() << endl;
+        // std::cout << "Check" << std::endl;
+        // std::cout << densit[10][10] << std::endl;
         // cout << t_start << '\t' << t_end << '\t'<< loops <<endl;
-        // This is needed for plotting purposes
-
-        // On file.
-
-        std::string identifier = path_out + "_case_" + std::to_string((int)cs.event());
-
-        write_1D_array(event.get_length(), identifier + "_length.txt", 1);
-        write_1D_array(event.get_xpos(), identifier + "_xpos.txt", 1);
-        write_1D_array(event.get_ypos(), identifier + "_ypos.txt", 1);
-        write_1D_array(event.get_Rt(), identifier + "_Rt.txt", 1);
-        write_1D_array(event.get_Rr(), identifier + "_Rr.txt", 1);
-        write_1D_array(event.get_time(), identifier + "_time.txt", 1);
-        write_1D_array(event.get_amplitude(), identifier + "_Er_slices.txt", 1);
-        // write_1D_array(od_segmented, identifier + "_od_segmented_kmax.txt");
-
-        // std::vector<std::vector<double>> Er_time = event.get_Er_time();
-        write_2D_array(event.get_Er_time(), identifier + "_Er_time_profile.txt", 1);
-        // write_2D_array(od_cs_1D_time, identifier + "_od_time_profile.txt", 1);
-        write_2D_array(event.get_phase_time(), identifier + "_phase.txt", 1);
-
-        // vector<vector<double>> density = get_density_profile(cs);
-        // write_2D_array(density, identifier + "_density_profile.txt");
-
+        // std::vector<double> rcs = event.get_reflectivity().back();
+        // for(int i=0; i < rcs.size(); i++) {std::cout << rcs.at(i) << ' ';}
+        // std::cout << event.get_reflectivity().back()[250] << '\t' << event.get_reflectivity()[nbin - 1][250] << std::endl;
       }
     }
   }
-  cout << "END" << endl;
+  // cout << "END" << endl;
 }
 // End of main

@@ -7,7 +7,8 @@ This header file defines the antenna positions.
 #include "macro_settings.hh"
 
 // ----- Default frequency -----------------------------------------------------
-const double freq_obs = 1E9;
+// const double freq_obs = 1E9;
+const double freq_obs = 450 * 1E6;
 
 // -----------------------------------------------------------------------------
 class Antenna{
@@ -24,6 +25,7 @@ public:
   double* polarization();
   double  distance();
   double  projection();
+  double  angle();
 
   double frequency();
   double lambda();
@@ -39,10 +41,11 @@ private:
   double pos[3];
   double polar[2];    // Polarization
 
-  double dir[3] = {0};           // Vector direction to cs.
+  double dir[3] = {0};         // Vector direction to cs.
   double dist = 0;             // Module of distance to cs.
   double dot = 0;              // Dot (inner) product with cascade direction.
-                              // The cosine of the angle between them.
+                               // The cosine of the angle between them.
+  double ang = 0;            // The angle.
 
   double IRT_dist[2];
   double IRT_angle[2];

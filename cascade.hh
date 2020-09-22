@@ -7,7 +7,7 @@ This file defines the cascade class and all its associated functions
 #include "macro_settings.hh"
 
 // ----- Computational constants -----------------------------------------------
-extern const int nbin;                 // # of bins for integration/array filling
+// extern const int nbin;                 // # of bins for integration/array filling
 
 // -----------------------------------------------------------------------------
 class Cascade {
@@ -38,10 +38,11 @@ public:
   double get_r_tot();
   double get_r_bin();
   double get_L_bin();
+  double get_L_tot();
   double get_rwaist();
 
 private:
-  friend class Scatter; // Antena can access private members.
+  friend class Scatter; // Scatter can access private members.
 
   int    evtnr;            // Event number.
   double E_p;          // Energy of the cascade.

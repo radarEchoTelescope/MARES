@@ -31,6 +31,9 @@ Cascade::Cascade(int event, double cenergy, double xpos, double ypos, double zpo
 double Cascade::dens(double X, double r){      // [g/cm^2, cm, GeV]
 	double dens, delta_r = 0.05;
 	// s = sh_age(X,E_p);*step
+	// TEST
+	if (r < 0 ) {r = -r;}
+	if (X < 0){X = 0;}
 	dens = Ne(X,E_p) * intwiv(r, delta_r) / (pi*(pow(r + delta_r,2) - pow(r,2)));
 	assert(dens >= 0 && "Negative density value");
 	return dens;        // [#e-/ cm^3]
@@ -126,11 +129,12 @@ double  Cascade::Xtot(){return X_tot;}
 double  Cascade::get_X_bin(){return X_bin;}
 double 	Cascade::get_r_tot(){return r_tot;}
 double  Cascade::get_r_bin(){return r_bin;}
+double  Cascade::get_L_tot(){return L_tot;}
 double  Cascade::get_L_bin(){return L_bin;}
 double  Cascade::get_rwaist(){return r_waist;}
 
 std::vector<std::vector<double>> Cascade::get_density(){
-	if(density.empty()){ set_density(); }
+	// if(density.empty()){ set_density(); }
 	return density;
 }
 
@@ -231,27 +235,30 @@ namespace {
 	    N = 0.31*exp((X/X_0)*(1-1.5*log(sh_age(X,E_p))))/sqrt(log(E_p/E_c));
 			Ne = N * 1E5 * rho_ice;
 	  }
+
+		// TEST
+		// if(Ne < 0) {Ne = -Ne;}
 	  return Ne;       // [#e / cm]
 	}
 
 	/* Lateral particle distribution for radius r and shower age s. */
+	// Last division is for Normalization, missing in paper.
 	double wiv1(double r, double s){      // [cm, Unitless]
 	  double wiv1;
-	  if(s == 1.01) { // default value for s
-			wiv1 = 2.5217 * pow(r/r_moliere,s-1) *pow(r/r_moliere+1,s-4.5) /r_moliere;
-		} else {
-	    wiv1 = exp(lgamma(4.5-s)-lgamma(s)-lgamma(4.5-2*s))
-								*pow(r/r_moliere,s-1) *pow(r/r_moliere+1,s-4.5)/r_moliere;
-	  }
+    wiv1 = exp(lgamma(4.5-s)-lgamma(s)-lgamma(4.5-2*s))
+							*pow(r/r_moliere,s-1) *pow(r/r_moliere+1,s-4.5)/r_moliere;
 	  return wiv1;     // [1/cm] Differential.
 	}
-	// Last division is for Normalization, missing in paper ?
 
 	/* Integral of lateral particle distribution between r and r + dr. */
 	double intwiv(double r, double delta_r, double s){    // [cm, cm, unitless]
+		double intwiv = 0, imx = 50.0, step = delta_r/imx;
 		assert(r >= 0 && "Intwiv's r < 0");
-	  double intwiv = 0, imx = 50.0, step = delta_r/imx;
+		// TEST
+		// if (r < 0 ){ r = -r;}
 	  for (int i = 0; i < imx; i++){ intwiv += wiv1(r + i*step, s);}
+		// TEST
+		// if (intwiv < 0) {intwiv = -intwiv;}
 	  return intwiv*step;         // [Unitless]
 	}
 
