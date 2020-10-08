@@ -87,9 +87,8 @@ private:
   std::vector<std::vector<double>> coords;
   // To get rid of?
 
-  double wplasma(double& dens);
+  
   double skin_depth(double& dens);
-  double skin_depth_old(double& dens);
 
   double alpha;
   std::vector<std::vector<double>> density_cs;

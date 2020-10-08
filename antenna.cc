@@ -26,7 +26,7 @@ double* Antenna::polarization(){return polar;}
 double  Antenna::distance(){return dist;}
 double  Antenna::projection(){return dot;}
 double  Antenna::angle(){return ang;}
-double  Antenna::frequency(){return f_obs;}
+double  Antenna::freq(){return f_obs;}
 double  Antenna::lambda(){return l_obs;}
 double  Antenna::omega(){return w_obs;}
 double  Antenna::wavenr(){return k_obs;}

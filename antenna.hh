@@ -27,7 +27,7 @@ public:
   double  projection();
   double  angle();
 
-  double frequency();
+  double freq();
   double lambda();
   double omega();
   double wavenr();

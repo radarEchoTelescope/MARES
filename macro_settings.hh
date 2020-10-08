@@ -43,8 +43,8 @@ const double rho_ice=0.92;             // [g/cm^3] Density
 const double E_c= 0.0786;              // [GeV] Critical cascade energy
 const double X_0 = 36.08;              // [g/cm^2] radiation length
 const double X_int=25.01;              // [g/cm^2] interaction length
-const double w_coll=1E12;             // [rad/s] collision frequency
-// const double w_coll=0;             // [rad/s] collision frequency
+// const double w_coll=1E12;             // [rad/s] collision frequency
+const double f_coll=0;             // [rad/s] collision frequency
 
     // Plasma parameters--------------------------------------------------------
 const double r_moliere=7;              // [cm] Moliere Radius

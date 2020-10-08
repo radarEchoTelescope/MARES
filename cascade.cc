@@ -39,6 +39,10 @@ double Cascade::dens(double X, double r){      // [g/cm^2, cm, GeV]
 	return dens;        // [#e-/ cm^3]
 }
 
+double Cascade::fplasma(double& dens){return (8980 * sqrt(1/mme) * sqrt(dens));} // [Hz]
+
+
+
 /* Make 2D-array of density profile */
 void Cascade::set_density(){
 	//double X, r;
@@ -54,6 +58,9 @@ void Cascade::set_density(){
     row.clear();
   }
 }
+
+
+
 
 /* Get the radial values of the od/ud line (r_crit).
 This is where the plasma frequency equals the detection frequency. */
@@ -84,7 +91,7 @@ void Cascade::set_rcrit(const double & freq_obs){
 void Cascade::set_reflectivity_2D(){
 	// double X, X_bin, r, r_bin, k_mid;
 	double skin, dr;                      // [cm]
-	double wplasma;                       // [Hz]
+	double wplasma;                       // [rad/s]
 
 	double reflectance, reflectivity;      // Unitless
 	std::vector<double> reflectance_row, reflectivity_row;

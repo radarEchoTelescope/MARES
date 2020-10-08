@@ -20,6 +20,8 @@ public:
   /* Particle (electron) density for penetration length X and radius r. */
   double dens(double X, double r);      // [g/cm^2, cm, GeV]
 
+  double fplasma(double& dens);
+
   std::vector<double> get_rcrit();
   std::vector<std::vector<double>> get_density();
   std::vector<std::vector<double>> get_reflectivty_2D();
@@ -64,6 +66,8 @@ private:
 
   std::vector<std::vector<double>> density;         // [#e-/ cm^3] The variable
   void set_density();   // The function that generates the variable.
+
+
 
   double r_waist;         // [cm]
   std::vector<double> r_crit;

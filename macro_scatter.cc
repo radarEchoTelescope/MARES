@@ -180,7 +180,7 @@ void Scatter::run_time_loop(){
   double t_end    = *max_element(_arrival.begin(), _arrival.end()) + 5*tau;
   // std::cout << t_start << '\t' << t_end << std::endl;
 
-  double sampling = (100*tx.frequency());
+  double sampling = (100*tx.freq());
   int steps = (t_end - t_start)*sampling;
 
   _time       = std::vector<double>(steps, 0);    // The time
@@ -263,22 +263,26 @@ Cascade1D::Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs):
     run_time_loop();
   }
 
-double Cascade1D::wplasma(double& dens){return (8980 * sqrt(1/mme) * sqrt(dens));}
 
 double Cascade1D::skin_depth(double& dens){
+  double delta,  f_plasma = cs.fplasma(dens);
   double w, a, b, p, q;
 
-  w = pow(wplasma(dens),2)/( pow(tx.omega(),2) + pow(w_coll,2) );
-  a = 1 - w;
-  b = (w_coll/tx.omega()) * w;
+  // Exact solution from dispersion relation with collisions.
+  if (f_coll != 0){
+    w = pow(f_plasma,2)/( pow(tx.freq(),2) + pow(f_coll,2) );
+    a = 1 - w;
+    b = (f_coll/ tx.freq()) * w;
 
-  // p = (w_obs/c_vac)*np.sqrt((np.sqrt(a**2 + b**2) + a) /2 )
-  q = (tx.omega()/c_vac)*sqrt((sqrt(pow(a,2) + pow(b,2)) - a) /2 );
-
-  return (1/q);
+    // p = (w_obs/c_med)*np.sqrt((np.sqrt(a**2 + b**2) + a) /2 )
+    q = (tx.freq()/c_med)*sqrt((sqrt(pow(a,2) + pow(b,2)) - a) /2 );
+    delta = 1/q;
+  } else {
+  // Collisionless model
+    f_plasma > tx.freq() ? delta = cmed_cm/(f_plasma) : delta = 0;
+  }
+  return delta;
 }
-
-double Cascade1D::skin_depth_old(double& dens){return cmed_cm/(2*wplasma(dens));}
 
 
 /* Make 2D-array of density profile */
@@ -366,7 +370,8 @@ void Cascade1D::set_reflectance(){
 		for (int j = 0; j < nbin; j++){
 
 // TO CHECK: dr = r_bin is valid? exact ????
-			reflectance = (1-reflectivity)*(1-exp(-1*cs.get_r_bin()/skin_depth(density_tx[j][i])));
+      reflectance = (1-reflectivity)*(1-exp(-1*cs.get_r_bin()/skin_depth(density_tx[j][i])));
+
 			reflectivity += reflectance;
 
       // std::cout << i << std::endl;
@@ -424,7 +429,7 @@ std::vector<std::vector<double>> Cascade1D::get_density_tx(){ return density_tx;
 std::vector<std::vector<double>> Cascade1D::get_reflectance(){ return reflectance_matrix; }
 std::vector<std::vector<double>> Cascade1D::get_reflectivity(){ return reflectivity_matrix; }
 
-std::vector<double> Cascade1D::get_radar_cs(){
+std::vector<double> Cascade1D::radar_cs(){
   if (_rcs.empty()) {set_radar_cs();}
   return _rcs;
 }
