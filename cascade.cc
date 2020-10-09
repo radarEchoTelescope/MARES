@@ -39,8 +39,7 @@ double Cascade::dens(double X, double r){      // [g/cm^2, cm, GeV]
 	return dens;        // [#e-/ cm^3]
 }
 
-double Cascade::fplasma(double& dens){return (8980 * sqrt(1/mme) * sqrt(dens));} // [Hz]
-
+double Cascade::fplasma(double& dens){return (8980 * sqrt(memp) * sqrt(dens));} // [Hz]
 
 
 /* Make 2D-array of density profile */
@@ -68,7 +67,7 @@ void Cascade::set_rcrit(const double & freq_obs){
     // double X, r;
 
 		get_density();
-		double dens_crit = mme*pow(freq_obs/8980,2);
+		double dens_crit = memp*pow(freq_obs/8980,2);
 		/* [(#e-) cm^-3]  Critical e- density for overdense scattering condition
 		 wp > w > 8980*sqrt(ne), w is frequency [Hz]!! */
 
@@ -88,41 +87,41 @@ void Cascade::set_rcrit(const double & freq_obs){
     r_waist = *max_element(r_crit.begin(), r_crit.end());
 }
 
-void Cascade::set_reflectivity_2D(){
-	// double X, X_bin, r, r_bin, k_mid;
-	double skin, dr;                      // [cm]
-	double wplasma;                       // [rad/s]
-
-	double reflectance, reflectivity;      // Unitless
-	std::vector<double> reflectance_row, reflectivity_row;
-
-	// Loop over depth
-	for (int i = 0; i < nbin; i++){
-		X=i*X_bin;
-		reflectance = 0, reflectivity = 0;
-		// Loop over layers
-		for (int k = 0; k < nbin; k++){
-			// We actually need to move from the outside - in!
-			k_mid = nbin - (k + 0.5);
-			// Fix for the last layer variable size (since we shift them).
-			k == nbin ? dr = 0.5*r_bin : dr = r_bin;
-
-			wplasma=8980*sqrt(dens(X,k_mid*r_bin))*sqrt(1/mme);
-			skin=cmed_cm/(2*wplasma);
-
-			reflectance = (1-reflectivity)*(1-exp(-1*dr/skin));
-			reflectivity += reflectance;
-			assert(reflectivity < 1 && "Reflectivity larger than 1!");
-
-			reflectance_row.push_back(reflectance);
-			reflectivity_row.push_back(reflectivity);
-		}
-		reflectance2D.push_back(reflectance_row);
-		reflectivity2D.push_back(reflectivity_row);
-		reflectance_row.clear();
-		reflectivity_row.clear();
-	}
-}
+// void Cascade::set_reflectivity_2D(){
+// 	// double X, X_bin, r, r_bin, k_mid;
+// 	double skin, dr;                      // [cm]
+// 	double wplasma;                       // [rad/s]
+//
+// 	double reflectance, reflectivity;      // Unitless
+// 	std::vector<double> reflectance_row, reflectivity_row;
+//
+// 	// Loop over depth
+// 	for (int i = 0; i < nbin; i++){
+// 		X=i*X_bin;
+// 		reflectance = 0, reflectivity = 0;
+// 		// Loop over layers
+// 		for (int k = 0; k < nbin; k++){
+// 			// We actually need to move from the outside - in!
+// 			k_mid = nbin - (k + 0.5);
+// 			// Fix for the last layer variable size (since we shift them).
+// 			k == nbin ? dr = 0.5*r_bin : dr = r_bin;
+//
+// 			wplasma=8980*sqrt(dens(X,k_mid*r_bin))*sqrt(1/mme);
+// 			skin=cmed_cm/(2*wplasma);
+//
+// 			reflectance = (1-reflectivity)*(1-exp(-1*dr/skin));
+// 			reflectivity += reflectance;
+// 			assert(reflectivity < 1 && "Reflectivity larger than 1!");
+//
+// 			reflectance_row.push_back(reflectance);
+// 			reflectivity_row.push_back(reflectivity);
+// 		}
+// 		reflectance2D.push_back(reflectance_row);
+// 		reflectivity2D.push_back(reflectivity_row);
+// 		reflectance_row.clear();
+// 		reflectivity_row.clear();
+// 	}
+// }
 
 // ----------------------------------------------------------------------------
 // Accesors
@@ -149,16 +148,16 @@ std::vector<double> Cascade::get_rcrit(){
 	if(r_crit.empty()){ set_rcrit(); }
 	return r_crit;
 }
-
-std::vector<std::vector<double>> Cascade::get_reflectivty_2D(){
-	if(reflectivity2D.empty()) {set_reflectivity_2D();}
-	return reflectivity2D;
-}
-
-std::vector<std::vector<double>> Cascade::get_reflectance_2D(){
-	if(reflectance2D.empty()) {set_reflectivity_2D();}
-	return reflectance2D;
-}
+// 
+// std::vector<std::vector<double>> Cascade::get_reflectivty_2D(){
+// 	if(reflectivity2D.empty()) {set_reflectivity_2D();}
+// 	return reflectivity2D;
+// }
+//
+// std::vector<std::vector<double>> Cascade::get_reflectance_2D(){
+// 	if(reflectance2D.empty()) {set_reflectivity_2D();}
+// 	return reflectance2D;
+// }
 
 // -----------------------------------------------------------------------------
 std::vector<Cascade> load_cascade_file(const std::string& cs_filepath){

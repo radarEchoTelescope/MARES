@@ -6,11 +6,6 @@ This header file defines the antenna positions.
 
 #include "macro_settings.hh"
 
-// ----- Default frequency -----------------------------------------------------
-// const double freq_obs = 1E9;
-const double freq_obs = 450 * 1E6;
-
-// -----------------------------------------------------------------------------
 class Antenna{
 
 public:

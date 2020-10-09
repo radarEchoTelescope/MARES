@@ -87,8 +87,9 @@ private:
   std::vector<std::vector<double>> coords;
   // To get rid of?
 
-  
+  double absorption(double& dens);
   double skin_depth(double& dens);
+
 
   double alpha;
   std::vector<std::vector<double>> density_cs;

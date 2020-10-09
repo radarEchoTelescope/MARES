@@ -264,27 +264,6 @@ Cascade1D::Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs):
   }
 
 
-double Cascade1D::skin_depth(double& dens){
-  double delta,  f_plasma = cs.fplasma(dens);
-  double w, a, b, p, q;
-
-  // Exact solution from dispersion relation with collisions.
-  if (f_coll != 0){
-    w = pow(f_plasma,2)/( pow(tx.freq(),2) + pow(f_coll,2) );
-    a = 1 - w;
-    b = (f_coll/ tx.freq()) * w;
-
-    // p = (w_obs/c_med)*np.sqrt((np.sqrt(a**2 + b**2) + a) /2 )
-    q = (tx.freq()/c_med)*sqrt((sqrt(pow(a,2) + pow(b,2)) - a) /2 );
-    delta = 1/q;
-  } else {
-  // Collisionless model
-    f_plasma > tx.freq() ? delta = cmed_cm/(f_plasma) : delta = 0;
-  }
-  return delta;
-}
-
-
 /* Make 2D-array of density profile */
 void Cascade1D::set_rotated_density(){
 	double l, r, x, y;
@@ -358,6 +337,30 @@ if(abs(cs.get_L_tot()*cos(alpha) *100.0) > abs(cs.get_r_tot()*sin(alpha))){
 
 }
 
+
+double Cascade1D::absorption(double& dens){
+  double f_plasma = cs.fplasma(dens);
+  double w, a, b, q;
+
+  // Exact solution from dispersion relation with collisions.
+  if (f_coll != 0){
+    w = pow(f_plasma,2)/( pow(tx.freq(),2) + pow(f_coll,2) );
+    a = 1 - w;
+    b = (f_coll/ tx.freq()) * w;
+
+    // double p = (w_obs/c_med)*np.sqrt((np.sqrt(a**2 + b**2) + a) /2 )
+    q = (tx.freq()/c_med)*sqrt((sqrt(pow(a,2) + pow(b,2)) - a) /2 );
+  } else {
+  // Collisionless model
+    f_plasma > tx.freq() ? q = cmed_cm/(f_plasma) : q = 0;
+  }
+  return q;
+}
+
+double Cascade1D::skin_depth(double& dens){
+  return (1/absorption(dens));
+}
+
 // TODO FIx the orientation mode.
 void Cascade1D::set_reflectance(){
 	double reflectance, reflectivity;      // Unitless
@@ -370,9 +373,13 @@ void Cascade1D::set_reflectance(){
 		for (int j = 0; j < nbin; j++){
 
 // TO CHECK: dr = r_bin is valid? exact ????
-      reflectance = (1-reflectivity)*(1-exp(-1*cs.get_r_bin()/skin_depth(density_tx[j][i])));
+// Previous definition
+      // reflectance = (1-reflectivity)*(1-exp(-1*cs.get_r_bin()/skin_depth(density_tx[j][i])));
+      // reflectivity += reflectance;
 
-			reflectivity += reflectance;
+// New definition
+      reflectance = (1-exp(-1*cs.get_r_bin()*absorption( density_tx[j][i] ) ));
+			reflectivity += (1-reflectivity)*reflectance;
 
       // std::cout << i << std::endl;
       // std::cout << j << std::endl;

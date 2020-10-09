@@ -6,9 +6,6 @@ This file defines the cascade class and all its associated functions
 
 #include "macro_settings.hh"
 
-// ----- Computational constants -----------------------------------------------
-// extern const int nbin;                 // # of bins for integration/array filling
-
 // -----------------------------------------------------------------------------
 class Cascade {
 public:
@@ -24,8 +21,8 @@ public:
 
   std::vector<double> get_rcrit();
   std::vector<std::vector<double>> get_density();
-  std::vector<std::vector<double>> get_reflectivty_2D();
-  std::vector<std::vector<double>> get_reflectance_2D();
+  // std::vector<std::vector<double>> get_reflectivty_2D();
+  // std::vector<std::vector<double>> get_reflectance_2D();
 
   // Accesors
   int  event();
@@ -84,7 +81,7 @@ private:
   the layers.
   */
   std::vector<std::vector<double>> reflectance2D, reflectivity2D;
-  void set_reflectivity_2D();
+  // void set_reflectivity_2D();
 
   // std::vector<double> od_cs_1D;
   // void set_od_cs_1D();

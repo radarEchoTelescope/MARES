@@ -13,45 +13,41 @@
 // #define NDEBUG     // Turn off debug.
 
 // ----- Computational constants -----------------------------------------------
-const int nbin = 3000;                 // # of bins for integration/array filling
-// const int nbin = 1E4;                 // # of bins for integration/array filling
+const int nbin = 3000;               // # of bins for integration/array filling
+// const int nbin = 1E4;             // # of bins for integration/array filling
 
-//---- I/O functions -----------------------------------------------------------
-void write_1D_array(std::vector<double> array, std::string output_path,
-  const bool trigger);
-
-void write_2D_array(std::vector<std::vector<double>> array,
-    std::string output_path, const bool trigger);
+// ----- Default observer frequency --------------------------------------------
+const double freq_obs = 1E9;              // [Hz]
+// const double freq_obs = 450 * 1E6;
 
 // ----- Physical constants ----------------------------------------------------
 
-// ----- Macroscopical [IS]
-const double pi=3.1415926535;
-// const double c_vac=3E8;               // [m/s]
-const double c_vac=2.998E8;               // [m/s]
-// const double refindex=1.7;            // refractive index in ice
-const double refindex=1.78;            // refractive index in ice
-const double c_med=c_vac/refindex;    // [m/s] speed of light in ice
-
-// ----- Microscopical [ cgs]
-const double cvac_cm=c_vac * 100;      // [cm/s]
-const double cmed_cm=c_med * 100;      // [cm/s] c in ice
-const double thompson=6.6524574E-25;   // [cm^2] Thompson e- scattering cs
+    // Plasma parameters -------------------------------------------------------
+const double f_coll = 650E12;             // [Hz] collision frequency
+// const double f_coll=1E12;              // [Hz] collision frequency
+const double tau = 20*1E-9;               // [s] Plasma lifetime
+const double memp = 1;                    // Plasma to electron mass ratio
+const double r_moliere = 7;               // [cm] Moliere Radius
 
       // Ice parameters --------------------------------------------------------
-const double rho_ice=0.92;             // [g/cm^3] Density
-const double E_c= 0.0786;              // [GeV] Critical cascade energy
-const double X_0 = 36.08;              // [g/cm^2] radiation length
-const double X_int=25.01;              // [g/cm^2] interaction length
-// const double w_coll=1E12;             // [rad/s] collision frequency
-const double f_coll=0;             // [rad/s] collision frequency
+const double rho_ice = 0.92;              // [g/cm^3] Density
+const double refindex=1.78;               // refractive index
+const double E_c = 0.0786;                // [GeV] Critical cascade energy
+const double X_0 = 36.08;                 // [g/cm^2] radiation length
+const double X_int = 25.01;               // [g/cm^2] interaction length
 
-    // Plasma parameters--------------------------------------------------------
-const double r_moliere=7;              // [cm] Moliere Radius
-const double tau=20*1E-9;              // [s] Plasma lifetime
-const double mme=1;                    // Plasma to electron mass ratio
+    // Macroscopical [IS] ------------------------------------------------------
+const double c_vac=2.998E8;               // [m/s]
+const double c_med=c_vac/refindex;        // [m/s] speed of light in ice
 
-// Math functions --------------------------------------------------------------
+    // Microscopical [cgs] -----------------------------------------------------
+const double cvac_cm=c_vac * 100;         // [cm/s]
+const double cmed_cm=c_med * 100;         // [cm/s] c in ice
+const double thompson=6.6524574E-25;      // [cm^2] Thompson e- scattering cs
+
+
+// Math tools ------------------------------------------------------------------
+const double pi=3.1415926535;
 
 int sgn(double val);
 // template <typename T>  int sgn(T val) { return (T(0) < val) - (val < T(0));}
@@ -75,5 +71,12 @@ private:
   std::mt19937 generator;
   std::uniform_real_distribution<> distribution;
 };
+
+//---- I/O functions -----------------------------------------------------------
+void write_1D_array(std::vector<double> array, std::string output_path,
+  const bool trigger);
+
+void write_2D_array(std::vector<std::vector<double>> array,
+    std::string output_path, const bool trigger);
 
 #endif
