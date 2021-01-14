@@ -1,4 +1,5 @@
-TARGET = return_field
+#TARGET = return_field
+TARGET = MS_single_event
 DIR= ../IceRayTracing/namespace/woROOT/
 
 CC = g++
@@ -6,7 +7,7 @@ CFLAGS = -I$(DIR) #-Wall -O -g
 # -O performs optimizations, -g enables debugging
 LDLIBS= -lgsl -lgslcblas
 
-all: $(TARGET) #clean
+all: $(TARGET) clean
 
 OBJECTS= $(TARGET).o macro_scatter.o antenna.o cascade.o macro_settings.o $(DIR)IceRayTracing.o
 

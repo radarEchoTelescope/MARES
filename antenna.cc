@@ -1,28 +1,29 @@
 #include "antenna.hh"
 
 Antenna::Antenna(double power, double xpos, double ypos, double zpos,
-                 double theta, double phi, double gain, double frequency):
-  power_(power), pos{xpos, ypos, zpos}, polar{theta, phi}, f_obs(frequency){
+                 double xpol, double ypol, double zpol, double gain, double frequency):
+  _power(power), pos{xpos, ypos, zpos}, _polar{xpol, ypol, zpol}, f_obs(frequency){
 
   w_obs = 2* pi *f_obs;
-  k_obs = w_obs/c_med;
-  l_obs = c_med/f_obs;
+  k_obs = w_obs/c_ice;
+  l_obs = c_ice/f_obs;
 
-  if (!gain){ power ? gain_ = 1 : gain_ = pow(l_obs,2.0); }
+  if (!gain){ _power ? _gain = 1 : _gain = pow(l_obs,2.0); }
   /* If gain = 0, default , unphysical value, then set default gains
   Default TX gain (power nonzero) =  1, Isotropic emission.
   Defalut RX gain (power zero): Effective area. */
 }
 
 Antenna::Antenna(double power, double xpos, double ypos, double zpos) :
-Antenna(power, xpos, ypos, zpos, 0,0, 0, freq_obs){} //default freq_obs
+Antenna(power, xpos, ypos, zpos, 0,0,0, 0, freq_obs){} //default freq_obs
 
 // Accesors
 
-double  Antenna::power(){return power_;}
-double  Antenna::gain(){return gain_;}
+double  Antenna::power(){return _power;}
+double  Antenna::gain(){return _gain;}
 double* Antenna::position(){return pos;}
-double* Antenna::polarization(){return polar;}
+std::vector<double> Antenna::polarization(){return _polar;}
+std::vector<double> Antenna::direction(){return dir;}
 double  Antenna::distance(){return dist;}
 double  Antenna::projection(){return dot;}
 double  Antenna::angle(){return ang;}
@@ -37,18 +38,18 @@ Detector::Detector(){};
 
 Detector::Detector(std::string name){
   if(name == "bistatic" || name == "Bistatic"){
-    Transmitters.push_back( Antenna(1, 0,0,0) );
-    Receivers.push_back( Antenna(0, 500, 0, 0) );
+    _transmitters.push_back( Antenna(1, 0,0,0) );
+    _receivers.push_back( Antenna(0, 500, 0, 0) );
   } else if (name == "RET_CR" || name == "ret_cr"){
-    Transmitters.push_back( Antenna(1, 0,0,0) );
-    Receivers.push_back( Antenna(0, 200,0,0) );
-    Receivers.push_back( Antenna(0, 100, -100, 0) );
-    Receivers.push_back( Antenna(0, -100, -100, 0) );
-    Receivers.push_back( Antenna(0, -100,  100, 0) );
-    Receivers.push_back( Antenna(0, 200 , 200, 0) );
-    Receivers.push_back( Antenna(0, 200 ,-200, 0) );
-    Receivers.push_back( Antenna(0, -200 ,-200, 0) );
-    Receivers.push_back( Antenna(0, -200 , 200, 0) );
+    _transmitters.push_back( Antenna(1, 0,0,0) );
+    _receivers.push_back( Antenna(0, 200,0,0) );
+    _receivers.push_back( Antenna(0, 100, -100, 0) );
+    _receivers.push_back( Antenna(0, -100, -100, 0) );
+    _receivers.push_back( Antenna(0, -100,  100, 0) );
+    _receivers.push_back( Antenna(0, 200 , 200, 0) );
+    _receivers.push_back( Antenna(0, 200 ,-200, 0) );
+    _receivers.push_back( Antenna(0, -200 ,-200, 0) );
+    _receivers.push_back( Antenna(0, -200 , 200, 0) );
   } else {
     std::cout << " There is no compatible detector configurtion with "
     + name << std::endl;
@@ -57,63 +58,63 @@ Detector::Detector(std::string name){
 //
 // Detector::Detector(int a, int b){
 //   switch (a) {  // 5 options
-//     case 1: Transmitters.push_back(Antenna(1, (0, 0, 0), (0,0), 0, freq_obs));
+//     case 1: _transmitters.push_back(Antenna(1, (0, 0, 0), (0,0), 0, freq_obs));
 //       break;  // Center
-//     case 2: Transmitters.push_back(Antenna(1, (0, 1E3, 0), (0,0), 0, freq_obs));
+//     case 2: _transmitters.push_back(Antenna(1, (0, 1E3, 0), (0,0), 0, freq_obs));
 //       break;   // Top
-//     case 3: Transmitters.push_back(Antenna(1, (-1E3, 0, 0), (0,0), 0, freq_obs));
+//     case 3: _transmitters.push_back(Antenna(1, (-1E3, 0, 0), (0,0), 0, freq_obs));
 //       break;   // Left
-//     case 4: Transmitters.push_back(Antenna(1, (0, -1E3, 0), (0,0), 0, freq_obs));
+//     case 4: _transmitters.push_back(Antenna(1, (0, -1E3, 0), (0,0), 0, freq_obs));
 //       break;   // Bottom
-//     case 5: Transmitters.push_back(Antenna(1, (1E3, 0, 0), (0,0), 0, freq_obs));
+//     case 5: _transmitters.push_back(Antenna(1, (1E3, 0, 0), (0,0), 0, freq_obs));
 //       break;   // Right
 //   }
 //
 //   switch (b) {  // Position, 5 positions
-//     case 1: Receivers.push_back(Antenna(0, (0, 5E2, 0), (0,0), 0, freq_obs));
+//     case 1: _receivers.push_back(Antenna(0, (0, 5E2, 0), (0,0), 0, freq_obs));
 //       break;
-//     case 2: Receivers.push_back(Antenna(0, (0, -5E2, 0), (0,0), 0, freq_obs));
+//     case 2: _receivers.push_back(Antenna(0, (0, -5E2, 0), (0,0), 0, freq_obs));
 //       break;
-//     case 3: Receivers.push_back(Antenna(0, (5E2, 0, 0), (0,0), 0, freq_obs));
+//     case 3: _receivers.push_back(Antenna(0, (5E2, 0, 0), (0,0), 0, freq_obs));
 //       break;
-//     case 4: Receivers.push_back(Antenna(0, (-5E2, 0, 0), (0,0), 0, freq_obs));
+//     case 4: _receivers.push_back(Antenna(0, (-5E2, 0, 0), (0,0), 0, freq_obs));
 //       break;
-//     case 5: Receivers.push_back(Antenna(0, (0, 15E2, 0), (0,0), 0, freq_obs));
+//     case 5: _receivers.push_back(Antenna(0, (0, 15E2, 0), (0,0), 0, freq_obs));
 //       break;
-//     case 6: Receivers.push_back(Antenna(0, (5E2, 1E3, 0), (0,0), 0, freq_obs));
+//     case 6: _receivers.push_back(Antenna(0, (5E2, 1E3, 0), (0,0), 0, freq_obs));
 //       break;
-//     case 7: Receivers.push_back(Antenna(0, (-5E2, 1E3, 0), (0,0), 0, freq_obs));
+//     case 7: _receivers.push_back(Antenna(0, (-5E2, 1E3, 0), (0,0), 0, freq_obs));
 //       break;
-//     case 8: Receivers.push_back(Antenna(0, (-15E2, 0, 0), (0,0), 0, freq_obs));
+//     case 8: _receivers.push_back(Antenna(0, (-15E2, 0, 0), (0,0), 0, freq_obs));
 //       break;
-//     case 9: Receivers.push_back(Antenna(0, (-1E3, 5E2, 0), (0,0), 0, freq_obs));
+//     case 9: _receivers.push_back(Antenna(0, (-1E3, 5E2, 0), (0,0), 0, freq_obs));
 //       break;
-//     case 10: Receivers.push_back(Antenna(0, (-1E3, -5E2, 0), (0,0), 0, freq_obs));
+//     case 10: _receivers.push_back(Antenna(0, (-1E3, -5E2, 0), (0,0), 0, freq_obs));
 //       break;
-//     case 11: Receivers.push_back(Antenna(0, (0, -15E2, 0), (0,0), 0, freq_obs));
+//     case 11: _receivers.push_back(Antenna(0, (0, -15E2, 0), (0,0), 0, freq_obs));
 //       break;
-//     case 12: Receivers.push_back(Antenna(0, (5E2, -1E3, 0), (0,0), 0, freq_obs));
+//     case 12: _receivers.push_back(Antenna(0, (5E2, -1E3, 0), (0,0), 0, freq_obs));
 //       break;
-//     case 13: Receivers.push_back(Antenna(0, (-5E2, -1E3, 0), (0,0), 0, freq_obs));
+//     case 13: _receivers.push_back(Antenna(0, (-5E2, -1E3, 0), (0,0), 0, freq_obs));
 //       break;
-//     case 14: Receivers.push_back(Antenna(0, (15E2, 0, 0), (0,0), 0, freq_obs));
+//     case 14: _receivers.push_back(Antenna(0, (15E2, 0, 0), (0,0), 0, freq_obs));
 //       break;
-//     case 15: Receivers.push_back(Antenna(0, (1E3, 5E2, 0), (0,0), 0, freq_obs));
+//     case 15: _receivers.push_back(Antenna(0, (1E3, 5E2, 0), (0,0), 0, freq_obs));
 //       break;
-//     case 16: Receivers.push_back(Antenna(0, (1E3, -5E2, 0), (0,0), 0, freq_obs));
+//     case 16: _receivers.push_back(Antenna(0, (1E3, -5E2, 0), (0,0), 0, freq_obs));
 //       break;
-//     case 17: Receivers.push_back(Antenna(0, (2E3, 0, 0), (0,0), 0, freq_obs));
+//     case 17: _receivers.push_back(Antenna(0, (2E3, 0, 0), (0,0), 0, freq_obs));
 //       break;
 //     }
 //
 // };
 
-std::vector<Antenna> Detector::get_transmitters(){return Transmitters;}
-std::vector<Antenna> Detector::get_receivers(){return Receivers;}
+std::vector<Antenna> Detector::transmitters(){return _transmitters;}
+std::vector<Antenna> Detector::receivers(){return _receivers;}
 
 void Detector::add_antenna(Antenna& at){
-  if (at.power()) { Transmitters.push_back(at); }
-  else { Receivers.push_back(at); }
+  if (at.power()) { _transmitters.push_back(at); }
+  else { _receivers.push_back(at); }
 }
 
 // -----------------------------------------------------------------------------

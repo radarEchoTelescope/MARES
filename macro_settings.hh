@@ -12,50 +12,71 @@
 #include <random>
 // #define NDEBUG     // Turn off debug.
 
-// ----- Computational constants -----------------------------------------------
+// ----- Computational parameters ----------------------------------------------
 const int nbin = 3000;               // # of bins for integration/array filling
 // const int nbin = 1E4;             // # of bins for integration/array filling
 
-// ----- Default observer frequency --------------------------------------------
-const double freq_obs = 1E9;              // [Hz]
+const double freq_obs = 1E9;              // [Hz] Default observer frequency
 // const double freq_obs = 450 * 1E6;
 
-// ----- Physical constants ----------------------------------------------------
+// ----- Physical parameters ---------------------------------------------------
 
-    // Plasma parameters -------------------------------------------------------
-const double f_coll = 650E12;             // [Hz] collision frequency
-// const double f_coll=1E12;              // [Hz] collision frequency
+    // Plasma ------------------------------------------------------------------
+// const double f_coll = 0;             // [Hz] collision frequency
+const double f_coll=88E12;              // [Hz] collision frequency
+// const double f_coll = 650E12;             // [Hz] collision frequency
 const double tau = 20*1E-9;               // [s] Plasma lifetime
 const double memp = 1;                    // Plasma to electron mass ratio
-const double r_moliere = 7;               // [cm] Moliere Radius
 
-      // Ice parameters --------------------------------------------------------
-const double rho_ice = 0.92;              // [g/cm^3] Density
+      // Ice  ------------------------------------------------------------------
+const double att_length=1000;             // [m] attenuation length
 const double refindex=1.78;               // refractive index
+const double rho_ice = 0.92;              // [g/cm^3] Density
+const double r_moliere = 7;               // [cm] Moliere Radius
 const double E_c = 0.0786;                // [GeV] Critical cascade energy
 const double X_0 = 36.08;                 // [g/cm^2] radiation length
 const double X_int = 25.01;               // [g/cm^2] interaction length
 
+// ----- Physical constants ----------------------------------------------------
+const double pi=3.1415926535;
+const double e =2.71828;
+
     // Macroscopical [IS] ------------------------------------------------------
 const double c_vac=2.998E8;               // [m/s]
-const double c_med=c_vac/refindex;        // [m/s] speed of light in ice
+const double c_ice=c_vac/refindex;        // [m/s] speed of light in ice
+const double Z_0=120;                     // pi * [Ohm]
 
     // Microscopical [cgs] -----------------------------------------------------
 const double cvac_cm=c_vac * 100;         // [cm/s]
-const double cmed_cm=c_med * 100;         // [cm/s] c in ice
+const double cice_cm=c_ice * 100;         // [cm/s] c in ice
 const double thompson=6.6524574E-25;      // [cm^2] Thompson e- scattering cs
 
 
 // Math tools ------------------------------------------------------------------
-const double pi=3.1415926535;
 
 int sgn(double val);
-// template <typename T>  int sgn(T val) { return (T(0) < val) - (val < T(0));}
 
+template<typename N>
+N rad2deg(N angle) {
+  return angle * 180.0 / pi;
+}
+
+template<typename N>
+N deg2rad(N radian) {
+  return radian / 180.0 * pi; 
+}
+
+double norm(std::vector<double> a);
 double distance(double x1, double y1, double x2, double y2);
 double distance(double x1, double y1, double z1, double x2, double y2, double z2);
+double distance(std::vector<double> u, std::vector<double> v);
+double projection(std::vector<double> a, std::vector<double> b);
 
-std::vector<std::vector<double>> transpose(std::vector<std::vector<double>> matrix);
+std::vector<double> normalize(std::vector<double> a);
+std::vector<double> cross_product(double a1, double a2, double a3, double b1, double b2, double b3);
+std::vector<double> cross_product(std::vector<double> a, std::vector<double> b);
+
+
 
   // Random numbers
 
@@ -63,14 +84,15 @@ class RN_uniform{
 
 public:
   RN_uniform (double minval, double maxval, double seed = 42) :
-      generator(seed), distribution(minval, maxval) {}
+      _generator(seed), _distribution(minval, maxval) {}
 
-  double get() { return distribution(generator); }
+  double get() { return _distribution(_generator); }
 
 private:
-  std::mt19937 generator;
-  std::uniform_real_distribution<> distribution;
+  std::mt19937 _generator;
+  std::uniform_real_distribution<> _distribution;
 };
+
 
 //---- I/O functions -----------------------------------------------------------
 void write_1D_array(std::vector<double> array, std::string output_path,
@@ -80,3 +102,6 @@ void write_2D_array(std::vector<std::vector<double>> array,
     std::string output_path, const bool trigger);
 
 #endif
+
+// Unused ----------------------------------------------------------------------
+// std::vector<std::vector<double>> transpose(std::vector<std::vector<double>> matrix);

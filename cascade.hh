@@ -64,8 +64,6 @@ private:
   std::vector<std::vector<double>> density;         // [#e-/ cm^3] The variable
   void set_density();   // The function that generates the variable.
 
-
-
   double r_waist;         // [cm]
   std::vector<double> r_crit;
   void set_rcrit(const double & freq_obs = 1E9);    // Default frequency.
@@ -80,7 +78,7 @@ private:
   Thus, reflectivity is defined here as the integral of reflectance over
   the layers.
   */
-  std::vector<std::vector<double>> reflectance2D, reflectivity2D;
+  // std::vector<std::vector<double>> reflectance2D, reflectivity2D;
   // void set_reflectivity_2D();
 
   // std::vector<double> od_cs_1D;

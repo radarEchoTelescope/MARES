@@ -27,7 +27,7 @@ public:
   std::vector<double> arrivals();
   std::vector<double> phase();
 
-  std::vector<double> time();
+  std::vector<double> duration();
   std::vector<double> waveform();
   std::vector<double> radar_cs();
   std::vector<std::vector<double>> phase_time();
@@ -52,10 +52,10 @@ protected:
 private:
 
   std::vector<double> _phase, _arrival, _amplitude;
-  std::vector<double> _time;
-  std::vector<double> _waveform;
+  std::vector<double> _duration; // [ns]
+  std::vector<double> _waveform; // [V/m]
 
-  std::vector<std::vector<double>> _segment_coords; // Length, xpos, ypos, Rt/D1i, Rr/D2i
+  std::vector<std::vector<double>> _segment_coords; // Length, xpos, ypos, zpos, Rt/D1i, Rr/D2i
   std::vector<std::vector<double>> _rcs_time;
   std::vector<std::vector<double>> _phase_time;
   std::vector<std::vector<double>> _er_time;
@@ -82,19 +82,24 @@ public:
 
   std::vector<double> radar_cs();
 
+  std::vector<std::vector<double>> fplasma_matrix;
+  std::vector<std::vector<double>> skin_depth_matrix;
 
 private:
-  std::vector<std::vector<double>> coords;
-  // To get rid of?
+  double alpha;
+  std::vector<std::vector<double>> coords; // To get rid of?
+  std::vector<std::vector<double>> density_cs;
+  std::vector<std::vector<double>> density_tx;
+  void set_rotated_density();
+
 
   double absorption(double& dens);
   double skin_depth(double& dens);
 
+  void set_fplasma();
+  void set_skin_depth();
 
-  double alpha;
-  std::vector<std::vector<double>> density_cs;
-  std::vector<std::vector<double>> density_tx;
-  void set_rotated_density();
+
 
   std::vector<std::vector<double>> reflectance_matrix;
   std::vector<std::vector<double>> reflectivity_matrix;

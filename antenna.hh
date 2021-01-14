@@ -11,13 +11,14 @@ class Antenna{
 public:
 
   Antenna(double power, double xpos, double ypos, double zpos,
-          double theta, double phi, double gain, double frequency);
+          double xpol, double ypol, double zpol, double gain, double frequency);
   Antenna(double power, double xpos, double ypos, double zpos);
 
   double  power();
   double  gain();
   double* position();
-  double* polarization();
+  std::vector<double> polarization();
+  std::vector<double> direction();
   double  distance();
   double  projection();
   double  angle();
@@ -30,26 +31,31 @@ public:
 
 private:
   friend class Scatter;
-  double power_;
-  double gain_;
+  double _power;
+  double _gain;
+  double _leff = 1;
+  double _efficiency = 1;
+  double _load = 50; // pi * [Ohm]
 
   double pos[3];
-  double polar[2];    // Polarization
+  std::vector<double> _polar{0, 0, 1};    // Polarization
+  // Standard antennas are vertically in the ice
 
-  double dir[3] = {0};         // Vector direction to cs.
+
+  std::vector<double> dir{0, 0, 0};         // Vector direction to cs.
   double dist = 0;             // Module of distance to cs.
   double dot = 0;              // Dot (inner) product with cascade direction.
                                // The cosine of the angle between them.
-  double ang = 0;            // The angle.
+  double ang = 0;              // The angle.
 
-  double IRT_dist[2];
-  double IRT_angle[2];
 
   double f_obs;               // [Hz] Observer frequency = 1E9 , 450 *1E6
   double k_obs;               // Wavenumber.
   double l_obs;               // [m] Detection wavelength
   double w_obs;               // Angular freq_obs
 
+  double IRT_dist[2];
+  double IRT_angle[2];
 };
 
 
@@ -67,15 +73,15 @@ public:
 
   Detector(int a, int b); // Krijn's old system locations
 
-  std::vector<Antenna> get_transmitters();
-  std::vector<Antenna> get_receivers();
+  std::vector<Antenna> transmitters();
+  std::vector<Antenna> receivers();
 
   void add_antenna(Antenna& at);
 
 private:
 
-  std::vector<Antenna> Transmitters;
-  std::vector<Antenna> Receivers;
+  std::vector<Antenna> _transmitters;
+  std::vector<Antenna> _receivers;
 
 };
 

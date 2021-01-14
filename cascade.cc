@@ -107,7 +107,7 @@ void Cascade::set_rcrit(const double & freq_obs){
 // 			k == nbin ? dr = 0.5*r_bin : dr = r_bin;
 //
 // 			wplasma=8980*sqrt(dens(X,k_mid*r_bin))*sqrt(1/mme);
-// 			skin=cmed_cm/(2*wplasma);
+// 			skin=cice_cm/(2*wplasma);
 //
 // 			reflectance = (1-reflectivity)*(1-exp(-1*dr/skin));
 // 			reflectivity += reflectance;
@@ -148,7 +148,7 @@ std::vector<double> Cascade::get_rcrit(){
 	if(r_crit.empty()){ set_rcrit(); }
 	return r_crit;
 }
-// 
+//
 // std::vector<std::vector<double>> Cascade::get_reflectivty_2D(){
 // 	if(reflectivity2D.empty()) {set_reflectivity_2D();}
 // 	return reflectivity2D;
@@ -241,9 +241,6 @@ namespace {
 	    N = 0.31*exp((X/X_0)*(1-1.5*log(sh_age(X,E_p))))/sqrt(log(E_p/E_c));
 			Ne = N * 1E5 * rho_ice;
 	  }
-
-		// TEST
-		// if(Ne < 0) {Ne = -Ne;}
 	  return Ne;       // [#e / cm]
 	}
 
