@@ -77,13 +77,14 @@ public:
   std::vector<std::vector<double>> get_density_cs();
   std::vector<std::vector<double>> get_density_tx();
 
+  std::vector<std::vector<double>> get_plasma_freq();
+  std::vector<std::vector<double>> get_skin_depth();
+
   std::vector<std::vector<double>> get_reflectance();
   std::vector<std::vector<double>> get_reflectivity();
 
   std::vector<double> radar_cs();
 
-  std::vector<std::vector<double>> fplasma_matrix;
-  std::vector<std::vector<double>> skin_depth_matrix;
 
 private:
   double alpha;
@@ -96,10 +97,10 @@ private:
   double absorption(double& dens);
   double skin_depth(double& dens);
 
+  std::vector<std::vector<double>> fplasma_matrix;
+  std::vector<std::vector<double>> skin_depth_matrix;
   void set_fplasma();
   void set_skin_depth();
-
-
 
   std::vector<std::vector<double>> reflectance_matrix;
   std::vector<std::vector<double>> reflectivity_matrix;

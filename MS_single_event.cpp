@@ -14,6 +14,8 @@ int main(int argc, char** argv){
   // const std::string identifier = "Particle1to500";
   // std::string identifier = "../Visualization/testing/testing_500_particles";
 
+
+
   // Cascade params
   int evt = 0;
   double cenergy = 1E9;
@@ -68,6 +70,8 @@ int main(int argc, char** argv){
 
       write_2D_array(event.get_density_cs(),    identifier_c + "_density_cs.txt", 1);
       write_2D_array(event.get_density_tx(),    identifier_c + "_density_tx.txt", 1);
+      write_2D_array(event.get_plasma_freq(),   identifier_c + "_plasma_freq.txt", 1);
+      write_2D_array(event.get_skin_depth(),    identifier_c + "_skin_depth.txt", 1);
       write_2D_array(event.get_reflectance(),   identifier_c + "_reflectance_matrix.txt", 1);
       write_2D_array(event.get_reflectivity(),  identifier_c + "_reflectivity_matrix.txt", 1);
       write_1D_array(event.radar_cs(),          identifier_c + "_radar_cs.txt", 1);

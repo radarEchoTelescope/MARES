@@ -291,10 +291,6 @@ Cascade1D::Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs):
 
     set_fplasma();
     set_skin_depth();
-
-    write_2D_array(fplasma_matrix, "_plasma_freq.txt", 1);
-    write_2D_array(skin_depth_matrix, "_skin_depth.txt", 1);
-
     set_reflectivity();
     set_radar_cs();
     run_time_loop();
@@ -503,10 +499,11 @@ void Cascade1D::set_radar_cs(){
 // std::cout << rcs[0] << " " << rcs[nbin - 1] << std::endl;
 
 
-std::vector<std::vector<double>> Cascade1D::get_density_cs(){ return density_cs; }
-std::vector<std::vector<double>> Cascade1D::get_density_tx(){ return density_tx; }
-
-std::vector<std::vector<double>> Cascade1D::get_reflectance(){ return reflectance_matrix; }
+std::vector<std::vector<double>> Cascade1D::get_density_cs()  { return density_cs; }
+std::vector<std::vector<double>> Cascade1D::get_density_tx()  { return density_tx; }
+std::vector<std::vector<double>> Cascade1D::get_plasma_freq() { return fplasma_matrix};
+std::vector<std::vector<double>> Cascade1D::get_skin_depth()  { return skin_depth_matrix};
+std::vector<std::vector<double>> Cascade1D::get_reflectance() { return reflectance_matrix; }
 std::vector<std::vector<double>> Cascade1D::get_reflectivity(){ return reflectivity_matrix; }
 
 std::vector<double> Cascade1D::radar_cs(){
