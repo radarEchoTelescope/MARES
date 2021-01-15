@@ -14,8 +14,6 @@ int main(int argc, char** argv){
   // const std::string identifier = "Particle1to500";
   // std::string identifier = "../Visualization/testing/testing_500_particles";
 
-
-
   // Cascade params
   int evt = 0;
   double cenergy = 1E9;

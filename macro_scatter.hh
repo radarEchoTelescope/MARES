@@ -93,7 +93,6 @@ private:
   std::vector<std::vector<double>> density_tx;
   void set_rotated_density();
 
-
   double absorption(double& dens);
   double skin_depth(double& dens);
 
