@@ -501,8 +501,8 @@ void Cascade1D::set_radar_cs(){
 
 std::vector<std::vector<double>> Cascade1D::get_density_cs()  { return density_cs; }
 std::vector<std::vector<double>> Cascade1D::get_density_tx()  { return density_tx; }
-std::vector<std::vector<double>> Cascade1D::get_plasma_freq() { return fplasma_matrix};
-std::vector<std::vector<double>> Cascade1D::get_skin_depth()  { return skin_depth_matrix};
+std::vector<std::vector<double>> Cascade1D::get_plasma_freq() { return fplasma_matrix; }
+std::vector<std::vector<double>> Cascade1D::get_skin_depth()  { return skin_depth_matrix; }
 std::vector<std::vector<double>> Cascade1D::get_reflectance() { return reflectance_matrix; }
 std::vector<std::vector<double>> Cascade1D::get_reflectivity(){ return reflectivity_matrix; }
 
