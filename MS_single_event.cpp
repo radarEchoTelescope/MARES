@@ -22,6 +22,7 @@ int main(int argc, char** argv){
   double zpos = 0;
   double czenith = pi/2;
   double cazimuth = atof(argv[1]);
+  cazimuth = deg2rad(cazimuth);
   double nenergy = 1E9;
   double nzenith = 0;
   double nazimuth = 0;
