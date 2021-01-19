@@ -15,7 +15,7 @@ Antenna::Antenna(double power, double xpos, double ypos, double zpos,
 }
 
 Antenna::Antenna(double power, double xpos, double ypos, double zpos) :
-Antenna(power, xpos, ypos, zpos, 0,0,0, 0, freq_obs){} //default freq_obs
+Antenna(power, xpos, ypos, zpos, 0,0,1, 0, freq_obs){} //default freq_obs
 
 // Accesors
 

@@ -160,14 +160,42 @@ void Scatter::set_segments(){
     // E field amplitude at reciever from constant and distance dependant factors.
 
     // Set polarization
-    std::vector<double> uv = cross_product(tx_cs, tx.polarization() );
-    std::vector<double> uuv = cross_product(tx_cs,uv);
-    std::vector<double> wuuv = cross_product(rx_cs,uuv);
-    std::vector<double> wwuuv = cross_product(rx_cs,wuuv);
+
+    // std::cout << tx.polarization()[0] << tx.polarization()[1] << tx.polarization()[2] << std::endl;
+    std::vector<double> uv = cross_product(normalize(tx_cs), tx.polarization() );
+    // std::cout <<
+    // uv[0] << '\t' <<
+    // uv[1] << '\t' <<
+    // uv[2] << std::endl;
+    // write_1D_array(uv, "_e1.txt", 1);
+    std::vector<double> uuv = cross_product(normalize(tx_cs),uv);
+    // std::cout <<
+    // uuv[0] << '\t' <<
+    // uuv[1] << '\t' <<
+    // uuv[2] << std::endl;
+
+    std::vector<double> wuuv = cross_product(normalize(rx_cs),uuv);
+    // std::cout <<
+    // wuuv[0] << '\t' <<
+    // wuuv[1] << '\t' <<
+    // wuuv[2] << std::endl;
+
+    // write_1D_array(wuuv, "_e3.txt", 1);
+    std::vector<double> wwuuv = cross_product(normalize(rx_cs),wuuv);
+    // std::cout <<
+    // wwuuv[0] << '\t' <<
+    // wwuuv[1] << '\t' <<
+    // wwuuv[2] << std::endl;
+
+    // write_1D_array(wwuuv, "_e4.txt", 1);
+    double p = projection(wwuuv, rx._polar);
+    // std::cout << p << std::endl;
 
     // Set amplitude
-
-    _amplitude.push_back( E0 / ( rt*rr ) * pow(e, (rt + rr)/2*att_length ) * projection(wwuuv, rx._polar)  );
+    // std::cout << E0 << std::endl;
+    // std::cout <<  -(rt + rr)/(2*att_length) << std::endl;
+    // std::cout << pow(e, -(rt + rr)/(2*att_length) ) << std::endl;
+    _amplitude.push_back( E0 / ( rt*rr ) * pow(e, -(rt + rr)/(2*att_length) ) * p  );
     // Er = E0 / ( rt*rr * tx.lambda() ) *                                      // The variable component
     //      e^(abs(rt + rr)/2*att_length ) *                                    // The attenuation length
     //      rx_cs X (rx_cs X [tx_cs X (tx_cs X tx_pol)]) · rx_pol               // Polarization (sin * sin * cos)
@@ -278,7 +306,7 @@ std::vector<std::vector<double>> Scatter::wave_time(){ return _er_time; }
 // Line1D is Dieder's model
 
 Line1D::Line1D(Antenna& tx, Antenna& rx, Cascade& cs): Scatter(tx, rx, cs){
-  _rcs = std::vector<double>(nbin, 1); // The line's segments have rcs untiy.
+  _rcs = std::vector<double>(nbin, 1); // The line's segments have rcs unity.
   run_time_loop();
   }
 

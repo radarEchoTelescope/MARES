@@ -62,7 +62,9 @@ int main(int argc, char** argv){
       write_2D_array(event0.wave_time(),        identifier_l + "_Er_time_profile.txt", 1);
 
 
+
       // std::string identifier_c = path_out + "Cascade1D_" + std::to_string((int) rad2deg( cs.sph_angles()[1]) ) + "_deg";
+      //
       std::string identifier_c = path_out + "Cascade1D_" + identifier;
       Cascade1D event(tx,rx,cs);
       // std::cout << cazimuth << std::endl;
