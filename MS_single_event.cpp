@@ -10,19 +10,30 @@ int main(int argc, char** argv){
   // std::string cs_filepath = argv[1];
   // std::string path_out = cs_filepath.substr(0,cs_filepath.find_last_of("."));
 
-  std::string identifier  = argv[2];
+  std::string identifier  = argv[8];
   // const std::string identifier = "Particle1to500";
   // std::string identifier = "../Visualization/testing/testing_500_particles";
 
   // Cascade params
-  int evt = 0;
-  double cenergy = 1E9;
-  double xpos = 250;
-  double ypos = -250;
-  double zpos = 0;
-  double czenith = pi/2;
-  double cazimuth = atof(argv[1]);
+
+  int evt = atof(argv[1]);
+  double cenergy = atof(argv[2]);
+  double xpos = atof(argv[3]);
+  double ypos = atof(argv[4]);
+  double zpos = atof(argv[5]);
+  double czenith = atof(argv[6]);
+  double cazimuth = atof(argv[7]);
+
+  czenith = deg2rad(czenith);
   cazimuth = deg2rad(cazimuth);
+  // int evt = 0;
+  // double cenergy = 1E9;
+  // double xpos = 250;
+  // double ypos = -250;
+  // double zpos = 0;
+  // double czenith = pi/2;
+  // double cazimuth = atof(argv[1]);
+
   double nenergy = 1E9;
   double nzenith = 0;
   double nazimuth = 0;
