@@ -63,13 +63,18 @@ N rad2deg(N angle) {
 
 template<typename N>
 N deg2rad(N radian) {
-  return radian / 180.0 * pi; 
+  return radian / 180.0 * pi;
 }
 
+double acos2(double y, double x);
+
 double norm(std::vector<double> a);
+std::vector<double> direction(std::vector<double> vec_a, std::vector<double> vec_b);
+std::vector<double> direction(double x1, double y1, double z1, double x2, double y2, double z2);
+
+double distance(std::vector<double> u, std::vector<double> v);
 double distance(double x1, double y1, double x2, double y2);
 double distance(double x1, double y1, double z1, double x2, double y2, double z2);
-double distance(std::vector<double> u, std::vector<double> v);
 double projection(std::vector<double> a, std::vector<double> b);
 
 std::vector<double> normalize(std::vector<double> a);

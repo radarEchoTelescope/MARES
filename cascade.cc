@@ -127,9 +127,12 @@ void Cascade::set_rcrit(const double & freq_obs){
 // Accesors
 int  Cascade::event(){return evtnr;}
 double  Cascade::energy(){return E_p;}
-double* Cascade::sph_angles(){return sph_ang;}
-double* Cascade::position(){return pos;}
-double* Cascade::direction(){return dir;}
+// double* Cascade::sph_angles(){return sph_ang;}
+// double* Cascade::position(){return pos;}
+// double* Cascade::direction(){return dir;}
+std::vector<double> Cascade::sph_angles(){return sph_ang;};
+std::vector<double> Cascade::position(){return pos;}
+std::vector<double> Cascade::direction(){return dir;}
 double* Cascade::parent(){return neutrino;}
 double  Cascade::Xtot(){return X_tot;}
 double  Cascade::get_X_bin(){return X_bin;}

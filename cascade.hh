@@ -27,9 +27,12 @@ public:
   // Accesors
   int  event();
   double  energy();
-  double* sph_angles();
-  double* position();
-  double* direction();
+  // double* sph_angles();
+  // double* position();
+  // double* direction();
+  std::vector<double> sph_angles();
+  std::vector<double> position();
+  std::vector<double> direction();
   double* parent();
 
   double Xtot();
@@ -45,11 +48,14 @@ private:
 
   int    evtnr;            // Event number.
   double E_p;          // Energy of the cascade.
-  double sph_ang[2];      // {Theta = zenith, phi= azimuth}
+  // double sph_ang[2];      // {Theta = zenith, phi= azimuth}
+  std::vector<double> sph_ang{0,0};
   // Incoming spherical angles (spherical coordinates) w.r.t the detector frame.
-  double pos[3];          // Interaction point's position (Shower start, head).
+  // double pos[3];          // Interaction point's position (Shower start, head).
+  std::vector<double> pos{0,0,0};
   // The cascade development direction is set from the sph_ang.
-  double dir[3];          // Cartesian vector direction
+  // double dir[3];          // Cartesian vector direction
+  std::vector<double> dir{0,0,0};
   // Neutrino parent values: energy, zenith, azimuth, oneweight.
   double neutrino[4];
 

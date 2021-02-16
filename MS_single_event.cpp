@@ -7,37 +7,38 @@ int main(int argc, char** argv){
   // For a single event, we don't know a reference path, the result is stored
   // in the same folder as the executable.
   std::string path_out = "";
-  // std::string cs_filepath = argv[1];
   // std::string path_out = cs_filepath.substr(0,cs_filepath.find_last_of("."));
 
-  std::string identifier  = argv[8];
   // const std::string identifier = "Particle1to500";
   // std::string identifier = "../Visualization/testing/testing_500_particles";
 
   // Cascade params
 
-  int evt = atof(argv[1]);
-  double cenergy = atof(argv[2]);
-  double xpos = atof(argv[3]);
-  double ypos = atof(argv[4]);
-  double zpos = atof(argv[5]);
-  double czenith = atof(argv[6]);
-  double cazimuth = atof(argv[7]);
+  // int evt = atof(argv[1]);
+  // double cenergy = atof(argv[2]);
+  // double xpos = atof(argv[3]);
+  // double ypos = atof(argv[4]);
+  // double zpos = atof(argv[5]);
+  // double czenith = atof(argv[6]);
+  // double cazimuth = atof(argv[7]);
+  // std::string identifier  = argv[8];
 
-  czenith = deg2rad(czenith);
-  cazimuth = deg2rad(cazimuth);
-  // int evt = 0;
-  // double cenergy = 1E9;
-  // double xpos = 250;
-  // double ypos = -250;
-  // double zpos = 0;
-  // double czenith = pi/2;
-  // double cazimuth = atof(argv[1]);
+  std::string identifier = argv[1];
+  int evt = 0;
+  double cenergy = 1E9;
+  double xpos = 250;
+  double ypos = 0;
+  double zpos = 0;
+  double czenith = 45;
+  double cazimuth = 0;
 
   double nenergy = 1E9;
   double nzenith = 0;
   double nazimuth = 0;
   double oneweight = 1;
+
+  czenith = deg2rad(czenith);
+  cazimuth = deg2rad(cazimuth);
 
   Cascade cascade(evt, cenergy, xpos, ypos, zpos, czenith, cazimuth,
                   nenergy, nzenith, nazimuth, oneweight);
@@ -59,18 +60,18 @@ int main(int argc, char** argv){
 
       std::string identifier_l = path_out + "Line1D_" + identifier;
       Line1D event0(tx,rx,cs);
+      std::cout << cazimuth << std::endl;
 
-      // std::cout << cazimuth << std::endl;
 
       /* Write out all the information. */
       write_2D_array(event0.segement_coords(),  identifier_l + "_coords.txt", 1);
-      write_1D_array(event0.amplitude(),        identifier_l + "_Er_slices.txt", 1);
-      write_1D_array(event0.arrivals(),         identifier_l + "_t_arrivals.txt", 1);
-      write_1D_array(event0.phase(),            identifier_l + "_phases.txt", 1);
+      // write_1D_array(event0.amplitude(),        identifier_l + "_Er_slices.txt", 1);
+      // write_1D_array(event0.arrivals(),         identifier_l + "_t_arrivals.txt", 1);
+      // write_1D_array(event0.phase(),            identifier_l + "_phases.txt", 1);
       write_1D_array(event0.duration(),         identifier_l + "_duration.txt", 1);
       write_1D_array(event0.waveform(),         identifier_l + "_waveform.txt", 1);
-      write_2D_array(event0.phase_time(),       identifier_l + "_phase_time_profile.txt", 1);
-      write_2D_array(event0.wave_time(),        identifier_l + "_Er_time_profile.txt", 1);
+      // write_2D_array(event0.phase_time(),       identifier_l + "_phase_time_profile.txt", 1);
+      // write_2D_array(event0.wave_time(),        identifier_l + "_Er_time_profile.txt", 1);
 
 
 
@@ -83,19 +84,20 @@ int main(int argc, char** argv){
       write_2D_array(event.get_density_cs(),    identifier_c + "_density_cs.txt", 1);
       write_2D_array(event.get_density_tx(),    identifier_c + "_density_tx.txt", 1);
       write_2D_array(event.get_plasma_freq(),   identifier_c + "_plasma_freq.txt", 1);
+      write_2D_array(event.get_absorption(),    identifier_c + "_absorption.txt", 1);
       write_2D_array(event.get_skin_depth(),    identifier_c + "_skin_depth.txt", 1);
       write_2D_array(event.get_reflectance(),   identifier_c + "_reflectance_matrix.txt", 1);
       write_2D_array(event.get_reflectivity(),  identifier_c + "_reflectivity_matrix.txt", 1);
       write_1D_array(event.radar_cs(),          identifier_c + "_radar_cs.txt", 1);
       write_2D_array(event.segement_coords(),   identifier_c + "_coords.txt", 1);
-      write_1D_array(event.amplitude(),         identifier_c + "_Er_slices.txt", 1);
-      write_1D_array(event.arrivals(),          identifier_c + "_t_arrivals.txt", 1);
-      write_1D_array(event.phase(),             identifier_c + "_phases.txt", 1);
+      // write_1D_array(event.amplitude(),         identifier_c + "_Er_slices.txt", 1);
+      // write_1D_array(event.arrivals(),          identifier_c + "_t_arrivals.txt", 1);
+      // write_1D_array(event.phase(),             identifier_c + "_phases.txt", 1);
       write_1D_array(event.duration(),          identifier_c + "_duration.txt", 1);
       write_1D_array(event.waveform(),          identifier_c + "_waveform.txt", 1);
-      write_2D_array(event.wave_time(),         identifier_c + "_Er_time_profile.txt", 1);
-      write_2D_array(event.rcs_time(),          identifier_c + "_rcs_time_profile.txt", 1);
-      write_2D_array(event.phase_time(),        identifier_c + "_phase_time_profile.txt", 1);
+      // write_2D_array(event.wave_time(),         identifier_c + "_Er_time_profile.txt", 1);
+      // write_2D_array(event.rcs_time(),          identifier_c + "_rcs_time_profile.txt", 1);
+      // write_2D_array(event.phase_time(),        identifier_c + "_phase_time_profile.txt", 1);
 
     }
   }

@@ -27,74 +27,79 @@ Scatter::Scatter(Antenna& tx0, Antenna& rx0, Cascade& cs0):
 void Scatter::set_direction(Antenna& at){
 
   // Direction to cascade
-  at.dir[0] = (cs.pos[0] - at.pos[0]);
-  at.dir[1] = (cs.pos[1] - at.pos[1]);
-  at.dir[2] = (cs.pos[2] - at.pos[2]);
-
   // Correct orientation for the Rx case (cs_to_at).
-  if (at._power == 0) {   // Rx
-    at.dir[0] = - at.dir[0];
-    at.dir[1] = - at.dir[1];
-    at.dir[2] = - at.dir[2];
+  if (at._power != 0) {
+    at.dir = direction(at.pos, cs.pos);
+  } else {
+    at.dir = direction(cs.pos,at.pos);
   }
 
+  // at.dir[0] = (cs.pos[0] - at.pos[0]);
+  // at.dir[1] = (cs.pos[1] - at.pos[1]);
+  // at.dir[2] = (cs.pos[2] - at.pos[2]);
+  //
+  // if (at._power == 0) {   // Rx
+  //   at.dir[0] = - at.dir[0];
+  //   at.dir[1] = - at.dir[1];
+  //   at.dir[2] = - at.dir[2];
+  // }
+
   // Module of distance to cascade
-  at.dist = sqrt(pow(at.dir[0],2.0)+pow(at.dir[1],2.0)+pow(at.dir[2],2.0));
+  at.dist = distance(cs.pos, at.pos);
+  // at.dist = sqrt(pow(at.dir[0],2.0)+pow(at.dir[1],2.0)+pow(at.dir[2],2.0));
 
   // Sanity check
   assert(at.dist!= 0 && "Cascade overlaps antenna");
   /* THIS SHOULD THROW AND EXCEPTION SO YOU CAN CHOOSE HOW TO SOLVE IT
-      FOR NOW:
+      FOR NOW, SO THE FOLLOWING DOESN'T BREAK.
  */
- if(at.dist== 0) {at.dist = 10*at.l_obs;}
+ if(at.dist == 0) {at.dist = at.l_obs;}
 
-  //Determine inner product between point_tc and cascade direction
-  at.dot =  (cs.dir[0]*at.dir[0] + cs.dir[1]*at.dir[1] + cs.dir[2]*at.dir[2])
-            /at.dist; //Normalize
+ // Including correction for sgn(angle);
+ at.sph_ang[0] =  acos(at.dir[2]/at.dist);
+ // The zenith angle is defined between 0 and pi so its sign safe.
 
-  cs.pos[1] > 0 ? at.ang = acos(at.dot) : at.ang = - acos(at.dot);
+  // Spherical angles of the line of sight to cascade
+  at.sph_ang[1] = atan2(at.dir[1],at.dir[0]);
+  // atan2 has built in corrections for the signs of the angle.
+
 }
 
 /* Set the antennas directions, module and dot product with cs */
 void Scatter::set_direction_center(Antenna& at){
   // Find the cascade center
-  double cs_xpos = cs.pos[0] + cs.L_tot/2*cs.dir[0];
-  double cs_ypos = cs.pos[1] + cs.L_tot/2*cs.dir[1];
-  double cs_zpos = cs.pos[2] + cs.L_tot/2*cs.dir[2];
-
-  // 2D FOR NOW
-  // double cs_xpos = cs.pos[0] + cs.L_tot/2*cos(cs.sph_ang[1]);
-  // double cs_ypos = cs.pos[1] + cs.L_tot/2*sin(cs.sph_ang[1]);
-  // double cs_zpos = cs.pos[2];
+  std::vector<double> center_pos = { cs.pos[0] + cs.L_tot/2*cs.dir[0],
+                                     cs.pos[1] + cs.L_tot/2*cs.dir[1],
+                                     cs.pos[2] + cs.L_tot/2*cs.dir[2]
+                                   };
 
   // Direction to cascade
-  at.dir[0] = (cs_xpos - at.pos[0]);
-  at.dir[1] = (cs_ypos - at.pos[1]);
-  at.dir[2] = (cs_zpos - at.pos[2]);
-
   // Correct orientation for the Rx case (cs_to_at).
-  if (at._power == 0) {   // Rx
-    at.dir[0] = - at.dir[0];
-    at.dir[1] = - at.dir[1];
-    at.dir[2] = - at.dir[2];
+  if (at._power != 0) {
+    at.dir = direction(at.pos, center_pos);
+  } else {
+    at.dir = direction(center_pos,at.pos);
   }
 
   // Module of distance to cascade
-  at.dist = sqrt(pow(at.dir[0],2.0)+pow(at.dir[1],2.0)+pow(at.dir[2],2.0));
+  at.dist = distance(center_pos, at.pos);
+  // at.dist = sqrt(pow(at.dir[0],2.0)+pow(at.dir[1],2.0)+pow(at.dir[2],2.0));
 
   // Sanity check
   assert(at.dist!= 0 && "Cascade overlaps antenna");
   /* THIS SHOULD THROW AND EXCEPTION SO YOU CAN CHOOSE HOW TO SOLVE IT
-      FOR NOW:
+      FOR NOW, SO THE FOLLOWING DOESN'T BREAK.
  */
- if(at.dist== 0) {at.dist = 10*at.l_obs;}
+ if(at.dist == 0) {at.dist = at.l_obs;}
 
-  //Determine inner product between point_tc and cascade direction
-  at.dot =  (cs.dir[0]*at.dir[0] + cs.dir[1]*at.dir[1] + cs.dir[2]*at.dir[2])
-            /at.dist; //Normalize
+ // Including correction for sgn(angle);
+ at.sph_ang[0] =  acos(at.dir[2]/at.dist);
+ // The zenith angle is defined between 0 and pi so its sign safe.
 
-  // The y is for the azimuth, the z is for the zenith in out frame
-  cs.pos[1] > 0 ? at.ang = acos(at.dot) : at.ang = - acos(at.dot);
+  // Spherical angles of the line of sight to cascade
+  at.sph_ang[1] = atan2(at.dir[1],at.dir[0]);
+  // atan2 has built in corrections for the signs of the angle.
+
 
 }
 
@@ -240,12 +245,6 @@ void Scatter::run_time_loop(){
   double sampling = (100*tx.freq());
   int steps = (t_end - t_start)*sampling;
 
-  // std:: cout <<
-  //   "Start time " << t_start << '\t' <<
-  //   "End time " << t_end << '\t' <<
-  //   "Steps " << steps << '\t' <<
-  //    endl;
-
   _duration   = std::vector<double>(steps, 0);    // The time
   _waveform   = std::vector<double>(steps, 0);    // The electric field
 
@@ -327,73 +326,71 @@ Cascade1D::Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs):
 
 /* Make 2D-array of density profile */
 void Cascade1D::set_rotated_density(){
-	double l, r, x, y;
+	double x, y, l, r, a, b, A, B, wx, wz;
 
   coords = std::vector<std::vector<double>> (nbin, vector<double> (4, 0));
   density_cs = std::vector<std::vector<double>> (nbin, vector<double> (nbin, 0));
   density_tx = std::vector<std::vector<double>> (nbin, vector<double> (nbin, 0));
 
-  /* The rotation we have to perform over the angle is: */
-  // Alpha is the rotation of the r lines over the centers in the vertical or horizontal;
-  alpha = pi/2 + tx.angle() - cs.sph_angles()[1];
-  double L_2 = cs.get_L_tot()/2.0 * 100.0; // [cm]
+  /* The density is computed not in  the lab frame, but in the plane between the
+   tx.direction vector and the cs direction vector. Each one defines a frame
+   with their own perpendicular direction.
 
-//  std::cout
-//            << cs.get_L_tot()*100/2.0 << '\t'  <<cs.get_r_tot() << '\n'
-//            << tx.angle() << '\t' << cs.sph_angles()[1] << '\t' << alpha << '\n'
-//            << cos(alpha) <<'\t' << sin(alpha) << '\n'
-//            << abs(cs.get_L_tot()*cos(alpha) *100.0) << '\t'
-//            << abs(cs.get_r_tot()*sin(alpha)) << '\n'
-// // << max(cs.get_L_tot()/2.0 * 100.0 * cos(alpha), cs.get_r_tot()*cos(alpha)) << '\t'
-// // <<  max(cs.get_L_tot()/2.0 * 100.0 * sin(alpha), cs.get_r_tot()*sin(alpha)) << '\n'
-// <<  std::endl;
+   The two frames are separated by an angle delta. This angle delta behaves like
+   the declination, is only defined between 0 and pi. Due to the cascade radial
+   symmetry, and the choice of plane (that cuts the cascade longitudinally)
+   the solutions for delta and minus delta in the plane frame are equivalent.
 
-if(abs(cs.get_L_tot()*cos(alpha) *100.0) > abs(cs.get_r_tot()*sin(alpha))){
-  // EDGE-ON MODE: Centers along the l dimension.
+   Delta is actually the angle
+
+  */
+
+  //Determine inner product between point_tc and cascade direction in l.o.s plane
+  double delta = projection(tx.direction(), cs.direction());
+  delta = acos(delta);
+
+  std::cout << cs.sph_angles()[1] << '\t' << tx.sph_angles()[1] << std::endl;
+  std::cout << delta << '\t' << rad2deg(delta) << std::endl;
+
+  // These are the dimensions of the axis in the projection into the incidence frame.
+  A = (cs.get_L_tot()*100)*abs(cos(delta)) + 2*cs.get_r_tot()*abs(sin(delta));
+  B = (cs.get_L_tot()*100)*abs(sin(delta)) + 2*cs.get_r_tot()*abs(cos(delta));
 
   for (int i = 0; i < nbin; i++){
-    l = (2.0*i/nbin - 1) * L_2 ;                // Length from -L/2 to L/2.
+    x = (2.0*i/nbin - 1) ;
     for (int j = 0; j < nbin; j++){
-      r = (1 - 2.0*j/nbin) * cs.get_r_tot();    // Radius between +r and -r.
+      y = (2.0*j/nbin - 1) ;
 
-        // The minus sign is to correct for the loop order
-        // which is fixed because we need to loop "outside-in".
-        x = l - r*sin(alpha);
-        y = r*sgn(cos(alpha));
+      // Cascade frame (l,r): Length from -L/2 to L/2 and radius between -r and +r.
+      l = x * cs.get_L_tot() /2.0 * 100.0; // [cm];
+      r = y * cs.get_r_tot();
 
+      // Incidence frame (a, b): "Length" from -a/2 to a/2 and "radial" from -b/2 to b/2.
+      a = x * A / 2.0;
+      b = y * B / 2.0;
+
+      // Position of the cascade w.r.t incidence frame (Olaf's rotation)
+      // uy = l*cos(delta) + r*sin(delta);
+      // uz = l*sin(delta) - r*cos(delta);
+
+      // Position of the incidence frame w.r.t. the cascade frame
+      wx = a*cos(delta) + b*sin(delta);
+      wz = a*sin(delta) - b*cos(delta);
+      // This should be technically -delta, but they are equivalent.
+
+        // The cascade frame
         coords[i][0] = l;
         coords[i][1] = r;
-        coords[i][2] = x;
-        coords[i][3] = y;
-        density_cs[j][i] = cs.dens((l + L_2)*rho_ice,r); // Cascade frame (non-rotated) "green"
-        density_tx[j][i] = cs.dens((x + L_2)*rho_ice,y);
-        // density_cs[i][j] = cs.dens((l + L_2)*rho_ice,r); // Cascade frame (non-rotated) "green"
-        // density_tx[i][j] = cs.dens((x + L_2)*rho_ice,y);
-      }
-    }
-  } else {
-  // FACE-ON: // Centers along the r dimension.
-    std::cout << "WARNING: Face-on" << std::endl;
-    for (int j = 0; j < nbin; j++){
-      r = (1 - 2.0*j/nbin) * cs.get_r_tot();    // Radius between +r and -r.
-      for (int i = 0; i < nbin; i++){
-        l = (2.0*i/nbin - 1) * L_2 ;                // Length from -L/2 to L/2.
+        coords[i][2] = a;
+        coords[i][3] = b;
+        density_cs[j][i] = cs.dens((l  + cs.get_L_tot() /2.0 * 100.0)*rho_ice,r);
+        density_tx[j][i] = cs.dens((wx + cs.get_L_tot() /2.0 * 100.0)*rho_ice, wz);
+        // Because dens is defined from L = 0.
 
-        y = r - l*cos(alpha);  //
-        x = l;//*sin(alpha);      //
-        // Due to the limted range, there is not need for sgn() function.
+// keep in mind that the resolution (spacing of wx, wz) is not preserved,
+// is not the same as l_bin, r_bin.
 
-        coords[i][0] = l;
-        coords[i][1] = r;
-        coords[i][2] = x;
-        coords[i][3] = y;
-        density_cs[i][j] = cs.dens((l + L_2)*rho_ice,r); // Cascade frame (non-rotated) "green"
-        density_tx[i][j] = cs.dens((x + L_2)*rho_ice,y);
-      }
     }
-    // NO NEED FOR TRANSPOSING, THE SWAPPED INDICES ABOVE SHOULLD DO THE TRICK.
-    // density_tx = transpose(density_tx);
-    // density_cs = transpose(density_cs);
   }
 
 }
@@ -444,6 +441,17 @@ void Cascade1D::set_skin_depth(){
   }
 }
 
+void Cascade1D::set_absorption(){
+  if (density_tx.empty() ){set_rotated_density();}
+  absorption_matrix = std::vector<std::vector<double>> (nbin, vector<double> (nbin, 0));
+
+  for (int i = 0; i < nbin; i++){
+    for (int j = 0; j < nbin; j++){
+        absorption_matrix[i][j] = absorption(density_tx[i][j]);
+    }
+  }
+}
+
 // double Cascade1D::skin_depth(double& dens){
 //   double f_plasma = cs.fplasma(dens);
 //   double w, a, b, q;
@@ -464,6 +472,7 @@ void Cascade1D::set_skin_depth(){
 // }
 
 // TODO FIx the orientation mode.
+// TO CHECK: dr = r_bin is valid? exact ????
 void Cascade1D::set_reflectance(){
 	double reflectance, reflectivity;      // Unitless
   reflectance_matrix = std::vector<std::vector<double>> (nbin, vector<double> (nbin, 0));
@@ -474,10 +483,8 @@ void Cascade1D::set_reflectance(){
 		reflectance = 0, reflectivity = 0;
 		for (int j = 0; j < nbin; j++){
 
-// TO CHECK: dr = r_bin is valid? exact ????
 // Previous definition
       // reflectance = (1-reflectivity)*(1-exp(-1*cs.get_r_bin()/skin_depth(density_tx[j][i])));
-      // reflectivity += reflectance;
 
 // New definition
       reflectance = (1-reflectivity)*(1-exp(-1*cs.get_r_bin()*absorption( density_tx[j][i]) ));
@@ -530,6 +537,7 @@ void Cascade1D::set_radar_cs(){
 std::vector<std::vector<double>> Cascade1D::get_density_cs()  { return density_cs; }
 std::vector<std::vector<double>> Cascade1D::get_density_tx()  { return density_tx; }
 std::vector<std::vector<double>> Cascade1D::get_plasma_freq() { return fplasma_matrix; }
+std::vector<std::vector<double>> Cascade1D::get_absorption()  { return absorption_matrix; }
 std::vector<std::vector<double>> Cascade1D::get_skin_depth()  { return skin_depth_matrix; }
 std::vector<std::vector<double>> Cascade1D::get_reflectance() { return reflectance_matrix; }
 std::vector<std::vector<double>> Cascade1D::get_reflectivity(){ return reflectivity_matrix; }

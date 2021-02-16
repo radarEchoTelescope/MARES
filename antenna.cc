@@ -21,9 +21,11 @@ Antenna(power, xpos, ypos, zpos, 0,0,1, 0, freq_obs){} //default freq_obs
 
 double  Antenna::power(){return _power;}
 double  Antenna::gain(){return _gain;}
-double* Antenna::position(){return pos;}
+// double* Antenna::position(){return pos;}
+std::vector<double> Antenna::position(){return pos;}
 std::vector<double> Antenna::polarization(){return _polar;}
 std::vector<double> Antenna::direction(){return dir;}
+std::vector<double> Antenna::sph_angles(){return sph_ang;}
 double  Antenna::distance(){return dist;}
 double  Antenna::projection(){return dot;}
 double  Antenna::angle(){return ang;}

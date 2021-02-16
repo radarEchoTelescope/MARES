@@ -16,10 +16,13 @@ public:
 
   double  power();
   double  gain();
-  double* position();
+  // double* position();
+  std::vector<double> position();
   std::vector<double> polarization();
   std::vector<double> direction();
+  std::vector<double> sph_angles();
   double  distance();
+
   double  projection();
   double  angle();
 
@@ -37,13 +40,15 @@ private:
   double _efficiency = 1;
   double _load = 50; // pi * [Ohm]
 
-  double pos[3];
   std::vector<double> _polar{0, 0, 1};    // Polarization
   // Standard antennas are vertically in the ice
 
-
+  // double pos[3];
+  std::vector<double> pos{0, 0, 0};
   std::vector<double> dir{0, 0, 0};         // Vector direction to cs.
   double dist = 0;             // Module of distance to cs.
+  std::vector<double> sph_ang{0,0};
+
   double dot = 0;              // Dot (inner) product with cascade direction.
                                // The cosine of the angle between them.
   double ang = 0;              // The angle.
