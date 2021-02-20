@@ -26,10 +26,10 @@ int main(int argc, char** argv){
   std::string identifier = argv[1];
   int evt = 0;
   double cenergy = 1E9;
-  double xpos = 250;
+  double xpos = 0;
   double ypos = 0;
-  double zpos = 0;
-  double czenith = 45;
+  double zpos = 250;
+  double czenith = 180;
   double cazimuth = 0;
 
   double nenergy = 1E9;
@@ -60,16 +60,15 @@ int main(int argc, char** argv){
 
       std::string identifier_l = path_out + "Line1D_" + identifier;
       Line1D event0(tx,rx,cs);
-      std::cout << cazimuth << std::endl;
 
 
       /* Write out all the information. */
-      write_2D_array(event0.segement_coords(),  identifier_l + "_coords.txt", 1);
+      // write_2D_array(event0.segement_coords(),  identifier_l + "_coords.txt", 1);
       // write_1D_array(event0.amplitude(),        identifier_l + "_Er_slices.txt", 1);
       // write_1D_array(event0.arrivals(),         identifier_l + "_t_arrivals.txt", 1);
       // write_1D_array(event0.phase(),            identifier_l + "_phases.txt", 1);
-      write_1D_array(event0.duration(),         identifier_l + "_duration.txt", 1);
-      write_1D_array(event0.waveform(),         identifier_l + "_waveform.txt", 1);
+      // write_1D_array(event0.duration(),         identifier_l + "_duration.txt", 1);
+      // write_1D_array(event0.waveform(),         identifier_l + "_waveform.txt", 1);
       // write_2D_array(event0.phase_time(),       identifier_l + "_phase_time_profile.txt", 1);
       // write_2D_array(event0.wave_time(),        identifier_l + "_Er_time_profile.txt", 1);
 

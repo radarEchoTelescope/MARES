@@ -3,11 +3,11 @@
 // Math tools ------------------------------------------------------------------
 int sgn(double val) { return (0.0 < val) - (val < 0.0);}
 
-double acos2(double y, double x){
-  // If you want to check your angle's range, you can do it here.
-  double delta = y - x;
-  delta < pi ? delta = acos(delta) : delta = - acos(delta);
-  return delta;
+double acos2(double x1, double x2, double y1, double y2){
+  double angle;
+  angle = atan2( x1*y2 - x2*y1, x1*y1 + x2*y2 );
+  // angle = atan2( det(a,b), dot(a,b) );
+  return angle;
 }
 
 

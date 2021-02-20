@@ -89,7 +89,6 @@ public:
 
 private:
   double alpha;
-  bool face_on;
 
   std::vector<std::vector<double>> coords; // To get rid of?
   std::vector<std::vector<double>> density_cs;

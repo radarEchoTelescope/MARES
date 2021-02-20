@@ -24,14 +24,13 @@ Cascade::Cascade(int event, double cenergy, double xpos, double ypos, double zpo
 	L_tot = X_tot/rho_ice/100; 			//L in meters m.
 	L_bin = L_tot/nbin;
 	// Sanity check! Your sections are not unphysical due to lifetime constraint.
-	assert(L_bin <= c_vac*tau && "Overdense sections are too large!");
+	assert(L_bin <= c_vac*tau && "Cascade segments are too large!");
 }
 
 /* Particle (electron) density for penetration length X and radius r. */
 double Cascade::dens(double X, double r){      // [g/cm^2, cm, GeV]
 	double dens, delta_r = 0.05;
 	// s = sh_age(X,E_p);*step
-	// TEST
 	if (r < 0 ) {r = -r;}
 	if (X < 0){X = 0;}
 	dens = Ne(X,E_p) * intwiv(r, delta_r) / (pi*(pow(r + delta_r,2) - pow(r,2)));
@@ -86,42 +85,6 @@ void Cascade::set_rcrit(const double & freq_obs){
     // The shower waist is located by definition at the maximum 	plasma radius.
     r_waist = *max_element(r_crit.begin(), r_crit.end());
 }
-
-// void Cascade::set_reflectivity_2D(){
-// 	// double X, X_bin, r, r_bin, k_mid;
-// 	double skin, dr;                      // [cm]
-// 	double wplasma;                       // [rad/s]
-//
-// 	double reflectance, reflectivity;      // Unitless
-// 	std::vector<double> reflectance_row, reflectivity_row;
-//
-// 	// Loop over depth
-// 	for (int i = 0; i < nbin; i++){
-// 		X=i*X_bin;
-// 		reflectance = 0, reflectivity = 0;
-// 		// Loop over layers
-// 		for (int k = 0; k < nbin; k++){
-// 			// We actually need to move from the outside - in!
-// 			k_mid = nbin - (k + 0.5);
-// 			// Fix for the last layer variable size (since we shift them).
-// 			k == nbin ? dr = 0.5*r_bin : dr = r_bin;
-//
-// 			wplasma=8980*sqrt(dens(X,k_mid*r_bin))*sqrt(1/mme);
-// 			skin=cice_cm/(2*wplasma);
-//
-// 			reflectance = (1-reflectivity)*(1-exp(-1*dr/skin));
-// 			reflectivity += reflectance;
-// 			assert(reflectivity < 1 && "Reflectivity larger than 1!");
-//
-// 			reflectance_row.push_back(reflectance);
-// 			reflectivity_row.push_back(reflectivity);
-// 		}
-// 		reflectance2D.push_back(reflectance_row);
-// 		reflectivity2D.push_back(reflectivity_row);
-// 		reflectance_row.clear();
-// 		reflectivity_row.clear();
-// 	}
-// }
 
 // ----------------------------------------------------------------------------
 // Accesors
@@ -260,11 +223,7 @@ namespace {
 	double intwiv(double r, double delta_r, double s){    // [cm, cm, unitless]
 		double intwiv = 0, imx = 50.0, step = delta_r/imx;
 		assert(r >= 0 && "Intwiv's r < 0");
-		// TEST
-		// if (r < 0 ){ r = -r;}
 	  for (int i = 0; i < imx; i++){ intwiv += wiv1(r + i*step, s);}
-		// TEST
-		// if (intwiv < 0) {intwiv = -intwiv;}
 	  return intwiv*step;         // [Unitless]
 	}
 

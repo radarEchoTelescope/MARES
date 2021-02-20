@@ -34,16 +34,6 @@ void Scatter::set_direction(Antenna& at){
     at.dir = direction(cs.pos,at.pos);
   }
 
-  // at.dir[0] = (cs.pos[0] - at.pos[0]);
-  // at.dir[1] = (cs.pos[1] - at.pos[1]);
-  // at.dir[2] = (cs.pos[2] - at.pos[2]);
-  //
-  // if (at._power == 0) {   // Rx
-  //   at.dir[0] = - at.dir[0];
-  //   at.dir[1] = - at.dir[1];
-  //   at.dir[2] = - at.dir[2];
-  // }
-
   // Module of distance to cascade
   at.dist = distance(cs.pos, at.pos);
   // at.dist = sqrt(pow(at.dir[0],2.0)+pow(at.dir[1],2.0)+pow(at.dir[2],2.0));
@@ -90,7 +80,7 @@ void Scatter::set_direction_center(Antenna& at){
   /* THIS SHOULD THROW AND EXCEPTION SO YOU CAN CHOOSE HOW TO SOLVE IT
       FOR NOW, SO THE FOLLOWING DOESN'T BREAK.
  */
- if(at.dist == 0) {at.dist = at.l_obs;}
+ if(at.dist < at.l_obs) {at.dist = at.l_obs;}
 
  // Including correction for sgn(angle);
  at.sph_ang[0] =  acos(at.dir[2]/at.dist);
@@ -124,24 +114,19 @@ void Scatter::set_segments(){
   for(int i = 0 ; i < nbin; i++){
     // Set position
     l    = (i + rand_line.get()) * cs.get_L_bin();      // [m] distance from the shower head (starting point)
-    // l    = i*cs.get_L_bin();      // [m] distance from the shower head (not random)
 
     seg_pos[0]  = cs.pos[0] + l*cs.dir[0];
     seg_pos[1]  = cs.pos[1] + l*cs.dir[1];
     seg_pos[2]  = cs.pos[2] + l*cs.dir[2];
 
     // Set distances
-    tx_cs[0] = seg_pos[0] - tx.pos[0];
-    tx_cs[1] = seg_pos[1] - tx.pos[1];
-    tx_cs[2] = seg_pos[2] - tx.pos[2];
-
+    tx_cs = direction(tx.pos, seg_pos);
     rt = norm(tx_cs);
-    // rt   = distance(xpos, ypos, zpos, tx.position()[0], tx.position()[1], tx.position()[2]);
+    // rt = distance(tx.pos, seg_pos);
+
     if(i == 0){rt0 = rt;}
 
-    rx_cs[0] = seg_pos[0] - rx.pos[0];
-    rx_cs[1] = seg_pos[1] - rx.pos[1];
-    rx_cs[2] = seg_pos[2] - rx.pos[2];
+    rx_cs = direction(seg_pos, rx.pos);
     rr = norm(rx_cs);
     // rr   = distance(xpos, ypos, zpos, rx.position()[0], rx.position()[1], rx.position()[2]);
 
@@ -165,36 +150,12 @@ void Scatter::set_segments(){
     // E field amplitude at reciever from constant and distance dependant factors.
 
     // Set polarization
-
-    // std::cout << tx.polarization()[0] << tx.polarization()[1] << tx.polarization()[2] << std::endl;
     std::vector<double> uv = cross_product(normalize(tx_cs), tx.polarization() );
-    // std::cout <<
-    // uv[0] << '\t' <<
-    // uv[1] << '\t' <<
-    // uv[2] << std::endl;
-    // write_1D_array(uv, "_e1.txt", 1);
     std::vector<double> uuv = cross_product(normalize(tx_cs),uv);
-    // std::cout <<
-    // uuv[0] << '\t' <<
-    // uuv[1] << '\t' <<
-    // uuv[2] << std::endl;
-
     std::vector<double> wuuv = cross_product(normalize(rx_cs),uuv);
-    // std::cout <<
-    // wuuv[0] << '\t' <<
-    // wuuv[1] << '\t' <<
-    // wuuv[2] << std::endl;
-
-    // write_1D_array(wuuv, "_e3.txt", 1);
     std::vector<double> wwuuv = cross_product(normalize(rx_cs),wuuv);
-    // std::cout <<
-    // wwuuv[0] << '\t' <<
-    // wwuuv[1] << '\t' <<
-    // wwuuv[2] << std::endl;
-
-    // write_1D_array(wwuuv, "_e4.txt", 1);
     double p = projection(wwuuv, rx._polar);
-    // std::cout << p << std::endl;
+
 
     // Set amplitude
     // std::cout << E0 << std::endl;
@@ -206,8 +167,6 @@ void Scatter::set_segments(){
     //      rx_cs X (rx_cs X [tx_cs X (tx_cs X tx_pol)]) · rx_pol               // Polarization (sin * sin * cos)
     //      (leff_tx)*(leff_rx) * Z0/Zload * sqrt(eta_T/(4*pi) *                // The constants
     //      sqrt(sigma_rcs);                                                    // The cross section (later)
-
-    // _amplitude.push_back(E0 / (rt * rr) ); // Original
 
     // Set phase
     _phase.push_back( tx.wavenr()*(2*rt + rr - rt0) ); // Simplified from Dieder code
@@ -317,6 +276,7 @@ Cascade1D::Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs):
     set_rotated_density();
 
     set_fplasma();
+    set_absorption();
     set_skin_depth();
     set_reflectivity();
     set_radar_cs();
@@ -349,7 +309,9 @@ void Cascade1D::set_rotated_density(){
   double delta = projection(tx.direction(), cs.direction());
   delta = acos(delta);
 
-  std::cout << cs.sph_angles()[1] << '\t' << tx.sph_angles()[1] << std::endl;
+
+  std::cout << rad2deg(cs.sph_angles()[0]) << '\t' << rad2deg(tx.sph_angles()[0]) << std::endl;
+  std::cout << tx.direction()[0] << '\t' << tx.direction()[1] << '\t' << tx.direction()[2] << std::endl;
   std::cout << delta << '\t' << rad2deg(delta) << std::endl;
 
   // These are the dimensions of the axis in the projection into the incidence frame.
@@ -374,18 +336,21 @@ void Cascade1D::set_rotated_density(){
       // uz = l*sin(delta) - r*cos(delta);
 
       // Position of the incidence frame w.r.t. the cascade frame
-      wx = a*cos(delta) + b*sin(delta);
-      wz = a*sin(delta) - b*cos(delta);
-      // This should be technically -delta, but they are equivalent.
+      // wx = a*cos(-delta) + b*sin(-delta);
+      // wz = a*sin(-delta) - b*cos(-delta);
 
-        // The cascade frame
-        coords[i][0] = l;
-        coords[i][1] = r;
-        coords[i][2] = a;
-        coords[i][3] = b;
-        density_cs[j][i] = cs.dens((l  + cs.get_L_tot() /2.0 * 100.0)*rho_ice,r);
-        density_tx[j][i] = cs.dens((wx + cs.get_L_tot() /2.0 * 100.0)*rho_ice, wz);
-        // Because dens is defined from L = 0.
+      wz = a*cos(delta) + b*sin(delta);
+      wx = -a*sin(delta) + b*cos(delta);
+
+      // The cascade frame
+      coords[i][0] = l;
+      coords[i][1] = r;
+      coords[i][2] = a;
+      coords[i][3] = b;
+      density_cs[i][j] = cs.dens((l  + cs.get_L_tot() /2.0 * 100.0)*rho_ice,r);
+
+      density_tx[i][j] = cs.dens((wz + cs.get_L_tot() /2.0 * 100.0)*rho_ice, wx);
+      // Because dens is defined from L = 0.
 
 // keep in mind that the resolution (spacing of wx, wz) is not preserved,
 // is not the same as l_bin, r_bin.
@@ -430,17 +395,6 @@ void Cascade1D::set_fplasma(){
   }
 }
 
-void Cascade1D::set_skin_depth(){
-  if (density_tx.empty() ){set_rotated_density();}
-  skin_depth_matrix = std::vector<std::vector<double>> (nbin, vector<double> (nbin, 0));
-
-  for (int i = 0; i < nbin; i++){
-    for (int j = 0; j < nbin; j++){
-        skin_depth_matrix[i][j] = skin_depth(density_tx[i][j]);
-    }
-  }
-}
-
 void Cascade1D::set_absorption(){
   if (density_tx.empty() ){set_rotated_density();}
   absorption_matrix = std::vector<std::vector<double>> (nbin, vector<double> (nbin, 0));
@@ -452,26 +406,18 @@ void Cascade1D::set_absorption(){
   }
 }
 
-// double Cascade1D::skin_depth(double& dens){
-//   double f_plasma = cs.fplasma(dens);
-//   double w, a, b, q;
-//
-//   // Exact solution from dispersion relation with collisions.
-//   if (f_coll != 0){
-//     w = pow(f_plasma,2)/( pow(tx.freq(),2) + pow(f_coll,2) );
-//     a = 1 - w;
-//     b = (f_coll/ tx.freq()) * w;
-//
-//     // double p = (w_obs/c_ice)*np.sqrt((np.sqrt(a**2 + b**2) + a) /2 )
-//     q = (tx.freq()/c_ice)*sqrt((sqrt(pow(a,2) + pow(b,2)) - a) /2 );
-//   } else {
-//   // Collisionless model
-//     f_plasma > tx.freq() ? q = f_plasma/cice_cm : q = 0;
-//   }
-//   return 1/q;
-// }
+void Cascade1D::set_skin_depth(){
+  if (density_tx.empty() ){set_rotated_density();}
+  skin_depth_matrix = std::vector<std::vector<double>> (nbin, vector<double> (nbin, 0));
 
-// TODO FIx the orientation mode.
+  for (int i = 0; i < nbin; i++){
+    for (int j = 0; j < nbin; j++){
+        skin_depth_matrix[i][j] = skin_depth(density_tx[i][j]);
+    }
+  }
+}
+
+
 // TO CHECK: dr = r_bin is valid? exact ????
 void Cascade1D::set_reflectance(){
 	double reflectance, reflectivity;      // Unitless
@@ -479,21 +425,18 @@ void Cascade1D::set_reflectance(){
   reflectivity_matrix = std::vector<std::vector<double>> (nbin, vector<double> (nbin, 0));
 
 	// Loop over the density matrix
-	for (int i = 0; i < nbin; i++){
+  for (int j = 0; j < nbin; j++){
 		reflectance = 0, reflectivity = 0;
-		for (int j = 0; j < nbin; j++){
+    for (int i = 0; i < nbin; i++){
 
-// Previous definition
-      // reflectance = (1-reflectivity)*(1-exp(-1*cs.get_r_bin()/skin_depth(density_tx[j][i])));
 
-// New definition
-      reflectance = (1-reflectivity)*(1-exp(-1*cs.get_r_bin()*absorption( density_tx[j][i]) ));
+      reflectance = (1-reflectivity)*(1-exp(-1*cs.get_r_bin()*absorption( density_tx[i][j]) ));
       reflectivity += reflectance;
 
 			assert(reflectivity < 1 && "Reflectivity larger than 1!");
 
-      reflectance_matrix[j][i] = reflectance;
-      reflectivity_matrix[j][i] = reflectivity;
+      reflectance_matrix[i][j] = reflectance;
+      reflectivity_matrix[i][j] = reflectivity;
 
 		}
 	}
@@ -502,9 +445,7 @@ void Cascade1D::set_reflectance(){
 void Cascade1D::set_reflectivity(){set_reflectance(); }
 
 
-/* Compute the RCS of the cascade from the slices in slices.
-
-*/
+/* Compute the RCS of the cascade from the slices in slices. */
 
 void Cascade1D::set_radar_cs(){
   double r;
@@ -517,27 +458,15 @@ void Cascade1D::set_radar_cs(){
     }
   }
 }
-// VALID FOR EDGE ON AND FACE ON?! (If we correct the loop order)
-
-// The reflectance corrections are only applied to the od sections.
-// std::vector<double> r_crit = cs.get_rcrit();
-// // Number of layers per segment.
-// int k_max = (int) r_crit[i]/r_bin;
- // Only layers from od_region are looked, outside-in.
-// k >= (nbin - k_max) ? k_mid = nbin - (k + 0.5) : k_mid = 0;
-
-// for(int i=0; i < rcs.size(); i++) {std::cout << rcs.at(i) << ' ';}
-// std::remove_copy(reflectivity_matrix.back().begin(), reflectivity_matrix.back().end(), v2.begin(), 0);
-// std::cout << v2[0] << std::endl;
-// std::cout << rcs.empty() << std::endl;
-// std::cout << cell_size << std::endl;
-// std::cout << rcs[0] << " " << rcs[nbin - 1] << std::endl;
 
 
 std::vector<std::vector<double>> Cascade1D::get_density_cs()  { return density_cs; }
 std::vector<std::vector<double>> Cascade1D::get_density_tx()  { return density_tx; }
 std::vector<std::vector<double>> Cascade1D::get_plasma_freq() { return fplasma_matrix; }
-std::vector<std::vector<double>> Cascade1D::get_absorption()  { return absorption_matrix; }
+std::vector<std::vector<double>> Cascade1D::get_absorption()  {
+  if (absorption_matrix.empty()) {set_absorption();}
+  return absorption_matrix;
+}
 std::vector<std::vector<double>> Cascade1D::get_skin_depth()  { return skin_depth_matrix; }
 std::vector<std::vector<double>> Cascade1D::get_reflectance() { return reflectance_matrix; }
 std::vector<std::vector<double>> Cascade1D::get_reflectivity(){ return reflectivity_matrix; }
