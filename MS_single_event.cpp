@@ -29,7 +29,7 @@ int main(int argc, char** argv){
   double xpos = 0;
   double ypos = 0;
   double zpos = 250;
-  double czenith = 180;
+  double czenith = 90;
   double cazimuth = 0;
 
   double nenergy = 1E9;
@@ -40,10 +40,15 @@ int main(int argc, char** argv){
   czenith = deg2rad(czenith);
   cazimuth = deg2rad(cazimuth);
 
+  std::string identifier_l = path_out + "Line1D_" + identifier;
+  std::string identifier_c = path_out + "Cascade1D_" + identifier;
+
+
   Cascade cascade(evt, cenergy, xpos, ypos, zpos, czenith, cazimuth,
                   nenergy, nzenith, nazimuth, oneweight);
 
   Cascade& cs = cascade;
+  // write_2D_array(cs.Density(),    identifier_c + "_density_cs.txt", 1);
 
   // Run here the validity check for the cascasde?
 
@@ -52,43 +57,38 @@ int main(int argc, char** argv){
   Detector bistatic(det_type);
 
   // For every transmitter
-  for (auto& tx : bistatic.transmitters()){
+  for (auto& tx : bistatic.Transmitters()){
     // For every receiver
-    for (auto& rx : bistatic.receivers()){
+    for (auto& rx : bistatic.Receivers()){
       // Make the bistatic event.
       // std::cout << "Event: " << std::to_string((int)cs.event()) << endl;
 
-      std::string identifier_l = path_out + "Line1D_" + identifier;
       Line1D event0(tx,rx,cs);
-
 
       /* Write out all the information. */
       // write_2D_array(event0.segement_coords(),  identifier_l + "_coords.txt", 1);
       // write_1D_array(event0.amplitude(),        identifier_l + "_Er_slices.txt", 1);
       // write_1D_array(event0.arrivals(),         identifier_l + "_t_arrivals.txt", 1);
       // write_1D_array(event0.phase(),            identifier_l + "_phases.txt", 1);
-      // write_1D_array(event0.duration(),         identifier_l + "_duration.txt", 1);
-      // write_1D_array(event0.waveform(),         identifier_l + "_waveform.txt", 1);
+      write_1D_array(event0.duration(),         identifier_l + "_duration.txt", 1);
+      write_1D_array(event0.waveform(),         identifier_l + "_waveform.txt", 1);
       // write_2D_array(event0.phase_time(),       identifier_l + "_phase_time_profile.txt", 1);
       // write_2D_array(event0.wave_time(),        identifier_l + "_Er_time_profile.txt", 1);
 
-
-
       // std::string identifier_c = path_out + "Cascade1D_" + std::to_string((int) rad2deg( cs.sph_angles()[1]) ) + "_deg";
       //
-      std::string identifier_c = path_out + "Cascade1D_" + identifier;
       Cascade1D event(tx,rx,cs);
       // std::cout << cazimuth << std::endl;
 
-      write_2D_array(event.get_density_cs(),    identifier_c + "_density_cs.txt", 1);
-      write_2D_array(event.get_density_tx(),    identifier_c + "_density_tx.txt", 1);
-      write_2D_array(event.get_plasma_freq(),   identifier_c + "_plasma_freq.txt", 1);
-      write_2D_array(event.get_absorption(),    identifier_c + "_absorption.txt", 1);
-      write_2D_array(event.get_skin_depth(),    identifier_c + "_skin_depth.txt", 1);
-      write_2D_array(event.get_reflectance(),   identifier_c + "_reflectance_matrix.txt", 1);
-      write_2D_array(event.get_reflectivity(),  identifier_c + "_reflectivity_matrix.txt", 1);
-      write_1D_array(event.radar_cs(),          identifier_c + "_radar_cs.txt", 1);
-      write_2D_array(event.segement_coords(),   identifier_c + "_coords.txt", 1);
+
+      write_2D_array(event.Density(),     identifier_c + "_density_tx.txt", 1);
+      write_2D_array(event.PlasmaFreq(),  identifier_c + "_plasma_freq.txt", 1);
+      write_2D_array(event.Absorption(),  identifier_c + "_absorption.txt", 1);
+      write_2D_array(event.SkinDepth(),   identifier_c + "_skin_depth.txt", 1);
+      write_2D_array(event.Reflectance(), identifier_c + "_reflectance_matrix.txt", 1);
+      write_2D_array(event.Opacity(),     identifier_c + "_opacity_matrix.txt", 1);
+      write_1D_array(event.RCS(),         identifier_c + "_radar_cs.txt", 1);
+      write_2D_array(event.Coordinates(),   identifier_c + "_coords.txt", 1);
       // write_1D_array(event.amplitude(),         identifier_c + "_Er_slices.txt", 1);
       // write_1D_array(event.arrivals(),          identifier_c + "_t_arrivals.txt", 1);
       // write_1D_array(event.phase(),             identifier_c + "_phases.txt", 1);

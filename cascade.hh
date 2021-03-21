@@ -14,83 +14,130 @@ public:
           double czenith, double cazimuth, double nenergy,
           double nzenith, double nazimuth, double oneweight);
 
-  /* Particle (electron) density for penetration length X and radius r. */
-  double dens(double X, double r);      // [g/cm^2, cm, GeV]
+  // Cascade's methods
 
-  double fplasma(double& dens);
-
-  std::vector<double> get_rcrit();
-  std::vector<std::vector<double>> get_density();
-  // std::vector<std::vector<double>> get_reflectivty_2D();
-  // std::vector<std::vector<double>> get_reflectance_2D();
+  /* Particle (electron) density for penetration length X and radius r.
+  [g/cm^2, cm, GeV] */
+  double Density(double X, double r);      // [#e-/ cm^3]
+  double PlasmaFreq(const double &dens);         // [Hz]
+  double Absorption(const double &dens, const double &freq_obs);
+  double SkinDepth(const double &dens, const double &freq_obs);
 
   // Accesors
-  int  event();
-  double  energy();
-  // double* sph_angles();
-  // double* position();
-  // double* direction();
-  std::vector<double> sph_angles();
-  std::vector<double> position();
-  std::vector<double> direction();
-  double* parent();
+  int  Evt() const;
+  double  Energy() const;
+  std::vector<double> Pos() const;
+  std::vector<double> Dir() const;
+  std::vector<double> Sph() const;
 
-  double Xtot();
-  double get_X_bin();
-  double get_r_tot();
-  double get_r_bin();
-  double get_L_bin();
-  double get_L_tot();
-  double get_rwaist();
+  double* Parent();
+
+  double Ldiv() const;
+  double Xdiv() const;
+  double Rdiv() const;
+
+  double Ltot() const;
+  double Xtot() const;
+  double Rtot() const;
+
+  double Lbins() const;
+  double Xbins() const;
+  double Rbins() const;
+
+  std::vector<std::vector<double>> Density();
+
+
+
 
 private:
   friend class Scatter; // Scatter can access private members.
 
-  int    evtnr;            // Event number.
-  double E_p;          // Energy of the cascade.
-  // double sph_ang[2];      // {Theta = zenith, phi= azimuth}
-  std::vector<double> sph_ang{0,0};
-  // Incoming spherical angles (spherical coordinates) w.r.t the detector frame.
-  // double pos[3];          // Interaction point's position (Shower start, head).
-  std::vector<double> pos{0,0,0};
-  // The cascade development direction is set from the sph_ang.
-  // double dir[3];          // Cartesian vector direction
-  std::vector<double> dir{0,0,0};
+  int    fEvent;            // Event number.
+  double fEnergy;          // Energy of the cascade.
+
+  // Interaction point's position (Shower start, head).
+  std::vector<double> fPosition{0,0,0};
+
+  // The cascade development direction is now set from the sph_ang.
+  std::vector<double> fDirection{0,0,0}; // Cartesian vector direction
+
+  // Incoming spherical angles (spherical coordinates) w.r.t the Earth frame.
+  std::vector<double> fSphericalAngles{0,0};    // {Theta = zenith, phi= azimuth}
+
   // Neutrino parent values: energy, zenith, azimuth, oneweight.
-  double neutrino[4];
+  double fNeutrino[4];
+
+
+  double fLdiv = 1;       // [cm] Length interval, resolution.
+  double fXdiv = fLdiv * rho_ice;
+  double fRdiv = 1;       // [cm] radial interval, resolution.
 
   // Max cascade depth: X_tot = 4* max depth from Heitler model estimate.
-  double X_tot;           // [g/cm^2] Penetration depth
-  double X_bin;
-  double r_tot;           // [cm]
-  double r_bin;
-  double L_tot;           // [m]
-  double L_bin;
+  double fLtot;           // [m]
+  double fXtot;           // [g/cm^2] Penetration depth
+  double fRtot;           // [cm]
 
-  std::vector<std::vector<double>> density;         // [#e-/ cm^3] The variable
-  void set_density();   // The function that generates the variable.
+  double fLbins;          // Number of bins for cascade length
+  double fXbins;          // Number of bins for cascade depth
+  double fRbins;          // Number of bins for cascade radius
 
-  double r_waist;         // [cm]
-  std::vector<double> r_crit;
-  void set_rcrit(const double & freq_obs = 1E9);    // Default frequency.
 
-  /* Compute the 2D reflectance and reflectivity for varying skin depth.
 
-  Physics note:
-  Reflectivity = Property of a material.
-  Reflectance = Refers to a specific sample, depends on size and other params.
+  //
 
-  Reflectivity is the reflectance value as the object becomes thick.
-  Thus, reflectivity is defined here as the integral of reflectance over
-  the layers.
-  */
-  // std::vector<std::vector<double>> reflectance2D, reflectivity2D;
-  // void set_reflectivity_2D();
+  // std::vector<std::vector<double>> fDensity;        // [#e-/ cm^3]
+  // double fRwaist;
+  // std::vector<double> fRcrit; // [cm]
+  // std::vector<std::vector<double>> fPlasmaFrequency;
+  // std::vector<std::vector<double>> fAbsorption;
+  // std::vector<std::vector<double>> fSkinDepth;
+  // std::vector<std::vector<double>> fReflectance;
+  // std::vector<std::vector<double>> fOpacity;
+  //
+  // void SetDensity();
+  // void Rcrit(const std::vector<std::vector<double>> &density, const double & freq);
+  // void PlasmaFreq(const std::vector<std::vector<double>> &density);
+  // void Absorption(const std::vector<std::vector<double>> &density, const double & freq);
+  // void SkinDepth(const std::vector<std::vector<double>> &density, const double & freq);
+  // void Reflectance(const std::vector<std::vector<double>> &absorption);
+  // void Opacity(const std::vector<std::vector<double>> &absorption);
+  // void RCS(const std::vector<std::vector<double>> &reflectance);
 
-  // std::vector<double> od_cs_1D;
-  // void set_od_cs_1D();
+
+
+
+  std::vector<std::vector<double>> fDensity;
+  void SetDensity();
+
+  // double fRwaist;
+  // std::vector<double> fRcrit; // [cm]
+  // void SetRcrit(const std::vector<std::vector<double>> &density = fDensity,
+  //               const double &freq = freq_obs);
 
 };
+
+std::vector<Cascade> load_cascade_file(const std::string& cs_filepath);
+
+// Helper functions, used by other functions only
+namespace{
+
+  /* Ne, number of particles in the cascade */
+  double Ne(double X, double E);
+
+  /* Shower age */
+  double ShowerAge(double X, double E);
+
+  /* Lateral particle distribution for radius r and penetration length X. */
+  double wiv1(double r, double s);
+
+  /* Integral of lateral particle distribution between two radii. */
+  double intwiv(double r, double delta_r, double s = 1.01);    // [cm, cm, g/cm^2, GeV]
+  // "Hard-coded" s = 1 for now. s = 1.01 to avoid divergencies.
+}
+
+#endif
+// -----------------------------------------------------------------------------
+
 
 /* You don't want to allow the code to edit these values.
 These are needed if you add the default empty constructor.
@@ -108,27 +155,5 @@ These are needed if you add the default empty constructor.
   void set_direction_cartesian(double x, double y, double z){ dir = {x,y,z}; }
   void set_parent_neutrino(double nenergy, double nazimuth, double nzenith,
     double oneweight) {neutrino = {nenergy, nzenith , nazimuth, oneweight}; }
-  void set_max_depth(E_p){X_tot = 4*(log(E_p/E_c)/log(2) )*X_int;}
+  void set_max_depth(fEnergy){X_tot = 4*(log(fEnergy/E_c)/log(2) )*X_int;}
 */
-
-std::vector<Cascade> load_cascade_file(const std::string& cs_filepath);
-
-// Helper functions, used by other functions only
-namespace{
-
-  /* Ne, number of particles in the cascade */
-  double Ne(double X, double E_p);
-
-  /* Shower age */
-  double sh_age(double X, double E_p);
-
-  /* Lateral particle distribution for radius r and penetration length X. */
-  double wiv1(double r, double s);
-
-  /* Integral of lateral particle distribution between two radii. */
-  double intwiv(double r, double delta_r, double s = 1.01);    // [cm, cm, g/cm^2, GeV]
-  // "Hard-coded" s = 1 for now. s = 1.01 to avoid divergencies.
-}
-
-#endif
-// -----------------------------------------------------------------------------

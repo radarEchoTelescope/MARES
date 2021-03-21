@@ -1,129 +1,136 @@
 #include "cascade.hh"
 
-namespace {
-	double X, r, k_mid; 		// temp variables
-}
-
 Cascade::Cascade(int event, double cenergy, double xpos, double ypos, double zpos,
 								 double czenith, double cazimuth,  double nenergy,
 								 double nzenith, double nazimuth, double oneweight):
-				 evtnr(event), E_p(cenergy), pos{xpos, ypos, zpos}, sph_ang{czenith,cazimuth},
-				 neutrino{nenergy, nzenith, nazimuth,oneweight} {
+				 			   fEvent(event),
+								 fEnergy(cenergy),
+								 fPosition{xpos, ypos, zpos},
+								 fSphericalAngles{czenith,cazimuth},
+								 fNeutrino{nenergy, nzenith, nazimuth,oneweight} {
 
-	dir[0] = sin(sph_ang[0])*cos(sph_ang[1]);
-	dir[1] = sin(sph_ang[0])*sin(sph_ang[1]);
-	dir[2] = cos(sph_ang[0]);
+	 // Sanity check! Your sections are not unphysical due to lifetime constraint.
+	 assert(fLdiv <= cvac_cm*tau && "Cascade resolution is too large!");
+	 // This should be further checked against the probing wavelength.
 
-	X_tot = 4*(log(E_p/E_c)/log(2) )*X_int;
-	X_bin = X_tot/nbin;
+	fDirection[0] = sin(fSphericalAngles[0])*cos(fSphericalAngles[1]);
+	fDirection[1] = sin(fSphericalAngles[0])*sin(fSphericalAngles[1]);
+	fDirection[2] = cos(fSphericalAngles[0]);
 
-	// CORRECT FOR E 1E9, switch to E MIN 10^6 GeV AND VERIFY FOR ALL ENERGIES.
-	r_tot = 5*r_moliere;//*log(E_p/1E9);
-	r_bin = r_tot/nbin;
+	/* X_tot 	= 4* number of divisions for shower_max * interaction length
+				  = 4*(log(fEnergy/E_c)/log(2) )*X_int;
+		 			= 4*(log(fEnergy/E_c)) * X_0
+ */
+	fXtot = 4 * log(12.72 * fEnergy) * X_0;			// [g/cm^2]
+	fLtot = fXtot/rho_ice; 															// [cm]
+	fRtot = 5*r_moliere;//*log(fEnergy/1E9);						// [cm]
+	// THIS WORKS FOR E 1E9, switch to E MIN 10^6 GeV AND VERIFY FOR ALL ENERGIES.
 
-	L_tot = X_tot/rho_ice/100; 			//L in meters m.
-	L_bin = L_tot/nbin;
-	// Sanity check! Your sections are not unphysical due to lifetime constraint.
-	assert(L_bin <= c_vac*tau && "Cascade segments are too large!");
+	fLbins = (int) ceil( fLtot/fLdiv );
+	fXbins = (int) ceil( fXtot/fXdiv );
+	fRbins = (int) ceil( fRtot/fRdiv );
+
 }
 
-/* Particle (electron) density for penetration length X and radius r. */
-double Cascade::dens(double X, double r){      // [g/cm^2, cm, GeV]
+// Cascade's Methods
+
+double Cascade::Density(double X, double r){
 	double dens, delta_r = 0.05;
-	// s = sh_age(X,E_p);*step
-	if (r < 0 ) {r = -r;}
-	if (X < 0){X = 0;}
-	dens = Ne(X,E_p) * intwiv(r, delta_r) / (pi*(pow(r + delta_r,2) - pow(r,2)));
-	assert(dens >= 0 && "Negative density value");
-	return dens;        // [#e-/ cm^3]
+	// s = ShowerAge(X,fEnergy);*step
+	if (r < 0) {r = -r;}
+	if (X < 0) {X = 0;}
+	dens = Ne(X,fEnergy) * intwiv(r, delta_r) / (pi*(pow(r + delta_r,2) - pow(r,2)));
+	assert(dens >= 0 && "Negative density value"); // Sanity check
+	return dens;
 }
 
-double Cascade::fplasma(double& dens){return (8980 * sqrt(memp) * sqrt(dens));} // [Hz]
+double Cascade::PlasmaFreq(const double &dens){ return (8980 * sqrt(memp) * sqrt(dens)); }
 
+double Cascade::Absorption(const double &dens, const double &freq_obs){
+	double w, a, b, q;     // Some temp varables.
+  double fplasma = PlasmaFreq(dens);
 
-/* Make 2D-array of density profile */
-void Cascade::set_density(){
-	//double X, r;
-  std::vector <double> row;
+  // Exact solution from dispersion relation with collisions.
+  if (f_coll != 0){
+    w = pow(fplasma,2)/( pow(freq_obs,2) + pow(f_coll,2) );
+    a = 1 - w;
+    b = (f_coll / freq_obs) * w;
 
-  for (int i = 0; i < nbin; i++){
-    X=i*X_bin;
-    for (int j = 0; j < nbin; j++){
-      r = j*r_bin;
-      row.push_back(dens(X,r));
-    }
-    density.push_back(row);
-    row.clear();
+    // double p = (fAngularFreq/cvac_cm)*np.sqrt((np.sqrt(a**2 + b**2) + a) /2 )
+    q = (freq_obs/cvac_cm)*sqrt((sqrt(pow(a,2) + pow(b,2)) - a) /2 ); // [1/cm]
+  } else {
+  // Collisionless model
+    fplasma > freq_obs ? q = fplasma/cice_cm : q = 0;               // [1/cm]
   }
+  return q;
 }
 
-
-
-
-/* Get the radial values of the od/ud line (r_crit).
-This is where the plasma frequency equals the detection frequency. */
-void Cascade::set_rcrit(const double & freq_obs){
-    // double X, r;
-
-		get_density();
-		double dens_crit = memp*pow(freq_obs/8980,2);
-		/* [(#e-) cm^-3]  Critical e- density for overdense scattering condition
-		 wp > w > 8980*sqrt(ne), w is frequency [Hz]!! */
-
-    // Loop over cascade depth
-    for (int i = 0; i < nbin; i++){
-      X = i*X_bin;
-      r = 0;
-      // Loop over cascade radius
-      for (int j = 0; j < nbin; j++){
-        // Update value of plasma radius per depth step
-        if (density[i][j] > dens_crit) { r = j*r_bin;}   // [cm]
-      }
-      r_crit.push_back(r);
-    }
-
-    // The shower waist is located by definition at the maximum 	plasma radius.
-    r_waist = *max_element(r_crit.begin(), r_crit.end());
+double Cascade::SkinDepth(const double &dens, const double &freq_obs){
+	return 1/Absorption(dens, freq_obs);
 }
 
+/* Compute the 2D density profile in the cascade frame */
+void Cascade::SetDensity(){
+	double l, r;
+	fDensity = std::vector<std::vector<double>> (fLbins, std::vector<double> (fRbins, 0));
+
+	for (int i = 0; i < fLbins; i++){
+		l = i*fLdiv;
+		for (int j = 0; j < fRbins; j++){
+			r = j*fRdiv;
+			fDensity[i][j] = Density(l*rho_ice,r);	// dens(X,r) takes columm density.
+		}
+	}
+}
+//
+// /* Computes crital radius, the radial values of the line where the plasma frequency
+// equals the detection frequency (overdense line).
+// The density associated with the plasma frequency is the critical density [(#e-) cm^-3]
+// If the local density is higher than that then the medium is overdense.
+//
+// The shower waist is by definition the maximum radius for the same plasma density.
+// */
+// void Cascade::SetRcrit(std::vector<std::vector<double>> &density, const double & freq){
+// 	double r, dens_crit = memp*pow(freq/8980,2);
+// 	fRcrit = std::vector<double>(density.size(), 0);
+//
+// 	// Loop over density matrix rows and then columms.
+// 	for (int i = 0; i < density.size(); i++){
+// 		r = 0;
+// 		for (int j = 0; j < density[0].size(); j++){
+// 			// If overdense, remember the layer.
+// 			if (density[i][j] > dens_crit) { r = j;}   // Layers
+// 		}
+// 		fRcrit[i] = r*fRdiv; // [cm]
+// 	}
+//
+// 	fRwaist = *max_element(fRcrit.begin(), fRcrit.end());
+// }
 // ----------------------------------------------------------------------------
 // Accesors
-int  Cascade::event(){return evtnr;}
-double  Cascade::energy(){return E_p;}
-// double* Cascade::sph_angles(){return sph_ang;}
-// double* Cascade::position(){return pos;}
-// double* Cascade::direction(){return dir;}
-std::vector<double> Cascade::sph_angles(){return sph_ang;};
-std::vector<double> Cascade::position(){return pos;}
-std::vector<double> Cascade::direction(){return dir;}
-double* Cascade::parent(){return neutrino;}
-double  Cascade::Xtot(){return X_tot;}
-double  Cascade::get_X_bin(){return X_bin;}
-double 	Cascade::get_r_tot(){return r_tot;}
-double  Cascade::get_r_bin(){return r_bin;}
-double  Cascade::get_L_tot(){return L_tot;}
-double  Cascade::get_L_bin(){return L_bin;}
-double  Cascade::get_rwaist(){return r_waist;}
+int  Cascade::Evt()	const {return fEvent;}
+double  Cascade::Energy() const {return fEnergy;}
+std::vector<double> Cascade::Sph() const {return fSphericalAngles;};
+std::vector<double> Cascade::Pos() const {return fPosition;}
+std::vector<double> Cascade::Dir() const {return fDirection;}
+double* Cascade::Parent() {return fNeutrino;}
 
-std::vector<std::vector<double>> Cascade::get_density(){
-	// if(density.empty()){ set_density(); }
-	return density;
-}
+double Cascade::Ldiv() const {return fLdiv;}
+double Cascade::Xdiv() const {return fXdiv;}
+double Cascade::Rdiv() const {return fRdiv;}
 
-std::vector<double> Cascade::get_rcrit(){
-	if(r_crit.empty()){ set_rcrit(); }
-	return r_crit;
+double Cascade::Ltot() const {return fLtot;}
+double Cascade::Xtot() const {return fXtot;}
+double Cascade::Rtot() const {return fRtot;}
+
+double Cascade::Lbins() const {return fLbins;}
+double Cascade::Xbins() const {return fXbins;}
+double Cascade::Rbins() const {return fRbins;}
+
+std::vector<std::vector<double>> Cascade::Density()  {
+  if ( fDensity.empty() ) {SetDensity();}
+  return fDensity;
 }
-//
-// std::vector<std::vector<double>> Cascade::get_reflectivty_2D(){
-// 	if(reflectivity2D.empty()) {set_reflectivity_2D();}
-// 	return reflectivity2D;
-// }
-//
-// std::vector<std::vector<double>> Cascade::get_reflectance_2D(){
-// 	if(reflectance2D.empty()) {set_reflectivity_2D();}
-// 	return reflectance2D;
-// }
 
 // -----------------------------------------------------------------------------
 std::vector<Cascade> load_cascade_file(const std::string& cs_filepath){
@@ -131,8 +138,6 @@ std::vector<Cascade> load_cascade_file(const std::string& cs_filepath){
 
   if (!cs_file.is_open()){
     std::cout << "The input file is not opening" << std::endl;
-    //outfile << "The input file is not opening" << endl;
-    //exit (EXIT_FAILURE);
     throw 1;
   }
 
@@ -182,36 +187,37 @@ std::vector<Cascade> load_cascade_file(const std::string& cs_filepath){
   }
   return Cascades;
 }
+
+
 // -----------------------------------------------------------------------------
 
+/* Helper functions, used only by other functions*/
 namespace {
 
-	/* Helper functions, used only by other functions*/
-
 	/* Shower age */
-	double sh_age(double X, double E_p){            // [g/cm^2, GeV]
-		return (3*X/X_0) / ((X/X_0)+2*log(E_p/E_c));  // Unitless
+	double ShowerAge(double X, double E){            // [g/cm^2, GeV]
+		return (3*X/X_0) / ((X/X_0)+2*log(E/E_c));  // Unitless
 	}
 
 	/* Ne, number of ionized electrons per unit length */
-	// N(X,E_p)					Number of particles in the cascade
+	// N(X,fEnergy)					Number of particles in the cascade
 	// 2E6           		[eV/ g/cm^2]  Energy loss per ionizing particle (@ 1 GeV).
 	// 20            		[eV] Electron ionization energy (per electron).
 	// 1E5 = 2E6/20 		[# ionized electrons/ # HE ionizing particle/ g/cm^2]
 	// N*1E5  					[# electrons/ g/cm^2]
 	// N*1E5*rho_ice	 	[#e / cm]
-	double Ne(double X, double E_p){                // [g/cm^2, GeV]
+	double Ne(double X, double E){                // [g/cm^2, GeV]
 		assert(X >= 0 && "Ne's X is ill defined");
 		double N, Ne = 0;
 	  if (X > 0){
-	    N = 0.31*exp((X/X_0)*(1-1.5*log(sh_age(X,E_p))))/sqrt(log(E_p/E_c));
+	    N = 0.31*exp((X/X_0)*(1-1.5*log(ShowerAge(X,E))))/sqrt(log(E/E_c));
 			Ne = N * 1E5 * rho_ice;
 	  }
 	  return Ne;       // [#e / cm]
 	}
 
 	/* Lateral particle distribution for radius r and shower age s. */
-	// Last division is for Normalization, missing in paper.
+	// Last division is for normalization, missing in paper.
 	double wiv1(double r, double s){      // [cm, Unitless]
 	  double wiv1;
     wiv1 = exp(lgamma(4.5-s)-lgamma(s)-lgamma(4.5-2*s))

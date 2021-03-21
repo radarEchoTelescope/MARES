@@ -13,7 +13,7 @@
 // #define NDEBUG     // Turn off debug.
 
 // ----- Computational parameters ----------------------------------------------
-const int nbin = 3000;               // # of bins for integration/array filling
+// const int nbin = 3000;               // # of bins for integration/array filling
 // const int nbin = 1E4;             // # of bins for integration/array filling
 
 const double freq_obs = 1E9;              // [Hz] Default observer frequency
@@ -34,8 +34,9 @@ const double refindex=1.78;               // refractive index
 const double rho_ice = 0.92;              // [g/cm^3] Density
 const double r_moliere = 7;               // [cm] Moliere Radius
 const double E_c = 0.0786;                // [GeV] Critical cascade energy
-const double X_0 = 36.08;                 // [g/cm^2] radiation length
-const double X_int = 25.01;               // [g/cm^2] interaction length
+const double X_0 = 36.08;                 // [g/cm^2] radiation columm density
+const double X_int = X_0 * log(2);        // [g/cm^2] = 25.01 interaction columm density
+const double L_0 = X_0/rho_ice;           // [cm] = 39.22 radiation length
 
 // ----- Physical constants ----------------------------------------------------
 const double pi=3.1415926535;
@@ -44,7 +45,7 @@ const double e =2.71828;
     // Macroscopical [IS] ------------------------------------------------------
 const double c_vac=2.998E8;               // [m/s]
 const double c_ice=c_vac/refindex;        // [m/s] speed of light in ice
-const double Z_0=120;                     // pi * [Ohm]
+const double Z0=119.917 ;                 // [pi * Ohm]
 
     // Microscopical [cgs] -----------------------------------------------------
 const double cvac_cm=c_vac * 100;         // [cm/s]
@@ -55,6 +56,14 @@ const double thompson=6.6524574E-25;      // [cm^2] Thompson e- scattering cs
 // Math tools ------------------------------------------------------------------
 
 int sgn(double val);
+
+template <class T, class Q>
+std::vector <T> operator* (const Q c, std::vector <T> A)
+{
+    std::transform (A.begin (), A.end (), A.begin (),
+                 std::bind1st (std::multiplies <T> () , c)) ;
+    return A ;
+}
 
 template<typename N>
 N rad2deg(N angle) {

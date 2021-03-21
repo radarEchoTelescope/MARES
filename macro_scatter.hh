@@ -22,48 +22,58 @@ public:
   Antenna receiver();
   Cascade cascade();
 
-  std::vector<std::vector<double>> segement_coords();
-  std::vector<double> amplitude();
+  std::vector<std::vector<double>> Coordinates();
+  std::vector<double> Attenuation();
   std::vector<double> arrivals();
   std::vector<double> phase();
 
   std::vector<double> duration();
   std::vector<double> waveform();
-  std::vector<double> radar_cs();
+  std::vector<double> RCS();
   std::vector<std::vector<double>> phase_time();
   std::vector<std::vector<double>> rcs_time();
   std::vector<std::vector<double>> wave_time();
 
+  // Attenuation model goes here
 
 protected:
 
-  Antenna tx;
-  Antenna rx;
-  Cascade cs;
+  Antenna fTX;
+  Antenna fRX;
+  Cascade fCS;
+  std::vector<double> fRCS; // currently given in cm^2
 
-  void set_direction(Antenna& at);
-  void set_direction_center(Antenna& at);
+  // Always done at construction, no reason to be changed.
+  // void SetAtDirection(Antenna &at);
+  // void SetAtDirCenter(Antenna &at);
 
-  void set_segments();
+  /* Segment the cascade in N segments and compute the properties for each segment:
+    Positions, distances, times and E fields */
+  void SetSegments(const double& nSeg);
   void run_time_loop();
 
-  std::vector<double> _rcs;
 
 private:
 
-  std::vector<double> _phase, _arrival, _amplitude;
-  std::vector<double> _duration; // [ns]
-  std::vector<double> _waveform; // [V/m]
+  std::vector<double> fPhase;
+  std::vector<double> fArrivalTime;
+  std::vector<double> fAttenuation;
+  std::vector<double> fPolarization;
+  std::vector<std::vector<double>> fSegmentCoord;
+  // Length, xpos, ypos, zpos, R_TX, R_RX
 
-  std::vector<std::vector<double>> _segment_coords; // Length, xpos, ypos, zpos, Rt/D1i, Rr/D2i
-  std::vector<std::vector<double>> _rcs_time;
-  std::vector<std::vector<double>> _phase_time;
-  std::vector<std::vector<double>> _er_time;
+  std::vector<double> fDuration; // [ns]
+  std::vector<double> fWaveform; // [V/m]
+
+
+  std::vector<std::vector<double>> fRCSTime;
+  std::vector<std::vector<double>> fPhaseTime;
+  std::vector<std::vector<double>> fWaveformTime;
 
 
 };
 
-class Line1D:public Scatter{
+class Line1D: public Scatter{
 public:
 
   Line1D(Antenna& tx, Antenna& rx, Cascade& cs);
@@ -74,43 +84,56 @@ public:
 
   Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs);
 
-  std::vector<std::vector<double>> get_density_cs();
-  std::vector<std::vector<double>> get_density_tx();
 
-  std::vector<std::vector<double>> get_plasma_freq();
-  std::vector<std::vector<double>> get_absorption();
-  std::vector<std::vector<double>> get_skin_depth();
+  // Accesors
+  double  Delta();
+  double  Dot();
 
-  std::vector<std::vector<double>> get_reflectance();
-  std::vector<std::vector<double>> get_reflectivity();
+  std::vector<std::vector<double>> Density();
+  double Rwaist();
+  std::vector<double> Rcrit();
+  std::vector<std::vector<double>> PlasmaFreq();
+  std::vector<std::vector<double>> Absorption();
+  std::vector<std::vector<double>> SkinDepth();
+  std::vector<std::vector<double>> Reflectance();
+  std::vector<std::vector<double>> Opacity();
+  std::vector<double> RCS();
 
-  std::vector<double> radar_cs();
+  // std::vector<double> radar_cs();
 
 
 private:
-  double alpha;
 
-  std::vector<std::vector<double>> coords; // To get rid of?
-  std::vector<std::vector<double>> density_cs;
-  std::vector<std::vector<double>> density_tx;
-  void set_rotated_density();
+  double fDot = 0;             // Dot (inner) product with cascade direction.
+  // The cosine of the angle between them.
+  double fDelta = 0;          // The angle.
+  double cD, sD;              // cosine and sine of the angle
 
-  double absorption(double& dens);
-  double skin_depth(double& dens);
+  int nPerp, nPar;
+  double fPerp, fPar;
+  double dPerp = 1.0;
+  double dPar  = 1.0;
+  double dNorm = 1.0;
 
-  std::vector<std::vector<double>> fplasma_matrix;
-  std::vector<std::vector<double>> absorption_matrix;
-  std::vector<std::vector<double>> skin_depth_matrix;
-  void set_fplasma();
-  void set_absorption();
-  void set_skin_depth();
+  std::vector<std::vector<double>> fDensity;
+  double fRwaist;
+  std::vector<double> fRcrit; // [cm]
+  std::vector<std::vector<double>> fPlasmaFrequency;
+  std::vector<std::vector<double>> fAbsorption;
+  std::vector<std::vector<double>> fSkinDepth;
+  std::vector<std::vector<double>> fReflectance;
+  std::vector<std::vector<double>> fOpacity;
 
-  std::vector<std::vector<double>> reflectance_matrix;
-  std::vector<std::vector<double>> reflectivity_matrix;
-  void set_reflectance();
-  void set_reflectivity();
+  void SetDensity();
+  void Rcrit(const std::vector<std::vector<double>> &density, const double & freq);
+  void PlasmaFreq(const std::vector<std::vector<double>> &density);
+  void Absorption(const std::vector<std::vector<double>> &density, const double & freq);
+  void SkinDepth(const std::vector<std::vector<double>> &density, const double & freq);
+  void Reflectance(const std::vector<std::vector<double>> &absorption);
+  void Opacity(const std::vector<std::vector<double>> &absorption);
+  void RCS(const std::vector<std::vector<double>> &opacity);          // Const layers
+  // void RCS(const std::vector<std::vector<double>> &reflectance);   // Non const layers
 
-  void set_radar_cs();
 };
 
 

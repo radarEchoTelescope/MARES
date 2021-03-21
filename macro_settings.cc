@@ -10,7 +10,6 @@ double acos2(double x1, double x2, double y1, double y2){
   return angle;
 }
 
-
 // template <typename T>
 //T norm(){
 //  T sum{0};
