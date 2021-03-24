@@ -140,6 +140,7 @@ void Scatter::SetSegments( const double& nSeg){
 void Scatter::run_time_loop(){
 
   double nSeg = fRCS.size();
+  cout << nSeg << endl;
 
   double t, E0;
   double t_start  = *min_element(fArrivalTime.begin(), fArrivalTime.end()) - 5E-9;
@@ -166,8 +167,9 @@ void Scatter::run_time_loop(){
         sqrt(fTX.Eff()/(4*pi));
 
   // Loop over time.
-  for (int s = 0; s < steps; s ++){
+  for (int s = 0; s < steps; s++){
     t = s/sampling + t_start;
+
     fDuration[s] = t;
     for (int i = 0; i < nSeg; i++){
 
@@ -181,17 +183,19 @@ void Scatter::run_time_loop(){
           fPhaseTime[s][i] = fPhase[i] - fTX.AngularFreq()*t;
           //fPhaseTime[s][i] = fPhase[i] - fTX.AngularFreq()*(t-t_start);
 
-          fWaveformTime[s][i] = E0 * fAttenuation[i] * sqrt(fRCS[i])/100 *
+          fWaveformTime[s][i] = E0 * fAttenuation[i] * sqrt(fRCS[i]) / 100.0 *
                                 cos(fPhase[i] - fTX.AngularFreq()*t);
           // RCS is computed in cm^2 and we are moving now to m
+          // if (fRCS[0]!= 1) { std::cout << fRCS[i] << std::endl;}
         }
 
       // }  // Selection closing
 
     }
 
-    // The final E field value is the sum of all particles for the timestep.
+    // The final E field value for a given timestep is the sum of the effects of all segments.
     fWaveform[s] = std::accumulate(std::begin(fWaveformTime[s]), std::end(fWaveformTime[s]), 0.0);
+    // if (fRCS[0]!= 1 && fWaveform[s] != 0) { std::cout << fWaveform[s] << std::endl;}
   }
 }
 
@@ -208,8 +212,8 @@ std::vector<double> Scatter::arrivals(){ return fArrivalTime ; }
 std::vector<std::vector<double>> Scatter::Coordinates(){return fSegmentCoord;}
 
   // Not set before run_time_loop()
-std::vector<double> Scatter::duration(){ return fDuration ; }
-std::vector<double> Scatter::waveform(){ return fWaveform ; }
+std::vector<double> Scatter::duration(){ return fDuration; }
+std::vector<double> Scatter::Waveform(){ return fWaveform; }
 std::vector<std::vector<double>> Scatter::rcs_time(){ return fRCSTime; }
 std::vector<std::vector<double>> Scatter::phase_time(){ return fPhaseTime; }
 std::vector<std::vector<double>> Scatter::wave_time(){ return fWaveformTime; }
@@ -280,7 +284,7 @@ Cascade1D::Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs): Scatter(tx, rx, cs)
     RCS(fOpacity);
 
     SetSegments(nPerp);
-    // run_time_loop();
+    run_time_loop();
   }
 
 
@@ -407,8 +411,9 @@ and multiply by the cell area.
 */
 void Cascade1D::RCS(const std::vector<std::vector<double>> &opacity){
   fRCS = std::vector<double> ( opacity.size() );
-  std::vector<double> op = opacity.back();
-  fRCS = dPerp * dNorm * op;
+  for(int i = 0 ; i < opacity.size(); i++) {
+    fRCS[i] = dPerp * dNorm * opacity[i].back();
+  }
 }
 
 

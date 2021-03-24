@@ -71,7 +71,7 @@ int main(int argc, char** argv){
       // write_1D_array(event0.arrivals(),         identifier_l + "_t_arrivals.txt", 1);
       // write_1D_array(event0.phase(),            identifier_l + "_phases.txt", 1);
       write_1D_array(event0.duration(),         identifier_l + "_duration.txt", 1);
-      write_1D_array(event0.waveform(),         identifier_l + "_waveform.txt", 1);
+      write_1D_array(event0.Waveform(),         identifier_l + "_waveform.txt", 1);
       // write_2D_array(event0.phase_time(),       identifier_l + "_phase_time_profile.txt", 1);
       // write_2D_array(event0.wave_time(),        identifier_l + "_Er_time_profile.txt", 1);
 
@@ -93,7 +93,7 @@ int main(int argc, char** argv){
       // write_1D_array(event.arrivals(),          identifier_c + "_t_arrivals.txt", 1);
       // write_1D_array(event.phase(),             identifier_c + "_phases.txt", 1);
       write_1D_array(event.duration(),          identifier_c + "_duration.txt", 1);
-      write_1D_array(event.waveform(),          identifier_c + "_waveform.txt", 1);
+      write_1D_array(event.Waveform(),          identifier_c + "_waveform.txt", 1);
       // write_2D_array(event.wave_time(),         identifier_c + "_Er_time_profile.txt", 1);
       // write_2D_array(event.rcs_time(),          identifier_c + "_rcs_time_profile.txt", 1);
       // write_2D_array(event.phase_time(),        identifier_c + "_phase_time_profile.txt", 1);

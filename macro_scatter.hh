@@ -28,7 +28,7 @@ public:
   std::vector<double> phase();
 
   std::vector<double> duration();
-  std::vector<double> waveform();
+  std::vector<double> Waveform();
   std::vector<double> RCS();
   std::vector<std::vector<double>> phase_time();
   std::vector<std::vector<double>> rcs_time();
