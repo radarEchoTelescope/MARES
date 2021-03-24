@@ -140,7 +140,7 @@ void Scatter::SetSegments( const double& nSeg){
 void Scatter::run_time_loop(){
 
   double nSeg = fRCS.size();
-  cout << nSeg << endl;
+  // cout << nSeg << endl;
 
   double t, E0;
   double t_start  = *min_element(fArrivalTime.begin(), fArrivalTime.end()) - 5E-9;
@@ -256,6 +256,23 @@ Cascade1D::Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs): Scatter(tx, rx, cs)
     fDot   = projection(fTX.Dir(), fCS.Dir());
     fDelta = acos(fDot);
     // fDelta is defined between 0 and pi only.
+
+    /* The current model breaks down when
+    |L*sin(delta)| < |r*cos(delta)|
+    or
+    r/L = |tan(delta)|
+    so
+    delta_critical = arctan(r/L)
+    at small angles*/
+    double delta_crit = atan(cs.Rtot()/cs.Ltot());
+    // std::cout << rad2deg(delta_crit) << std::endl;
+    fDelta < delta_crit ? fDelta = delta_crit: 1;
+    // This is right now 0.5 degrees
+
+    // Or, something simpler, if delta is smaller than 1 degree, make it 1 degree.
+    // (fDelta < pi/180.0) ? fDelta = pi/180.0 : 1;
+
+
     // We can avoid computing the same values thousands of times.
     cD = cos(fDelta);
     sD = sin(fDelta);
