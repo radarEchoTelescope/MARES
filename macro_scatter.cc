@@ -57,7 +57,8 @@ void Scatter::SetSegments( const double& nSeg){
   // Segment loop
   for(int i = 0 ; i < nSeg; i++){
     // Set position
-    l = (i + rand_line.get()) * dSeg;
+    // l = (i + rand_line.get()) * dSeg;
+    l = i * dSeg;
     // [m] distance from the shower head (starting point)
 
     seg_pos[0]  = fCS.Pos()[0] + l*fCS.Dir()[0];
@@ -121,17 +122,13 @@ void Scatter::SetSegments( const double& nSeg){
                         cross_product(normalize(rx_seg),
                           cross_product(normalize(rx_seg),
                             cross_product(normalize(tx_seg),
-                              cross_product(normalize(tx_seg), fTX.Pol()
-                                           )
+                              cross_product(normalize(tx_seg), fTX.Pol() )
                                          )
                                        )
                                      )
                       , fRX.Pol() );
 
-
-    fAttenuation[i] = ( 1 / ( rt*rr ) * pow(e, -(rt + rr)/(2*att_length) )
-                      * fPolarization[i] );
-
+    fAttenuation[i] = ( 1 / ( rt*rr ) * pow(e, -(rt + rr)/(2*att_length) ) * fPolarization[i] );
   }
 }
 

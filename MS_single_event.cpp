@@ -67,7 +67,7 @@ int main(int argc, char** argv){
 
       /* Write out all the information. */
       // write_2D_array(event0.segement_coords(),  identifier_l + "_coords.txt", 1);
-      // write_1D_array(event0.amplitude(),        identifier_l + "_Er_slices.txt", 1);
+      write_1D_array(event0.Attenuation(),        identifier_l + "_attenuation.txt", 1);
       // write_1D_array(event0.arrivals(),         identifier_l + "_t_arrivals.txt", 1);
       // write_1D_array(event0.phase(),            identifier_l + "_phases.txt", 1);
       write_1D_array(event0.duration(),         identifier_l + "_duration.txt", 1);
@@ -89,7 +89,7 @@ int main(int argc, char** argv){
       write_2D_array(event.Opacity(),     identifier_c + "_opacity_matrix.txt", 1);
       write_1D_array(event.RCS(),         identifier_c + "_radar_cs.txt", 1);
       write_2D_array(event.Coordinates(),   identifier_c + "_coords.txt", 1);
-      // write_1D_array(event.amplitude(),         identifier_c + "_Er_slices.txt", 1);
+      write_1D_array(event.Attenuation(),         identifier_c + "_attenuation.txt", 1);
       // write_1D_array(event.arrivals(),          identifier_c + "_t_arrivals.txt", 1);
       // write_1D_array(event.phase(),             identifier_c + "_phases.txt", 1);
       write_1D_array(event.duration(),          identifier_c + "_duration.txt", 1);

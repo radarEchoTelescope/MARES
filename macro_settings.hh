@@ -65,6 +65,20 @@ std::vector <T> operator* (const Q c, std::vector <T> A)
     return A ;
 }
 
+// C++ template to print vector container elements
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const std::vector<T>& v)
+{
+    os << "[";
+    for (int i = 0; i < v.size(); ++i) {
+        os << v[i];
+        if (i != v.size() - 1)
+            os << ", ";
+    }
+    os << "]\n";
+    return os;
+}
+
 template<typename N>
 N rad2deg(N angle) {
   return angle * 180.0 / pi;

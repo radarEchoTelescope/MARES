@@ -67,9 +67,8 @@ double distance(double x1, double y1, double z1, double x2, double y2, double z2
 }
 
 double projection(std::vector<double> a, std::vector<double> b){
-  double n_a = norm(a) , n_b = norm(b), p;
-  // Check for norm 0 and output error!!
-  p = (a[0]*b[0] + a[1]*b[1] + a[2]*b[2])/ (n_a * n_b); //Normalize
+  double n_a = norm(a) , n_b = norm(b), p = 0;
+  if ( (n_a && n_b) != 0){p = (a[0]*b[0] + a[1]*b[1] + a[2]*b[2])/ (n_a * n_b);}
   return p;
 }
 
