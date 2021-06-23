@@ -57,8 +57,8 @@ void Scatter::SetSegments( const double& nSeg){
   // Segment loop
   for(int i = 0 ; i < nSeg; i++){
     // Set position
-    // l = (i + rand_line.get()) * dSeg;
-    l = i * dSeg;
+    l = (i + rand_line.get()) * dSeg;
+    // l = i * dSeg;
     // [m] distance from the shower head (starting point)
 
     seg_pos[0]  = fCS.Pos()[0] + l*fCS.Dir()[0];

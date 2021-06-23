@@ -35,7 +35,7 @@ Cascade::Cascade(int event, double cenergy, double xpos, double ypos, double zpo
 // Cascade's Methods
 
 double Cascade::Density(double X, double r){
-	double dens, delta_r = 0.05;
+	double dens, delta_r = 0.1;
 	// s = ShowerAge(X,fEnergy);*step
 	if (r < 0) {r = -r;}
 	if (X < 0) {X = 0;}

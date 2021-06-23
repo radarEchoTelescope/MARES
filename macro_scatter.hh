@@ -112,7 +112,7 @@ private:
   int nPerp, nPar;
   double fPerp, fPar;
   double dPerp = 1.0;
-  double dPar  = 1.0;
+  double dPar  = 0.1;
   double dNorm = 1.0;
 
   std::vector<std::vector<double>> fDensity;
