@@ -191,8 +191,8 @@ void Scatter::run_time_loop(){
   double t_start  = *min_element(fArrivalTime.begin(), fArrivalTime.end()) - 5E-9;
   double t_end    = *max_element(fArrivalTime.begin(), fArrivalTime.end()) + tau + 5E-9;
 
-  double sampling = (100*fTX.Freq());
-  int steps = (t_end - t_start)*sampling;
+  // double sampling = (100*fTX.Freq());
+  int steps = (t_end - t_start)*freq_sampling;
 
   fDuration     = std::vector<double>(steps, 0);    // The time
   fWaveform     = std::vector<double>(steps, 0);    // The electric field
@@ -213,7 +213,7 @@ void Scatter::run_time_loop(){
 
   // Loop over time.
   for (int s = 0; s < steps; s++){
-    t = s/sampling + t_start;
+    t = s/freq_sampling + t_start;
 
     fDuration[s] = t;
     for (int i = 0; i < nSeg; i++){

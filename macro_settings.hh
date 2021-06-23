@@ -20,26 +20,29 @@ const double gdPerp = 5.0; // [cm/bin]
 const double gdPar  = 0.1;
 const double gdNorm = 0.1; // This is also a radial direction.
 
-const double freq_obs = 1E8;              // [Hz] Default observer frequency
 // const double freq_obs = 450 * 1E6;
+const double freq_obs = 5E8;              // [Hz] Default observer frequency
+const double freq_sampling = 5E9;
+// sampling frequency should be between 10x and 100x freq_obs.
 
 // ----- Physical parameters ---------------------------------------------------
 
     // Plasma ------------------------------------------------------------------
+const double tau = 1E-8;               // [s] Plasma lifetime 10 ns
+// const double tau = 20*1E-9;               // [s] Plasma lifetime
+
 // const double f_coll = 0;             // [Hz] collision frequency
-const double f_coll=88E12;              // [Hz] collision frequency
-// const double f_coll = 650E12;             // [Hz] collision frequency
-const double tau = 20*1E-9;               // [s] Plasma lifetime
+// const double f_coll=88E12;              // [Hz] collision frequency
+const double f_coll= 64.733E12;              // [Hz] collision frequency
 const double memp = 1;                    // Plasma to electron mass ratio
 
       // Ice  ------------------------------------------------------------------
-const double att_length=1000;             // [m] attenuation length
+const double att_length=1450;             // [m] attenuation length
 const double refindex=1.78;               // refractive index
-const double rho_ice = 0.92;              // [g/cm^3] Density
+const double rho_ice = 0.92;              // [g/cm^3] Density, from GEANT
 const double r_moliere = 7;               // [cm] Moliere Radius
 const double E_c = 0.0786;                // [GeV] Critical cascade energy
 const double X_0 = 36.08;                 // [g/cm^2] radiation columm density
-const double X_int = X_0 * log(2);        // [g/cm^2] = 25.01 interaction columm density
 const double L_0 = X_0/rho_ice;           // [cm] = 39.22 radiation length
 
 // ----- Physical constants ----------------------------------------------------

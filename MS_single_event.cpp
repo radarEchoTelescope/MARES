@@ -56,9 +56,11 @@ int main(int argc, char** argv){
   string det_type = "bistatic";
   Detector bistatic(det_type);
 
+
   // For every transmitter
   for (auto& tx : bistatic.Transmitters()){
     // For every receiver
+    cout << tx.E0() << endl;
     for (auto& rx : bistatic.Receivers()){
       // Make the bistatic event.
       // std::cout << "Event: " << std::to_string((int)cs.event()) << endl;
@@ -66,12 +68,12 @@ int main(int argc, char** argv){
       // Line1D event0(tx,rx,cs);
       //
       // /* Write out all the information. */
-      // // write_2D_array(event0.segement_coords(),  identifier_l + "_coords.txt", 1);
+      write_2D_array(event0.segement_coords(),  identifier_l + "_coords.txt", 1);
       // write_1D_array(event0.Attenuation(),        identifier_l + "_attenuation.txt", 1);
       // // write_1D_array(event0.arrivals(),         identifier_l + "_t_arrivals.txt", 1);
       // // write_1D_array(event0.phase(),            identifier_l + "_phases.txt", 1);
-      // write_1D_array(event0.duration(),         identifier_l + "_duration.txt", 1);
-      // write_1D_array(event0.Waveform(),         identifier_l + "_waveform.txt", 1);
+      write_1D_array(event0.duration(),         identifier_l + "_duration.txt", 1);
+      write_1D_array(event0.Waveform(),         identifier_l + "_waveform.txt", 1);
       // write_2D_array(event0.phase_time(),       identifier_l + "_phase_time_profile.txt", 1);
       // write_2D_array(event0.wave_time(),        identifier_l + "_Er_time_profile.txt", 1);
 
