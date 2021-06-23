@@ -22,14 +22,18 @@ public:
   Antenna receiver();
   Cascade cascade();
 
+  double  Delta();
+  double  Dot();
+
   std::vector<std::vector<double>> Coordinates();
+  std::vector<double> Polarization();
   std::vector<double> Attenuation();
   std::vector<double> arrivals();
   std::vector<double> phase();
 
   std::vector<double> duration();
   std::vector<double> Waveform();
-  std::vector<double> RCS();
+  std::vector<double> ESA();
   std::vector<std::vector<double>> phase_time();
   std::vector<std::vector<double>> rcs_time();
   std::vector<std::vector<double>> wave_time();
@@ -42,6 +46,14 @@ protected:
   Antenna fRX;
   Cascade fCS;
   std::vector<double> fRCS; // currently given in cm^2
+
+  double fDot = 0;             // Dot (inner) product with cascade direction.
+  // The cosine of the angle between them.
+  double fDelta = 0;          // The angle.
+  double cD, sD;              // cosine and sine of the angle
+
+  int nPerp, nPar;
+  double fPerp, fPar;
 
   // Always done at construction, no reason to be changed.
   // void SetAtDirection(Antenna &at);
@@ -73,11 +85,6 @@ private:
 
 };
 
-class Line1D: public Scatter{
-public:
-
-  Line1D(Antenna& tx, Antenna& rx, Cascade& cs);
-};
 
 class Cascade1D: public Scatter {
 public:
@@ -86,9 +93,8 @@ public:
 
 
   // Accesors
-  double  Delta();
-  double  Dot();
 
+  std::vector<std::vector<double>> Radius();
   std::vector<std::vector<double>> Density();
   double Rwaist();
   std::vector<double> Rcrit();
@@ -97,23 +103,15 @@ public:
   std::vector<std::vector<double>> SkinDepth();
   std::vector<std::vector<double>> Reflectance();
   std::vector<std::vector<double>> Opacity();
-  std::vector<double> RCS();
+  std::vector<double> ESA();
 
   // std::vector<double> radar_cs();
 
 
 private:
 
-  double fDot = 0;             // Dot (inner) product with cascade direction.
-  // The cosine of the angle between them.
-  double fDelta = 0;          // The angle.
-  double cD, sD;              // cosine and sine of the angle
-
-  int nPerp, nPar;
-  double fPerp, fPar;
-  double dPerp = 1.0;
-  double dPar  = 1.0;
-  double dNorm = 1.0;
+  std::vector<std::vector<double>> fCSLength;
+  std::vector<std::vector<double>> fCSRadius;
 
   std::vector<std::vector<double>> fDensity;
   double fRwaist;
@@ -124,19 +122,31 @@ private:
   std::vector<std::vector<double>> fReflectance;
   std::vector<std::vector<double>> fOpacity;
 
-  void SetDensity();
+  void SetCascadeCoodinates();
+  void Density(const std::vector<std::vector<double>> &fCSLength,
+                  const std::vector<std::vector<double>> &fCSRadius );
   void Rcrit(const std::vector<std::vector<double>> &density, const double & freq);
   void PlasmaFreq(const std::vector<std::vector<double>> &density);
   void Absorption(const std::vector<std::vector<double>> &density, const double & freq);
   void SkinDepth(const std::vector<std::vector<double>> &density, const double & freq);
   void Reflectance(const std::vector<std::vector<double>> &absorption);
   void Opacity(const std::vector<std::vector<double>> &absorption);
-  void RCS(const std::vector<std::vector<double>> &opacity);          // Const layers
+  void ESA(const std::vector<std::vector<double>> &opacity);          // Const layers
   // void RCS(const std::vector<std::vector<double>> &reflectance);   // Non const layers
 
 };
 
+class Cylinder1D: public Scatter{
+public:
 
+  Cylinder1D(Antenna& tx, Antenna& rx, Cascade& cs);
+};
+
+class Line1D: public Scatter{
+public:
+
+  Line1D(Antenna& tx, Antenna& rx, Cascade& cs);
+};
 
 // std::vector<Scatter> run_scatter_events(Detector det, std::vector<Cascade> cascade_list){
 //   std::vector<Scatter> event_list;
