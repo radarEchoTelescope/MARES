@@ -34,8 +34,8 @@ Cascade::Cascade(int event, double cenergy, double xpos, double ypos, double zpo
 
 // Cascade's Methods
 
-double Cascade::Density(double X, double r){
-	double dens, delta_r = 0.1;
+double Cascade::Density(double X, double r, double delta_r){
+	double dens;
 	// s = ShowerAge(X,fEnergy);*step
 	if (r < 0) {r = -r;}
 	if (X < 0) {X = 0;}
@@ -221,15 +221,36 @@ namespace {
 	double wiv1(double r, double s){      // [cm, Unitless]
 	  double wiv1;
     wiv1 = exp(lgamma(4.5-s)-lgamma(s)-lgamma(4.5-2*s))
-							*pow(r/r_moliere,s-1) *pow(r/r_moliere+1,s-4.5)/r_moliere;
+							*pow(r/r_moliere,s-1) *pow(r/r_moliere+1,s-4.5) /r_moliere;
 	  return wiv1;     // [1/cm] Differential.
 	}
 
-	/* Integral of lateral particle distribution between r and r + dr. */
+	// double wiv1(double r, double s){      // [cm, Unitless]
+	//   return 1/(10*r_moliere);     // [1/cm] Differential.
+	// }
+
+	/* Integral of lateral particle distribution between r and r + dr.
+		This integral is performed using the trapezoid rule.
+
+		https://www.whitman.edu/mathematics/calculus_online/section08.06.html
+
+		The error associated with this method is known. Over the the step size
+
+		E(step) = dr^3/ (12* imx^2) *M where M is the maximum value of the second
+		derivative of the function over the interval [r, r + dr].
+
+
+	*/
 	double intwiv(double r, double delta_r, double s){    // [cm, cm, unitless]
 		double intwiv = 0, imx = 50.0, step = delta_r/imx;
 		assert(r >= 0 && "Intwiv's r < 0");
-	  for (int i = 0; i < imx; i++){ intwiv += wiv1(r + i*step, s);}
+	  for (int i = 0; i <= imx; i++){
+			if(i == 0 || i == imx){
+				intwiv += wiv1(r + i*step, s) / 2.0 ;
+			} else {
+				intwiv += wiv1(r + i*step, s);
+			}
+		}
 	  return intwiv*step;         // [Unitless]
 	}
 

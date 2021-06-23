@@ -16,7 +16,11 @@
 // const int nbin = 3000;               // # of bins for integration/array filling
 // const int nbin = 1E4;             // # of bins for integration/array filling
 
-const double freq_obs = 1E9;              // [Hz] Default observer frequency
+const double gdPerp = 5.0; // [cm/bin]
+const double gdPar  = 0.1;
+const double gdNorm = 0.1; // This is also a radial direction.
+
+const double freq_obs = 1E8;              // [Hz] Default observer frequency
 // const double freq_obs = 450 * 1E6;
 
 // ----- Physical parameters ---------------------------------------------------
@@ -57,13 +61,13 @@ const double thompson=6.6524574E-25;      // [cm^2] Thompson e- scattering cs
 
 int sgn(double val);
 
-template <class T, class Q>
-std::vector <T> operator* (const Q c, std::vector <T> A)
-{
-    std::transform (A.begin (), A.end (), A.begin (),
-                 std::bind1st (std::multiplies <T> () , c)) ;
-    return A ;
-}
+// template <class T, class Q>
+// std::vector <T> operator* (const Q c, std::vector <T> A)
+// {
+//     std::transform (A.begin (), A.end (), A.begin (),
+//                  std::bind1st (std::multiplies <T> () , c)) ;
+//     return A ;
+// }
 
 // C++ template to print vector container elements
 template <typename T>

@@ -18,7 +18,7 @@ public:
 
   /* Particle (electron) density for penetration length X and radius r.
   [g/cm^2, cm, GeV] */
-  double Density(double X, double r);      // [#e-/ cm^3]
+  double Density(double X, double r, double delta_r = 0.01);      // [#e-/ cm^3]
   double PlasmaFreq(const double &dens);         // [Hz]
   double Absorption(const double &dens, const double &freq_obs);
   double SkinDepth(const double &dens, const double &freq_obs);
@@ -47,8 +47,6 @@ public:
   std::vector<std::vector<double>> Density();
 
 
-
-
 private:
   friend class Scatter; // Scatter can access private members.
 
@@ -73,7 +71,7 @@ private:
   double fRdiv = 1;       // [cm] radial interval, resolution.
 
   // Max cascade depth: X_tot = 4* max depth from Heitler model estimate.
-  double fLtot;           // [m]
+  double fLtot;           // [cm]
   double fXtot;           // [g/cm^2] Penetration depth
   double fRtot;           // [cm]
 

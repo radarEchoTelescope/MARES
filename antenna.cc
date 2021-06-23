@@ -73,7 +73,7 @@ Detector::Detector(){};
 
 Detector::Detector(std::string name){
   if(name == "bistatic" || name == "Bistatic"){
-    fTransmitters.push_back( Antenna(1E4, 0,0,0) );
+    fTransmitters.push_back( Antenna(1E4, 0,0,0) ); // 1kW
     fReceivers.push_back( Antenna(0, 500, 0, 0) );
   } else if (name == "RET_CR" || name == "ret_cr"){
     fTransmitters.push_back( Antenna(1, 0,0,0) );

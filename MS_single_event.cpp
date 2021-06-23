@@ -23,15 +23,6 @@ int main(int argc, char** argv){
   double cazimuth = atof(argv[7]);
   std::string identifier  = argv[8];
 
-  //std::string identifier = argv[1];
-  //int evt = 0;
-  //double cenergy = 1E9;
-  //double xpos = 0;
-  //double ypos = 0;
-  //double zpos = 250;
-  //double czenith = 90;
-  //double cazimuth = 0;
-
   double nenergy = 1E9;
   double nzenith = 0;
   double nazimuth = 0;
@@ -63,15 +54,15 @@ int main(int argc, char** argv){
       // Make the bistatic event.
       // std::cout << "Event: " << std::to_string((int)cs.event()) << endl;
 
-      Line1D event0(tx,rx,cs);
-
-      /* Write out all the information. */
-      // write_2D_array(event0.segement_coords(),  identifier_l + "_coords.txt", 1);
-      write_1D_array(event0.Attenuation(),        identifier_l + "_attenuation.txt", 1);
-      // write_1D_array(event0.arrivals(),         identifier_l + "_t_arrivals.txt", 1);
-      // write_1D_array(event0.phase(),            identifier_l + "_phases.txt", 1);
-      write_1D_array(event0.duration(),         identifier_l + "_duration.txt", 1);
-      write_1D_array(event0.Waveform(),         identifier_l + "_waveform.txt", 1);
+      // Line1D event0(tx,rx,cs);
+      //
+      // /* Write out all the information. */
+      // // write_2D_array(event0.segement_coords(),  identifier_l + "_coords.txt", 1);
+      // write_1D_array(event0.Attenuation(),        identifier_l + "_attenuation.txt", 1);
+      // // write_1D_array(event0.arrivals(),         identifier_l + "_t_arrivals.txt", 1);
+      // // write_1D_array(event0.phase(),            identifier_l + "_phases.txt", 1);
+      // write_1D_array(event0.duration(),         identifier_l + "_duration.txt", 1);
+      // write_1D_array(event0.Waveform(),         identifier_l + "_waveform.txt", 1);
       // write_2D_array(event0.phase_time(),       identifier_l + "_phase_time_profile.txt", 1);
       // write_2D_array(event0.wave_time(),        identifier_l + "_Er_time_profile.txt", 1);
 
@@ -80,15 +71,16 @@ int main(int argc, char** argv){
       Cascade1D event(tx,rx,cs);
       // std::cout << cazimuth << std::endl;
 
-
+      write_2D_array(event.Radius(),     identifier_c + "_radial_values.txt", 1);
       write_2D_array(event.Density(),     identifier_c + "_density_tx.txt", 1);
       write_2D_array(event.PlasmaFreq(),  identifier_c + "_plasma_freq.txt", 1);
       write_2D_array(event.Absorption(),  identifier_c + "_absorption.txt", 1);
       write_2D_array(event.SkinDepth(),   identifier_c + "_skin_depth.txt", 1);
       write_2D_array(event.Reflectance(), identifier_c + "_reflectance_matrix.txt", 1);
       write_2D_array(event.Opacity(),     identifier_c + "_opacity_matrix.txt", 1);
-      write_1D_array(event.RCS(),         identifier_c + "_radar_cs.txt", 1);
+      write_1D_array(event.ESA(),         identifier_c + "_radar_cs.txt", 1);
       write_2D_array(event.Coordinates(),   identifier_c + "_coords.txt", 1);
+      write_1D_array(event.Polarization(),  identifier_c + "_polarization.txt", 1);
       write_1D_array(event.Attenuation(),         identifier_c + "_attenuation.txt", 1);
       // write_1D_array(event.arrivals(),          identifier_c + "_t_arrivals.txt", 1);
       // write_1D_array(event.phase(),             identifier_c + "_phases.txt", 1);

@@ -3,18 +3,55 @@
 Scatter::Scatter(Antenna& tx, Antenna& rx, Cascade& cs):
   fTX(tx), fRX(rx), fCS(cs){
 
-  /* Set the antennas directions, module and dot product with cs */
+  /* First: Set the antennas directions, module and dot product with cs */
   fTX.SetDirection( fCS.Pos() );
   fRX.SetDirection( fCS.Pos() );
-  /* Attenuation model example
-  // Parametrized attenuation length for the Ross Ice Shelf, South Pole.
-  double att(double freq_obs){
-  double a1=469;                  // [m] Attanuation length parameter
-  double a2=-0.205;               // Attanuation length parameter
-  double a3=4.87E-5;              // Attanuation length parameter
-  return a1+a2*freq_obs/1E6+a3*pow(freq_obs/1E6,2);
-  }
+
+  /* Second: Build the TX frame.
+  Find the angle delta between the direction to the cascade and the cascade's direction.
+
+  The density is computed not in  the lab frame, but in the plane between the
+  tx.direction vector and the cs direction vector. Each one defines a frame
+  with their own perpendicular direction.
+
+  The two frames are separated by an angle delta. This angle delta behaves like
+  the declination, is only defined between 0 and pi. Due to the cascade radial
+  symmetry, and the choice of plane (that cuts the cascade longitudinally)
+  the solutions for delta and minus delta in the plane frame are equivalent.
   */
+
+  // Determine inner product  in l.o.s plane.
+  fDot   = projection(fTX.Dir(), fCS.Dir());
+  fDelta = acos(fDot);
+  // fDelta is defined between 0 and pi only.
+
+  /* The current model breaks down at small angles when
+  |L*sin(delta)| < |r*cos(delta)|
+  or
+  r/L = |tan(delta)|
+  so
+  delta_critical = arctan(r/L)
+  */
+
+  // double delta_crit = atan(cs.Rtot()/cs.Ltot());
+  // std::cout << rad2deg(delta_crit) << std::endl;
+  // fDelta < delta_crit ? fDelta = delta_crit: 1;
+  // This is right now 0.5 degrees
+
+  // Or, something simpler, if delta is smaller than 1 degree, make it 1 degree.
+  (fDelta < pi/180.0) ? fDelta = pi/180.0 : 1;
+
+  // We can avoid computing the same values thousands of times.
+  cD = cos(fDelta);
+  sD = sin(fDelta);
+
+  // These are the dimensions of the TX frame axis. [cm]
+  fPar  = fCS.Ltot()*abs(cD) + 2*fCS.Rtot()*abs(sD);
+  fPerp = fCS.Ltot()*abs(sD) + 2*fCS.Rtot()*abs(cD);
+
+  // nbins  = size / division.
+  nPar  = (int) ceil(fPar  / gdPar);
+  nPerp = (int) ceil(fPerp / gdPerp);
 
 
 }
@@ -129,6 +166,17 @@ void Scatter::SetSegments( const double& nSeg){
                       , fRX.Pol() );
 
     fAttenuation[i] = ( 1 / ( rt*rr ) * pow(e, -(rt + rr)/(2*att_length) ) * fPolarization[i] );
+
+    /* Attenuation model example
+    // Parametrized attenuation length for the Ross Ice Shelf, South Pole.
+    double att(double freq_obs){
+    double a1=469;                  // [m] Attanuation length parameter
+    double a2=-0.205;               // Attanuation length parameter
+    double a3=4.87E-5;              // Attanuation length parameter
+    return a1+a2*freq_obs/1E6+a3*pow(freq_obs/1E6,2);
+    }
+    */
+
   }
 }
 
@@ -180,6 +228,8 @@ void Scatter::run_time_loop(){
           fPhaseTime[s][i] = fPhase[i] - fTX.AngularFreq()*t;
           //fPhaseTime[s][i] = fPhase[i] - fTX.AngularFreq()*(t-t_start);
 
+
+//        if(flag = 0)skip{}
           fWaveformTime[s][i] = E0 * fAttenuation[i] * sqrt(fRCS[i]) / 100.0 *
                                 cos(fPhase[i] - fTX.AngularFreq()*t);
           // RCS is computed in cm^2 and we are moving now to m
@@ -200,10 +250,11 @@ void Scatter::run_time_loop(){
 Antenna Scatter::transmitter(){return fTX;}
 Antenna Scatter::receiver(){return fRX;}
 Cascade Scatter::cascade(){return fCS;}
-std::vector<double> Scatter::RCS(){ return fRCS; }
+std::vector<double> Scatter::ESA(){ return fRCS; }
 
   // Not set before set_segments()
 std::vector<double> Scatter::phase(){return fPhase;}
+std::vector<double> Scatter::Polarization(){ return fPolarization; }
 std::vector<double> Scatter::Attenuation(){ return fAttenuation; }
 std::vector<double> Scatter::arrivals(){ return fArrivalTime ; }
 std::vector<std::vector<double>> Scatter::Coordinates(){return fSegmentCoord;}
@@ -215,119 +266,72 @@ std::vector<std::vector<double>> Scatter::rcs_time(){ return fRCSTime; }
 std::vector<std::vector<double>> Scatter::phase_time(){ return fPhaseTime; }
 std::vector<std::vector<double>> Scatter::wave_time(){ return fWaveformTime; }
 
-// // --------------------------------------------------------------------------
-
 //==============================================================================
-// Line1D is Dieder's model
-
-Line1D::Line1D(Antenna& tx, Antenna& rx, Cascade& cs): Scatter(tx, rx, cs){
-
-  fRCS = std::vector<double>(fCS.Lbins(), 1); // The line's segments have rcs unity.
-  SetSegments( fCS.Lbins() );
-  run_time_loop();
-  }
 
 // -----------------------------------------------------------------------------
 // THE ROTATED VERSION
 
 Cascade1D::Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs): Scatter(tx, rx, cs){
-    /*
-    The density is computed not in  the lab frame, but in the plane between the
-    tx.direction vector and the cs direction vector. Each one defines a frame
-    with their own perpendicular direction.
 
-    The two frames are separated by an angle delta. This angle delta behaves like
-    the declination, is only defined between 0 and pi. Due to the cascade radial
-    symmetry, and the choice of plane (that cuts the cascade longitudinally)
-    the solutions for delta and minus delta in the plane frame are equivalent.
+    // check first if RCS is in folder, if not, run all of This
 
-    Delta is actually the angle
-    */
-    //
-    // std::cout << fTX.Dir()[0] << " " << fTX.Dir()[1] << " " << fTX.Dir()[2] << endl;
-    // std::cout << fCS.Dir()[0] << " " << fCS.Dir()[1] << " " << fCS.Dir()[2] << endl;
-    // // std::cout << cD << " " << sD << endl;
-
-    // First: Find the angle between the direction to the cascade and the cascade's direction.
-    // Determine inner product  in l.o.s plane.
-    fDot   = projection(fTX.Dir(), fCS.Dir());
-    fDelta = acos(fDot);
-    // fDelta is defined between 0 and pi only.
-
-    /* The current model breaks down when
-    |L*sin(delta)| < |r*cos(delta)|
-    or
-    r/L = |tan(delta)|
-    so
-    delta_critical = arctan(r/L)
-    at small angles*/
-    double delta_crit = atan(cs.Rtot()/cs.Ltot());
-    // std::cout << rad2deg(delta_crit) << std::endl;
-    fDelta < delta_crit ? fDelta = delta_crit: 1;
-    // This is right now 0.5 degrees
-
-    // Or, something simpler, if delta is smaller than 1 degree, make it 1 degree.
-    // (fDelta < pi/180.0) ? fDelta = pi/180.0 : 1;
-
-
-    // We can avoid computing the same values thousands of times.
-    cD = cos(fDelta);
-    sD = sin(fDelta);
-
-    // std::cout << fDot << " " << fDelta << endl;
-    // std::cout << cD << " " << sD << endl;
-
-    // These are the dimensions of the axis in the projection into the incidence frame.
-    fPar  = fCS.Ltot()*abs(cD) + 2*fCS.Rtot()*abs(sD);
-    fPerp = fCS.Ltot()*abs(sD) + 2*fCS.Rtot()*abs(cD);
-
-    // nbins  = size / division.
-    nPar  = (int) ceil(fPar  / dPar);
-    nPerp = (int) ceil(fPerp / dPerp);
-
-    // std::cout << fPerp << " " << fPar << endl;
-    // std::cout << nPerp << " " << nPar << endl;
     // From Density to RCS.
-    SetDensity();
+    SetCascadeCoodinates();
+    Density(fCSLength, fCSRadius);
     PlasmaFreq(fDensity); // Not necessary
     Absorption(fDensity, fTX.Freq() );
     SkinDepth(fDensity, fTX.Freq() ); // Not necessary
     // Reflectance();
     Opacity(fAbsorption);
     // std::cout << "Check" << endl;
-    RCS(fOpacity);
+    ESA(fReflectance);
+
+    //  iF THE ecs is in folder, load and jump here
 
     SetSegments(nPerp);
     run_time_loop();
   }
-
 
 /* Make 2D-array of density profile in the TX frame
 Transmitter frame (a, b) goes from (0 -> A , 0 -> B)
 Cascade frame (L,R) goes to (0 -> L, -r/2 -> r/2)
 The rotation between the frames needs to happen at cascade's center.
 The formula below is translation -> rotation -> translation back.
+NOTE: l,r in the function are meant to be positions in the cascade frame (after rotation)
+but still move along TX frame.
 */
-void Cascade1D::SetDensity(){
-	double a, b, l, r;
-  fDensity = std::vector<std::vector<double>> (nPerp, std::vector<double> (nPar, 0));
+void Cascade1D::SetCascadeCoodinates(){
+  double a, b;
+  fCSLength = std::vector<std::vector<double>> (nPerp, std::vector<double> (nPar, 0));
+  fCSRadius = std::vector<std::vector<double>> (nPerp, std::vector<double> (nPar, 0));
 
   for (int i = 0; i < nPerp; i++){
-    b = i* dPerp;
+    b = i* gdPerp;
     for (int j = 0; j < nPar; j++){
-      a = j * dPar;
+      a = j * gdPar;
 
-      l =  (a - fPar/2)*cD + (b - fPerp/2)*sD + fCS.Ltot()/2;
-      r = -(a - fPar/2)*sD + (b - fPerp/2)*cD;
-      // std::cout << a << " " << b << endl;
-      // std::cout << l << " " << r << endl;
+      fCSLength[i][j] = (a - fPar/2)*cD + (b - fPerp/2)*sD + fCS.Ltot()/2;
+      fCSRadius[i][j] = -(a - fPar/2)*sD + (b - fPerp/2)*cD;
 
-      fDensity[i][j] = fCS.Density(l*rho_ice, r);
     }
   }
 }
-// NOTE: l,r in the function are meant to be positions in the cascade frame (after rotation)
-// but still move along TX frame.
+
+
+void Cascade1D::Density( const std::vector<std::vector<double>> &fCSLength,
+                            const std::vector<std::vector<double>> &fCSRadius ){
+  fDensity = std::vector<std::vector<double>> (fCSLength.size(),
+              std::vector<double> (fCSLength[0].size(), 0.0));
+
+  for (int i = 0; i < fDensity.size(); i++){
+    for (int j = 0; j < fDensity[i].size(); j++){
+      // Check if we are not too far out from the cascade direction
+      if ( abs(fCSRadius[i][j]) <= fCS.Rtot() ) {
+        fDensity[i][j] = fCS.Density(rho_ice*fCSLength[i][j], fCSRadius[i][j]);
+      }
+    }
+  }
+}
 
 /* Computes r_crit, the radial values of the line where the plasma frequency
 equals the detection frequency (overdense line).
@@ -335,22 +339,22 @@ The shower waist is by definition the maximum radius for the same plasma density
 */
 /* [(#e-) cm^-3]  Critical e- density for overdense scattering condition
 wp > w > 8980*sqrt(ne), w is frequency [Hz]!! */
-void Cascade1D::Rcrit(const std::vector<std::vector<double>> &density, const double & freq){
-  double r, dens_crit = memp*pow(freq/8980,2);
-  fRcrit = std::vector<double>(density.size(), 0);
-
-  // Loop over density matrix rows and then columms.
-  for (int i = 0; i < density.size(); i++){
-    r = 0;
-    for (int j = 0; j < density[i].size(); j++){
-      // If overdense, remember the layer.
-      if (density[i][j] > dens_crit) { r = j;}   // Layer
-    }
-    // fRcrit[i] = r*fRdiv; // [cm]
-  }
-
-  fRwaist = *max_element(fRcrit.begin(), fRcrit.end());
-}
+// void Cascade1D::Rcrit(const std::vector<std::vector<double>> &density, const double & freq){
+//   double r, dens_crit = memp*pow(freq/8980,2);
+//   fRcrit = std::vector<double>(density.size(), 0);
+//
+//   // Loop over density matrix rows and then columms.
+//   for (int i = 0; i < density.size(); i++){
+//     r = 0;
+//     for (int j = 0; j < density[i].size(); j++){
+//       // If overdense, remember the layer.
+//       if (density[i][j] > dens_crit) { r = j;}   // Layer
+//     }
+//     // fRcrit[i] = r*fRdiv; // [cm]
+//   }
+//
+//   fRwaist = *max_element(fRcrit.begin(), fRcrit.end());
+// }
 
 void Cascade1D::PlasmaFreq(const std::vector<std::vector<double>> &density){
   fPlasmaFrequency = std::vector<std::vector<double>> (density.size(),
@@ -408,7 +412,7 @@ void Cascade1D::Reflectance(const std::vector<std::vector<double>> &absorption){
 		reflectance = 0, opacity = 0;
     for (int j = 0; j < absorption[0].size(); j++){
       // The bin size [in cm] is the parallel dimension resolution.
-      reflectance = (1-opacity)*(1-exp(-1.0 * dPar * absorption[i][j]));
+      reflectance = (1-opacity)*(1-exp(-1.0 * gdPar * absorption[i][j]));
       opacity += reflectance;
 			assert(opacity < 1 && "Opacity larger than 1!");   // sanity check
       fReflectance[i][j] = reflectance;
@@ -420,49 +424,71 @@ void Cascade1D::Reflectance(const std::vector<std::vector<double>> &absorption){
 void Cascade1D::Opacity(const std::vector<std::vector<double>> &absorption){ Reflectance(absorption); }
 
 /* Compute the RCS of the cascade from the slices.
-For a constant cell size with layers, we just need the opacity (accumulated reflectivity)
-and multiply by the cell area.
+NON constant layer size, need to loop over the radius.
+Per radius, we consider scattering over a cylinder shell of area:
+
+ Shell area = 2pi*base * height_segment = 2*pi*r * gdPerp;
+
+Each radius r actually contributes to half a cylinder (r goes from -r_max ro r_max):
+
+  Half-shell area = pi* r * gdPerp;
+
+Each shell is weighted by its reflectivity.
 */
-void Cascade1D::RCS(const std::vector<std::vector<double>> &opacity){
-  fRCS = std::vector<double> ( opacity.size() );
-  for(int i = 0 ; i < opacity.size(); i++) {
-    fRCS[i] = dPerp * dNorm * opacity[i].back();
+void Cascade1D::ESA(const std::vector<std::vector<double>> &reflectance){
+  // double r;      // No longer constant, normal dimension.
+  fRCS = std::vector<double> ( reflectance.size(), 0.0 );
+  for (int i = 0; i < reflectance.size(); i++){
+    for (int j = 0; j < reflectance[i].size(); j++){
+      fRCS[i] += abs(fCSRadius[i][j]) * reflectance[i][j];      // [cm^2]
+    }
+    fRCS[i] *= pi * gdPerp;
   }
 }
 
-
-/* Compute the RCS of the cascade from the slices.
-For a NON constant cell size w.r.t layers, need to loop over the reflectivity
-and weigh the cell by its respective area before adding.
-*/
-// void Cascade1D::RCS(const std::vector<std::vector<double>> &reflectance){
-//   double r;     // No longer constant, dNorm.
-//   fRCS = std::vector<double> ( reflectance.size() );
-//   for (int i = 0; i < reflectance.size(); i++){
-//     for (int j = 0; j < reflectance[i].size(); j++){
-//       // Whatever parametrization for dNorm that we want goes here [to be investigated]
-//
-//       // r = -1.0 *- sin ( pi* (2.0*j/nbin - 1) ) * dNorm; // e.g.
-//       // r = abs(r);        // Radius evaluated in [+r, -r] but we need the module
-//       // fRCS[i] += r * dPerp * reflectance[i][j];      // [cm^2]
-//     }
-//   }
-// }
-
-// ----------------------------------------------------------------------------
 // Accesors
+std::vector<std::vector<double>> Cascade1D::Radius() {return fCSRadius;}
 std::vector<std::vector<double>> Cascade1D::Density()  { return fDensity; }
-double  Cascade1D::Rwaist(){ return fRwaist; }
+// double  Cascade1D::Rwaist(){ return fRwaist; }
 std::vector<double> Cascade1D::Rcrit(){ return fRcrit; }
 std::vector<std::vector<double>> Cascade1D::PlasmaFreq(){ return fPlasmaFrequency; }
 std::vector<std::vector<double>> Cascade1D::Absorption(){ return fAbsorption; }
 std::vector<std::vector<double>> Cascade1D::SkinDepth(){ return fSkinDepth; }
 std::vector<std::vector<double>> Cascade1D::Reflectance(){ return fReflectance; }
 std::vector<std::vector<double>> Cascade1D::Opacity(){ return fOpacity; }
-std::vector<double> Cascade1D::RCS(){ return Scatter::RCS(); };
+std::vector<double> Cascade1D::ESA(){ return Scatter::ESA(); };
 
 // std::vector<double> Cascade1D::radar_cs(){
 //   if (fRCS.empty()) {set_radar_cs();}
 //   return fRCS;
 // }
+
+// -----------------------------------------------------------------------------
+
+/* Cylinder1D
+This should be a close approximation to the ideal cascade. The radial profile
+r(L) is not trivial for even simple geometries, so we have a cylinder instead.
+A cylinder that has perfect reflectivity only scatters out of his outer shell.
+The typical size for the cylinder is the moliere radius.
+
+Outer cylinder shell area per segment = 2pibase* height = pi* r_moliere* gdPerp
+Opacity is 1;
+*/
+
+Cylinder1D::Cylinder1D(Antenna& tx, Antenna& rx, Cascade& cs): Scatter(tx, rx, cs){
+  fRCS = std::vector<double>(nPerp, gdPerp * r_moliere * pi); // [cm^2]
+  SetSegments( nPerp );
+  run_time_loop();
+}
+// -----------------------------------------------------------------------------
+
+/* Line1D is Dieder's model.
+This should be the closest representation to the ideal thin-wire solution
+(there is an analytical solution that does not contain retardation effects)
+*/
+Line1D::Line1D(Antenna& tx, Antenna& rx, Cascade& cs): Scatter(tx, rx, cs){
+  fRCS = std::vector<double>(fCS.Lbins(), gdNorm*gdPerp); // The line's segments have rcs unity.
+  SetSegments( fCS.Lbins() );
+  run_time_loop();
+}
 // =============================================================================
