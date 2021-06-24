@@ -56,10 +56,10 @@ int main(int argc, char** argv){
       // Make the bistatic event.
       // std::cout << "Event: " << std::to_string((int)cs.event()) << endl;
 
-      // Line1D event0(tx,rx,cs);
+      Line1D event0(tx,rx,cs);
       //
       // /* Write out all the information. */
-      write_2D_array(event0.segement_coords(),  identifier_l + "_coords.txt", 1);
+      write_2D_array(event0.Coordinates(),  identifier_l + "_coords.txt", 1);
       // write_1D_array(event0.Attenuation(),        identifier_l + "_attenuation.txt", 1);
       // // write_1D_array(event0.arrivals(),         identifier_l + "_t_arrivals.txt", 1);
       // // write_1D_array(event0.phase(),            identifier_l + "_phases.txt", 1);

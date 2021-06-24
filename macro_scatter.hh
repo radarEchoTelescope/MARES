@@ -132,8 +132,8 @@ private:
   void SkinDepth(const std::vector<std::vector<double>> &density, const double & freq);
   void Reflectance(const std::vector<std::vector<double>> &absorption);
   void Opacity(const std::vector<std::vector<double>> &absorption);
-  void ESA(const std::vector<std::vector<double>> &opacity);          // Const layers
-  // void RCS(const std::vector<std::vector<double>> &reflectance);   // Non const layers
+  void ESA(const std::vector<std::vector<double>> &reflectance);   // Non const layers
+  // void ESA(const std::vector<std::vector<double>> &opacity);          // Const layers
 
 };
 
