@@ -14,14 +14,23 @@ int main(int argc, char** argv){
 
   // Cascade params
 
-  int evt = atof(argv[1]);
-  double cenergy = atof(argv[2]);
-  double xpos = atof(argv[3]);
-  double ypos = atof(argv[4]);
-  double zpos = atof(argv[5]);
-  double czenith = atof(argv[6]);
-  double cazimuth = atof(argv[7]);
-  std::string identifier  = argv[8];
+  // int evt = atof(argv[1]);
+  // double cenergy = atof(argv[2]);
+  // double xpos = atof(argv[3]);
+  // double ypos = atof(argv[4]);
+  // double zpos = atof(argv[5]);
+  // double czenith = atof(argv[6]);
+  // double cazimuth = atof(argv[7]);
+  // std::string identifier  = argv[8];
+
+  int evt = 0;
+  double cenergy = 1E7;
+  double xpos = 0;
+  double ypos = -250 ;
+  double zpos = 0;
+  double czenith = 90;
+  double cazimuth = 0;
+  std::string identifier  = argv[1];
 
   double nenergy = 1E9;
   double nzenith = 0;
@@ -51,10 +60,10 @@ int main(int argc, char** argv){
   // For every transmitter
   for (auto& tx : bistatic.Transmitters()){
     // For every receiver
-    cout << tx.E0() << endl;
     for (auto& rx : bistatic.Receivers()){
       // Make the bistatic event.
-      // std::cout << "Event: " << std::to_string((int)cs.event()) << endl;
+      // cout << "Electric Field: "<< std::to_string(tx.E0()) << endl;
+      // std::cout << "Length: " << std::to_string(cs.Ltot()  ) << endl;
 
       Line1D event0(tx,rx,cs);
       //
