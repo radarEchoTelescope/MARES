@@ -51,7 +51,7 @@ int main(int argc, char** argv){
   // For every transmitter
   for (auto& tx : bistatic.Transmitters()){
     // For every receiver
-    cout << tx.E0() << endl;
+    // cout << tx.E0() << endl;
     for (auto& rx : bistatic.Receivers()){
       // Make the bistatic event.
       // std::cout << "Event: " << std::to_string((int)cs.event()) << endl;

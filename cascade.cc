@@ -21,7 +21,7 @@ Cascade::Cascade(int event, double cenergy, double xpos, double ypos, double zpo
 				  = 4*(log(fEnergy/E_c)/log(2) )*X_int;
 		 			= 4*(log(fEnergy/E_c)) * X_0
  */
-	fXtot = 4 * log(12.72 * fEnergy) * X_0;			// [g/cm^2]
+	fXtot = 3 * log(12.72 * fEnergy) * X_0;			// [g/cm^2]
 	fLtot = fXtot/rho_ice; 															// [cm]
 	fRtot = 5*r_moliere;//*log(fEnergy/1E9);						// [cm]
 	// THIS WORKS FOR E 1E9, switch to E MIN 10^6 GeV AND VERIFY FOR ALL ENERGIES.
