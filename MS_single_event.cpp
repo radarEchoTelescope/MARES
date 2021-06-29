@@ -60,10 +60,7 @@ int main(int argc, char** argv){
   // For every transmitter
   for (auto& tx : bistatic.Transmitters()){
     // For every receiver
-<<<<<<< HEAD
-=======
     // cout << tx.E0() << endl;
->>>>>>> cda8433eb8117cc21a765e85dac4c0e5fae04857
     for (auto& rx : bistatic.Receivers()){
       // Make the bistatic event.
       // cout << "Electric Field: "<< std::to_string(tx.E0()) << endl;

@@ -487,8 +487,11 @@ This should be the closest representation to the ideal thin-wire solution
 (there is an analytical solution that does not contain retardation effects)
 */
 Line1D::Line1D(Antenna& tx, Antenna& rx, Cascade& cs): Scatter(tx, rx, cs){
-  fRCS = std::vector<double>(fCS.Lbins(), gdNorm*gdPerp); // The line's segments have rcs unity.
-  SetSegments( fCS.Lbins() );
+  double Ltot = 1000;  // [10 m in cm]
+  double Lbins = Ltot / gdPerp;
+  // Use Lbins instead of fCS.Lbins for the core.
+  fRCS = std::vector<double>(Lbins, gdNorm*gdPerp); // The line's segments have perfect reflectivtiy.
+  SetSegments( Lbins );
   run_time_loop();
 }
 // =============================================================================
