@@ -10,7 +10,7 @@ Cascade::Cascade(int event, double cenergy, double xpos, double ypos, double zpo
 								 fNeutrino{nenergy, nzenith, nazimuth,oneweight} {
 
 	 // Sanity check! Your sections are not unphysical due to lifetime constraint.
-	 assert(fLdiv <= cvac_cm*tau && "Cascade resolution is too large!");
+	 assert(fLdiv <= c_vac_cm*tau && "Cascade resolution is too large!");
 	 // This should be further checked against the probing wavelength.
 
 	fDirection[0] = sin(fSphericalAngles[0])*cos(fSphericalAngles[1]);
@@ -25,11 +25,24 @@ Cascade::Cascade(int event, double cenergy, double xpos, double ypos, double zpo
 	// fXtot = 4 * log(12.72 * fEnergy) * X_0;			// [g/cm^2]
 	fLtot = fXtot/rho_ice; 															// [cm]
 	fRtot = 5*r_moliere;//*log(fEnergy/1E9);						// [cm]
-	// THIS WORKS FOR E 1E9, switch to E MIN 10^6 GeV AND VERIFY FOR ALL ENERGIES.
+// THIS WORKS FOR E 1E9, switch to E MIN 10^6 GeV AND VERIFY FOR ALL ENERGIES.
+
+// FOR THE WIRE TEST ONLY!!-----------------------------------
+	double wavelength = c_ice_cm/freq_obs;
+	fLtot = wavelength * 5;  // [cm]
+	fLdiv = fLtot /100; //radius
+
+	fRtot = fLtot/150;
+//----------------------------------
 
 	fLbins = (int) ceil( fLtot/fLdiv );
 	fXbins = (int) ceil( fXtot/fXdiv );
 	fRbins = (int) ceil( fRtot/fRdiv );
+
+
+
+
+
 
 }
 
@@ -47,6 +60,7 @@ double Cascade::Density(double X, double r, double delta_r){
 
 double Cascade::PlasmaFreq(const double &dens){ return (8980 * sqrt(memp) * sqrt(dens)); }
 
+// Free electron absorption
 double Cascade::Absorption(const double &dens, const double &freq_obs){
 	double w, a, b, q;     // Some temp varables.
   double fplasma = PlasmaFreq(dens);
@@ -57,17 +71,43 @@ double Cascade::Absorption(const double &dens, const double &freq_obs){
     a = 1 - w;
     b = (f_coll / freq_obs) * w;
 
-    // double p = (fAngularFreq/cvac_cm)*np.sqrt((np.sqrt(a**2 + b**2) + a) /2 )
-    q = (freq_obs/cvac_cm)*sqrt((sqrt(pow(a,2) + pow(b,2)) - a) /2 ); // [1/cm]
+    // double p = (fAngularFreq/c_vac_cm)*np.sqrt((np.sqrt(a**2 + b**2) + a) /2 )
+    q = (freq_obs/c_vac_cm)*sqrt((sqrt(pow(a,2) + pow(b,2)) - a) /2 ); // [1/cm]
   } else {
   // Collisionless model
-    fplasma > freq_obs ? q = fplasma/cice_cm : q = 0;               // [1/cm]
+    fplasma > freq_obs ? q = fplasma/c_ice_cm : q = 0;               // [1/cm]
+  }
+  return q;
+}
+
+// Non-free absorption
+double Cascade::Absorption2(const double &dens, const double &freq_obs){
+	double w_sq, a, b, q;     // Some temp varables.
+  double fplasma = PlasmaFreq(dens);
+	double fplasma_sq = pow(fplasma,2);
+	double fobs_sq = pow(freq_obs,2);
+
+  // Exact solution from dispersion relation with collisions.
+  if (f_coll != 0){
+    w_sq = 1.0/( pow( fplasma_sq - fobs_sq,2) + fobs_sq*pow(f_coll,2) );
+    a = 1 + w_sq * fplasma_sq * (fplasma_sq - fobs_sq) ;
+    b = w_sq * fplasma_sq * freq_obs * f_coll;
+
+    // double p = (fAngularFreq/c_vac_cm)*np.sqrt((np.sqrt(a**2 + b**2) + a) /2 )
+    q = (freq_obs/c_vac_cm)*sqrt((sqrt(pow(a,2) + pow(b,2)) - a) /2 ); // [1/cm]
+  } else {
+  // Collisionless model
+    fplasma > freq_obs ? q = fplasma/c_ice_cm : q = 0;               // [1/cm]
   }
   return q;
 }
 
 double Cascade::SkinDepth(const double &dens, const double &freq_obs){
 	return 1/Absorption(dens, freq_obs);
+}
+
+double Cascade::SkinDepth2(const double &dens, const double &freq_obs){
+	return 1/Absorption2(dens, freq_obs);
 }
 
 /* Compute the 2D density profile in the cascade frame */

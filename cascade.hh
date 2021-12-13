@@ -21,7 +21,9 @@ public:
   double Density(double X, double r, double delta_r = 0.01);      // [#e-/ cm^3]
   double PlasmaFreq(const double &dens);         // [Hz]
   double Absorption(const double &dens, const double &freq_obs);
+  double Absorption2(const double &dens, const double &freq_obs);
   double SkinDepth(const double &dens, const double &freq_obs);
+  double SkinDepth2(const double &dens, const double &freq_obs);
 
   // Accesors
   int  Evt() const;
@@ -78,31 +80,6 @@ private:
   double fLbins;          // Number of bins for cascade length
   double fXbins;          // Number of bins for cascade depth
   double fRbins;          // Number of bins for cascade radius
-
-
-
-  //
-
-  // std::vector<std::vector<double>> fDensity;        // [#e-/ cm^3]
-  // double fRwaist;
-  // std::vector<double> fRcrit; // [cm]
-  // std::vector<std::vector<double>> fPlasmaFrequency;
-  // std::vector<std::vector<double>> fAbsorption;
-  // std::vector<std::vector<double>> fSkinDepth;
-  // std::vector<std::vector<double>> fReflectance;
-  // std::vector<std::vector<double>> fOpacity;
-  //
-  // void SetDensity();
-  // void Rcrit(const std::vector<std::vector<double>> &density, const double & freq);
-  // void PlasmaFreq(const std::vector<std::vector<double>> &density);
-  // void Absorption(const std::vector<std::vector<double>> &density, const double & freq);
-  // void SkinDepth(const std::vector<std::vector<double>> &density, const double & freq);
-  // void Reflectance(const std::vector<std::vector<double>> &absorption);
-  // void Opacity(const std::vector<std::vector<double>> &absorption);
-  // void RCS(const std::vector<std::vector<double>> &reflectance);
-
-
-
 
   std::vector<std::vector<double>> fDensity;
   void SetDensity();

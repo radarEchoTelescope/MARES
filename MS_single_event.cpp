@@ -24,7 +24,7 @@ int main(int argc, char** argv){
   // std::string identifier  = argv[8];
 
   int evt = 0;
-  double cenergy = 1E7;
+  double cenergy = 1E10;
   double xpos = 0;
   double ypos = -250 ;
   double zpos = 0;
@@ -57,50 +57,47 @@ int main(int argc, char** argv){
   Detector bistatic(det_type);
 
 
-  // For every transmitter
+  // For every transmitter-receiver pair
   for (auto& tx : bistatic.Transmitters()){
-    // For every receiver
-    // cout << tx.E0() << endl;
     for (auto& rx : bistatic.Receivers()){
-      // Make the bistatic event.
-      // cout << "Electric Field: "<< std::to_string(tx.E0()) << endl;
-      // std::cout << "Length: " << std::to_string(cs.Ltot()  ) << endl;
 
-      Line1D event0(tx,rx,cs);
-      //
-      // /* Write out all the information. */
-      write_2D_array(event0.Coordinates(),  identifier_l + "_coords.txt", 1);
-      // write_1D_array(event0.Attenuation(),        identifier_l + "_attenuation.txt", 1);
-      // // write_1D_array(event0.arrivals(),         identifier_l + "_t_arrivals.txt", 1);
-      // // write_1D_array(event0.phase(),            identifier_l + "_phases.txt", 1);
-      write_1D_array(event0.duration(),         identifier_l + "_duration.txt", 1);
-      write_1D_array(event0.Waveform(),         identifier_l + "_waveform.txt", 1);
-      // write_2D_array(event0.phase_time(),       identifier_l + "_phase_time_profile.txt", 1);
-      // write_2D_array(event0.wave_time(),        identifier_l + "_Er_time_profile.txt", 1);
+      // Chose the type of scatter event: Cascade, Line, Cylinder?
+      Line1D thinwire(tx,rx,cs);
 
+      Cascade1D nu_cascade(tx,rx,cs);
+
+      // Is a specific name needed per every event?
       // std::string identifier_c = path_out + "Cascade1D_" + std::to_string((int) rad2deg( cs.sph_angles()[1]) ) + "_deg";
-      //
-      Cascade1D event(tx,rx,cs);
-      // std::cout << cazimuth << std::endl;
 
-      write_2D_array(event.Radius(),     identifier_c + "_radial_values.txt", 1);
-      write_2D_array(event.Density(),     identifier_c + "_density_tx.txt", 1);
-      write_2D_array(event.PlasmaFreq(),  identifier_c + "_plasma_freq.txt", 1);
-      write_2D_array(event.Absorption(),  identifier_c + "_absorption.txt", 1);
-      write_2D_array(event.SkinDepth(),   identifier_c + "_skin_depth.txt", 1);
-      write_2D_array(event.Reflectance(), identifier_c + "_reflectance_matrix.txt", 1);
-      write_2D_array(event.Opacity(),     identifier_c + "_opacity_matrix.txt", 1);
-      write_1D_array(event.ESA(),         identifier_c + "_radar_cs.txt", 1);
-      write_2D_array(event.Coordinates(),   identifier_c + "_coords.txt", 1);
-      write_1D_array(event.Polarization(),  identifier_c + "_polarization.txt", 1);
-      write_1D_array(event.Attenuation(),         identifier_c + "_attenuation.txt", 1);
-      // write_1D_array(event.arrivals(),          identifier_c + "_t_arrivals.txt", 1);
-      // write_1D_array(event.phase(),             identifier_c + "_phases.txt", 1);
-      write_1D_array(event.duration(),          identifier_c + "_duration.txt", 1);
-      write_1D_array(event.Waveform(),          identifier_c + "_waveform.txt", 1);
-      // write_2D_array(event.wave_time(),         identifier_c + "_Er_time_profile.txt", 1);
-      // write_2D_array(event.rcs_time(),          identifier_c + "_rcs_time_profile.txt", 1);
-      // write_2D_array(event.phase_time(),        identifier_c + "_phase_time_profile.txt", 1);
+      /* Choose what to write out by uncommenting the lines. */
+      write_2D_array(thinwire.Coordinates(),      identifier_l + "_coords.txt", 1);
+      // write_1D_array(thinwire.Attenuation(),   identifier_l + "_attenuation.txt", 1);
+      // // write_1D_array(thinwire.arrivals(),   identifier_l + "_t_arrivals.txt", 1);
+      // // write_1D_array(thinwire.phase(),      identifier_l + "_phases.txt", 1);
+      write_1D_array(thinwire.Duration(),         identifier_l + "_duration.txt", 1);
+      write_1D_array(thinwire.Waveform(),         identifier_l + "_waveform.txt", 1);
+      // write_2D_array(thinwire.phase_time(),    identifier_l + "_phase_time_profile.txt", 1);
+      // write_2D_array(thinwire.wave_time(),     identifier_l + "_Er_time_profile.txt", 1);
+
+
+      write_2D_array(nu_cascade.Radius(),         identifier_c + "_radial_values.txt", 1);
+      write_2D_array(nu_cascade.Density(),        identifier_c + "_density_tx.txt", 1);
+      write_2D_array(nu_cascade.PlasmaFreq(),     identifier_c + "_plasma_freq.txt", 1);
+      write_2D_array(nu_cascade.Absorption(),     identifier_c + "_absorption.txt", 1);
+      write_2D_array(nu_cascade.SkinDepth(),      identifier_c + "_skin_depth.txt", 1);
+      write_2D_array(nu_cascade.Reflectance(),    identifier_c + "_reflectance.txt", 1);
+      write_2D_array(nu_cascade.Opacity(),        identifier_c + "_opacity.txt", 1);
+      write_1D_array(nu_cascade.TCS(),            identifier_c + "_target_cs.txt", 1);
+      write_2D_array(nu_cascade.Coordinates(),    identifier_c + "_coords.txt", 1);
+      write_1D_array(nu_cascade.Polarization(),   identifier_c + "_polarization.txt", 1);
+      write_1D_array(nu_cascade.Attenuation(),    identifier_c + "_attenuation.txt", 1);
+      // write_1D_array(nu_cascade.arrivals(),    identifier_c + "_t_arrivals.txt", 1);
+      // write_1D_array(nu_cascade.phase(),       identifier_c + "_phases.txt", 1);
+      write_1D_array(nu_cascade.Duration(),       identifier_c + "_duration.txt", 1);
+      write_1D_array(nu_cascade.Waveform(),       identifier_c + "_waveform.txt", 1);
+      // write_2D_array(nu_cascade.wave_time(),   identifier_c + "_Er_time_profile.txt", 1);
+      // write_2D_array(nu_cascade.rcs_time(),    identifier_c + "_rcs_time_profile.txt", 1);
+      // write_2D_array(nu_cascade.phase_time(),  identifier_c + "_phase_time_profile.txt", 1);
 
     }
   }

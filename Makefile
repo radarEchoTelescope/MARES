@@ -1,9 +1,10 @@
 #TARGET = return_field
-TARGET = MS_single_event
+#TARGET = MS_single_event
+TARGET= MS_wire_test
 DIR= ../IceRayTracing/namespace/woROOT/
 
 CC = g++
-CFLAGS = -I$(DIR) #-Wall -O -g
+CFLAGS = -I$(DIR) #-Wall -O -g 
 # -O performs optimizations, -g enables debugging
 LDLIBS= -lgsl -lgslcblas
 

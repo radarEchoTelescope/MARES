@@ -14,6 +14,9 @@ public:
   Antenna(double power, double xpos, double ypos, double zpos,
           double xpol, double ypol, double zpol, double gain, double frequency);
 
+  double GainDipole(double theta);
+  double GainDipole(std::vector<double> dir);
+
   // Accesors
 
   double Power()  const;
@@ -35,8 +38,11 @@ public:
   std::vector<double> Dir() const;
   std::vector<double> Sph() const;
 
-  void SetDirection(std::vector<double> coords);
+  double Dot()   const;
+  double Delta() const;
 
+  void SetDirection(std::vector<double> coords);
+  void SetAngle(std::vector<double> dir);
 
 private:
   // friend class Scatter;
@@ -62,6 +68,11 @@ private:
   std::vector<double> fDirection{0, 0, 0};      // Vector direction to cs point.
   std::vector<double> fSphericalAngles{0,0};
 
+  double fDot = 0;             // Dot (inner) product with reference (cascade) direction.
+  // This is the same as the cosine of the angle between them.
+  double fDelta = 0;          // The angle.
+  // fDelta is the projection angle, defined between 0 and pi only.
+
   // double IRT_dist[2];
   // double IRT_angle[2];
 };
@@ -83,8 +94,7 @@ public:
   std::vector<Antenna> Receivers();
 
   void add_antenna(Antenna& at);
-
-  // Detector(int a, int b); // Krijn's old system locations
+  void add_antenna(Antenna at);
 
 private:
 

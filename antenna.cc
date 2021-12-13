@@ -44,6 +44,39 @@ void Antenna::SetDirection(std::vector<double> coords){
 
 }
 
+void Antenna::SetAngle(std::vector<double> dir){
+  // Determine inner product  in l.o.s plane.
+  fDot   = projection( fDirection, dir );
+  // fDelta is the projection angle, defined between 0 and pi only.
+  fDelta = acos(fDot);
+
+  /* The current model breaks down at small angles when
+  |L*sin(delta)| < |r*cos(delta)|
+  or
+  r/L = |tan(delta)|
+  so
+  delta_critical = arctan(r/L)
+  */
+
+  // double delta_crit = atan(cs.Rtot()/cs.Ltot());
+  // std::cout << rad2deg(delta_crit) << std::endl;
+  // fDelta < delta_crit ? fDelta = delta_crit: 1;
+  // This is right now 0.5 degrees
+
+  // Or, something simpler, if delta is smaller than 1 degree, make it 1 degree.
+  // (fDelta < pi/180.0) ? fDelta = pi/180.0 : 1;
+
+
+}
+
+double Antenna::GainDipole(double theta){
+  return 1.643 * pow(sin(theta),2.6);
+}
+
+// double Antenna::GainDipole(std::vector<double> dir){
+//
+// };
+
 // Accesors
 
 double  Antenna::Power()  const {return fPower;}
@@ -63,7 +96,9 @@ std::vector<double> Antenna::Dir() const {return fDirection;}
 std::vector<double> Antenna::Sph() const {return fSphericalAngles;}
 std::vector<double> Antenna::Pol() const {return fPolarization;}
 
-double  Antenna::Dist() const {return fDistance;}
+double  Antenna::Dist()  const {return fDistance;}
+double  Antenna::Dot()   const {return fDot;}
+double  Antenna::Delta() const {return fDelta;}
 
 
 
@@ -99,6 +134,16 @@ void Detector::add_antenna(Antenna& at){
   else { fReceivers.push_back(at); }
 }
 
+void Detector::add_antenna(Antenna at){
+  if (at.fPower) { fTransmitters.push_back(at); }
+  else { fReceivers.push_back(at); }
+}
+// -----------------------------------------------------------------------------
+
+
+//  Other Detector configurations
+
+/* Old setup locations, Krijn's code.
 
 //
 // Detector::Detector(int a, int b){
@@ -153,12 +198,6 @@ void Detector::add_antenna(Antenna& at){
 //     }
 //
 // };
-
-// -----------------------------------------------------------------------------
-//  Other Detector configurations
-
-/* Old setup locations, Krijn's code.
-
 
 
 switch (jj) {              // Polarization angles, 2 options
