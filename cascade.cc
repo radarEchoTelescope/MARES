@@ -24,15 +24,18 @@ Cascade::Cascade(int event, double cenergy, double xpos, double ypos, double zpo
  	fXtot = 3 * log(12.72 * fEnergy) * X_0;			// [g/cm^2]
 	// fXtot = 4 * log(12.72 * fEnergy) * X_0;			// [g/cm^2]
 	fLtot = fXtot/rho_ice; 															// [cm]
-	fRtot = 5*r_moliere;//*log(fEnergy/1E9);						// [cm]
-// THIS WORKS FOR E 1E9, switch to E MIN 10^6 GeV AND VERIFY FOR ALL ENERGIES.
+	fRtot = r_moliere*(log(fEnergy/1E5));						// [cm]
+	// THIS SHOULD WORK FOR EVERYTHING ABOVE 10^6 GeV / 10^15 eV / 1 PeV.
+
+	// fRtot = 5*r_moliere;//*log(fEnergy/1E9);						// [cm]
+// OLD: THIS WORKS FOR E 1E9, switch to E MIN 10^6 GeV AND VERIFY FOR ALL ENERGIES.
 
 // FOR THE WIRE TEST ONLY!!-----------------------------------
-	double wavelength = c_ice_cm/freq_obs;
-	fLtot = wavelength * 5;  // [cm]
-	fLdiv = fLtot /100; //radius
-
-	fRtot = fLtot/150;
+	// double wavelength = c_ice_cm/freq_obs;
+	// fLtot = wavelength * 10;  // [cm]
+	// fLdiv = fLtot /100; //radius
+	// //
+	// fRtot = fLtot/1000;
 //----------------------------------
 
 	fLbins = (int) ceil( fLtot/fLdiv );

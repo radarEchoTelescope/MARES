@@ -70,7 +70,7 @@ private:
 
   double fLdiv = 1;       // [cm] Length interval, resolution.
   double fXdiv = fLdiv * rho_ice;
-  double fRdiv = 1;       // [cm] radial interval, resolution.
+  double fRdiv = 0.1;       // [cm] radial interval, resolution.
 
   // Max cascade depth: X_tot = 4* max depth from Heitler model estimate.
   double fLtot;           // [cm]

@@ -1,4 +1,4 @@
-#include "macro_settings.hh"
+  #include "macro_settings.hh"
 
 // Math tools ------------------------------------------------------------------
 int sgn(double val) { return (0.0 < val) - (val < 0.0);}
@@ -8,6 +8,12 @@ double acos2(double x1, double x2, double y1, double y2){
   angle = atan2( x1*y2 - x2*y1, x1*y1 + x2*y2 );
   // angle = atan2( det(a,b), dot(a,b) );
   return angle;
+}
+
+double sinc(double x){
+  double o = 1;
+  if(x != 0){ o = sin(x)/x; }
+  return o;
 }
 
 // template <typename T>
@@ -121,13 +127,13 @@ void write_2D_array(std::vector<std::vector<double>> array, std::string output_p
 
 // Unused ----------------------------------------------------------------------
 //
-// // Computing transpose of the matrix
-// std::vector<std::vector<double>> transpose(std::vector<std::vector<double>> matrix){
-//   int row = matrix.size();
-//   int col = matrix[0].size();
-//   std::vector<std::vector<double>> T( col , std::vector<double> (row, 0));
-//   for (int i = 0; i < row; ++i){
-//      for (int j = 0; j < col; ++j) { T[j][i] = matrix[i][j]; }
-//   }
-//   return T;
-// }
+// Computing transpose of the matrix
+std::vector<std::vector<double>> transpose(std::vector<std::vector<double>> matrix){
+  int row = matrix.size();
+  int col = matrix[0].size();
+  std::vector<std::vector<double>> T( col , std::vector<double> (row, 0));
+  for (int i = 0; i < row; ++i){
+     for (int j = 0; j < col; ++j) { T[j][i] = matrix[i][j]; }
+  }
+  return T;
+}

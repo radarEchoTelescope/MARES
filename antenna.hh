@@ -62,7 +62,7 @@ private:
 
   std::vector<double> fPosition{0, 0, 0};
   // Standard antennas are vertically in the ice (Vpol)
-  std::vector<double> fPolarization{0, 0, 1};   // Polarization
+  std::vector<double> fPolarization{1, 0, 0};   // Polarization
 
   double fDistance = 0;                         // Module of distance to cs point.
   std::vector<double> fDirection{0, 0, 0};      // Vector direction to cs point.

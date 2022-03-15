@@ -16,20 +16,20 @@
 // const int nbin = 3000;               // # of bins for integration/array filling
 // const int nbin = 1E4;             // # of bins for integration/array filling
 
-const double gdPerp = 5.0; // [cm/bin]
-const double gdPar  = 0.1;
-const double gdNorm = 0.1; // This is also a radial direction.
+const double gdL = 1; // [cm/bin]
+const double gdR  = 0.1;
+const double gdN = 1; // This is also a radial direction.
 
 // const double freq_obs = 450 * 1E6;
 const double freq_obs = 5E8;              // [Hz] Default observer frequency
-const double freq_sampling = 5E9;
+const double freq_sampling = 5E10;
 // sampling frequency should be between 10x and 100x freq_obs.
 
 // ----- Physical parameters ---------------------------------------------------
 
     // Plasma ------------------------------------------------------------------
-const double tau = 1E-8;               // [s] Plasma lifetime 10 ns
-// const double tau = 20*1E-9;               // [s] Plasma lifetime
+const double tau = 1E-9;               // [s] Plasma lifetime 1 ms
+// const double tau = 1E-8;               // [s] Plasma lifetime 10 ns
 
 // const double f_coll = 0;             // [Hz] collision frequency
 // const double f_coll=88E12;              // [Hz] collision frequency
@@ -53,14 +53,23 @@ const double e =2.71828;
 const double c_vac=2.998E8;               // [m/s]
 const double c_ice=c_vac/refindex;        // [m/s] speed of light in ice
 const double Z0=119.917 ;                 // [pi * Ohm]
+const double Z_ice=c_vac/refindex;
 
     // Microscopical [cgs] -----------------------------------------------------
-const double cvac_cm=c_vac * 100;         // [cm/s]
-const double cice_cm=c_ice * 100;         // [cm/s] c in ice
+const double c_vac_cm=c_vac * 100;         // [cm/s]
+const double c_ice_cm=c_ice * 100;         // [cm/s] c in ice
 const double thompson=6.6524574E-25;      // [cm^2] Thompson e- scattering cs
 
 
 // Math tools ------------------------------------------------------------------
+
+template<typename T>
+std::vector<T> arange(T start, T stop, T step ){
+  std::vector<T> values;
+  for (T value = start; value <= stop; value += step) { values.push_back(value);}
+  return values;
+}
+
 
 int sgn(double val);
 
@@ -97,6 +106,7 @@ N deg2rad(N radian) {
 }
 
 double acos2(double y, double x);
+double sinc(double x);
 
 double norm(std::vector<double> a);
 std::vector<double> direction(std::vector<double> vec_a, std::vector<double> vec_b);
@@ -110,8 +120,6 @@ double projection(std::vector<double> a, std::vector<double> b);
 std::vector<double> normalize(std::vector<double> a);
 std::vector<double> cross_product(double a1, double a2, double a3, double b1, double b2, double b3);
 std::vector<double> cross_product(std::vector<double> a, std::vector<double> b);
-
-
 
   // Random numbers
 
@@ -136,7 +144,11 @@ void write_1D_array(std::vector<double> array, std::string output_path,
 void write_2D_array(std::vector<std::vector<double>> array,
     std::string output_path, const bool trigger);
 
-#endif
+
 
 // Unused ----------------------------------------------------------------------
-// std::vector<std::vector<double>> transpose(std::vector<std::vector<double>> matrix);
+std::vector<std::vector<double>> transpose(std::vector<std::vector<double>> matrix);
+
+
+
+#endif

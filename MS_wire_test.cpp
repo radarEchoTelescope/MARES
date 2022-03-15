@@ -15,9 +15,9 @@ int main(int argc, char** argv){
 
   /* Make the cascade OR parse through load_cascade_file() */
   int evt = 0;
-  double cenergy = 1E10;
+  double cenergy = 1E8; //[GeV]
   // double xpos = 0;
-  double xpos = -(0.336854*5)/2.0;
+  double xpos = 0;
   double ypos = 0 ;
   double zpos = 0;
   double czenith = 90;
@@ -42,9 +42,10 @@ int main(int argc, char** argv){
 
   double R = 200; // Antenna - Wire distance [m]
 
+  // std::vector<double> TX_angles = arange<double>(0, 360, 10);
   std::vector<double> TX_angles = {
-                                    // 50
-                                    10,30,50,70,90
+                                    90
+                                    // 10,30,50,70,90
                                     // -10,-30,-50,-70,-90
                                   };
 
@@ -54,19 +55,15 @@ int main(int argc, char** argv){
     lab.add_antenna( Antenna(1E4,  R*cos(ii), R*sin(ii),0 ) );
   }
 
-  std::vector<double> RX_angles = arange<double>(0, 360, 1);
+  std::vector<double> RX_angles = arange<double>(0, 360, 6);
   // std::vector<double> RX_angles = {
-  //   // 90
+    // 90
   //                                 // 90, -90
   //                                 // -10,-20,-30,-40,-50,-60,-70,-80,-90,-100,-110,-120,-130,-140,-150,-160,-170,
   //                                 // -180, -170, -160, -150, -140, -130, -120, -110, -100, -90, -80, -70, -60, -50, -40, -30, -20, -10,
   //                                 0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,
   //                                 190, 200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350,360
-  //                                 };
-  // for(auto& j : RX_angles){
-  //   // cout << j << '\t'<< R*cos( jj ) << '\t' << R*sin( jj ) << endl;
-  //   lab.add_antenna( Antenna(0, j, R , 0 ) );
-  // }
+                                  // };
 
 
   // cout << '\n' << endl;
@@ -83,24 +80,53 @@ int main(int argc, char** argv){
   for (auto& tx : lab.Transmitters()){
     j = 0;
     for (auto& rx : lab.Receivers()){
-      Line1D thinwire(tx,rx,cs);
+      std::string identifier_c = path_out + identifier +
+                                  + "_TX_" + std::to_string((int) TX_angles[i]) + "_deg"
+                                  + "_RX_" + std::to_string((int) RX_angles[j]) + "_deg";
 
-      std::string identifier_l = path_out
-                                  + "TX_" + std::to_string((int) TX_angles[i]) + "_deg"
-                                  + "RX_" + std::to_string((int) RX_angles[j]) + "_deg";
+      Cascade1D nu_cascade(tx,rx,cs);
 
-      /* Choose what to write out by uncommenting the lines. */
-      write_2D_array(thinwire.Coordinates(),      identifier_l + "_coords.txt", 1);
-      // write_1D_array(thinwire.Attenuation(),   identifier_l + "_attenuation.txt", 1);
-      // // write_1D_array(thinwire.arrivals(),   identifier_l + "_t_arrivals.txt", 1);
-      write_1D_array(thinwire.TCS(),              identifier_l + "_TCS.txt", 1);
-      write_1D_array(thinwire.Duration(),         identifier_l + "_duration.txt", 1);
-      write_1D_array(thinwire.Directivity(),      identifier_l + "_directiviy.txt", 1);
-      write_1D_array(thinwire.Waveform(),         identifier_l + "_waveform.txt", 1);
-      write_1D_array(thinwire.Power(),            identifier_l + "_power.txt", 1);
-      write_1D_array(thinwire.RCS(),              identifier_l + "_RCS.txt", 1);
-      // write_2D_array(thinwire.phase_time(),    identifier_l + "_phase_time_profile.txt", 1);
-      // write_2D_array(thinwire.wave_time(),     identifier_l + "_Er_time_profile.txt", 1);
+      // write_2D_array(nu_cascade.Coordinates(),    identifier_c + "_coords.txt", 1);
+      // write_2D_array(nu_cascade.Radius(),         identifier_c + "_radial_values.txt", 1);
+      // write_2D_array(nu_cascade.Density(),        identifier_c + "_density_tx.txt", 1);
+      // write_2D_array(nu_cascade.PlasmaFreq(),     identifier_c + "_plasma_freq.txt", 1);
+      // write_2D_array(nu_cascade.Absorption(),     identifier_c + "_absorption.txt", 1);
+      // write_2D_array(nu_cascade.SkinDepth(),      identifier_c + "_skin_depth.txt", 1);
+      // write_2D_array(nu_cascade.Reflectance(),    identifier_c + "_reflectance.txt", 1);
+      // write_2D_array(nu_cascade.Opacity(),        identifier_c + "_opacity.txt", 1);
+      write_1D_array(nu_cascade.TCS(),            identifier_c + "_TCS.txt", 1);
+      write_1D_array(nu_cascade.RCS(),            identifier_c + "_RCS.txt", 1);
+      write_2D_array(nu_cascade.Coordinates(),    identifier_c + "_coords.txt", 1);
+      write_1D_array(nu_cascade.Polarization(),   identifier_c + "_polarization.txt", 1);
+      write_1D_array(nu_cascade.Attenuation(),    identifier_c + "_attenuation.txt", 1);
+      write_1D_array(nu_cascade.Directivity(),      identifier_c + "_directivity.txt", 1);
+
+      // // write_1D_array(nu_cascade.arrivals(),    identifier_c + "_t_arrivals.txt", 1);
+      // // write_1D_array(nu_cascade.Phase(),       identifier_c + "_phase.txt", 1);
+      write_1D_array(nu_cascade.Duration(),       identifier_c + "_duration.txt", 1);
+      write_1D_array(nu_cascade.Waveform(),       identifier_c + "_waveform.txt", 1);
+      write_2D_array(nu_cascade.TCS_time(),   identifier_c + "_tcs_time_profile.txt", 1);
+      write_2D_array(nu_cascade.RCS_time(),   identifier_c + "_rcs_time_profile.txt", 1);
+      write_2D_array(nu_cascade.E_time(),   identifier_c + "_Er_time_profile.txt", 1);
+
+      // /* Choose what to write out by uncommenting the lines. */
+      // std::string identifier_l = path_out + identifier +
+      //                             + "_TX_" + std::to_string((int) TX_angles[i]) + "_deg"
+      //                             + "_RX_" + std::to_string((int) RX_angles[j]) + "_deg";
+      // Line1D thinwire(tx,rx,cs);
+      //
+      //
+      // // write_2D_array(thinwire.Coordinates(),      identifier_l + "_coords.txt", 1);
+      // // // write_1D_array(thinwire.Attenuation(),   identifier_l + "_attenuation.txt", 1);
+      // // // // write_1D_array(thinwire.arrivals(),   identifier_l + "_t_arrivals.txt", 1);
+      // write_1D_array(thinwire.TCS(),              identifier_l + "_TCS.txt", 1);
+      // write_1D_array(thinwire.Duration(),         identifier_l + "_duration.txt", 1);
+      // write_1D_array(thinwire.Directivity(),      identifier_l + "_directivity.txt", 1);
+      // write_1D_array(thinwire.Waveform(),         identifier_l + "_waveform.txt", 1);
+      // write_1D_array(thinwire.Power(),            identifier_l + "_power.txt", 1);
+      // write_1D_array(thinwire.RCS(),              identifier_l + "_RCS.txt", 1);
+      // // write_2D_array(thinwire.Phase_time(),    identifier_l + "_phase_time_profile.txt", 1);
+      // // write_2D_array(thinwire.E_time(),     identifier_l + "_Er_time_profile.txt", 1);
 
       j++;
     }
