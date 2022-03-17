@@ -32,4 +32,6 @@
 *.app
 
 tests/
+# Executables 
 MS_single_event
+MS_wire_test
