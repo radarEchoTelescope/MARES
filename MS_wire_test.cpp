@@ -15,7 +15,7 @@ int main(int argc, char** argv){
 
   /* Make the cascade OR parse through load_cascade_file() */
   int evt = 0;
-  double cenergy = 1E8; //[GeV]
+  double cenergy = 1E9; //[GeV]
   // double xpos = 0;
   double xpos = 0;
   double ypos = 0 ;
