@@ -330,6 +330,7 @@ Line1D::Line1D(Antenna& tx, Antenna& rx, Cascade& cs): Scatter(tx, rx, cs){
 
   fTCS = std::vector<double>(nL, dL*dN*2.0); // [cm^2]
   //The line's segements are is 2a*a, with perfect reflectivity.
+  // A line is expected to have Different polarization than a cascade
   SetSegments( nL );
   RunScatter();
 }
@@ -470,9 +471,11 @@ the layers.
 void Cascade1D::Reflectance(const std::vector<std::vector<double>> &absorption){
 	//OLD double reflectance, opacity;      // Unitless, tmp variables.
   double transparency, transmitivity;
-  fReflectance = std::vector<std::vector<double>> (absorption.size(),
+  fTransparency = std::vector<std::vector<double>> (absorption.size(),
                   vector<double> (absorption[0].size(), 0));
   fOpacity = std::vector<std::vector<double>> (absorption.size(),
+                  vector<double> (absorption[0].size(), 0));
+  fReflectance = std::vector<std::vector<double>> (absorption.size(),
                   vector<double> (absorption[0].size(), 0));
 
 	// Loop over the absorption matrix
@@ -493,7 +496,8 @@ ___before___ reaching a certain layer.
 */
       transmitivity = exp(-1.0 * dR * absorption[i][j]);
       transparency *= transmitivity;
-      assert(transparency < 0 && "Opacity larger than 1!");   // sanity check
+      // cout << transparency << endl;
+      assert(transparency > 0 && "Opacity larger than 1!");   // sanity check
       fReflectance[i][j] = 1 - transmitivity;
 
 
