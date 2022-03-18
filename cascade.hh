@@ -11,6 +11,9 @@ class Cascade {
 public:
 
   Cascade(int evt, double cenergy, double xpos, double ypos, double zpos,
+          double czenith, double cazimuth);
+
+  Cascade(int evt, double cenergy, double xpos, double ypos, double zpos,
           double czenith, double cazimuth, double nenergy,
           double nzenith, double nazimuth, double oneweight);
 
