@@ -1,6 +1,11 @@
 #include "cascade.hh"
 
 Cascade::Cascade(int event, double cenergy, double xpos, double ypos, double zpos,
+								 double czenith, double cazimuth):
+				 Cascade(event, cenergy, xpos, ypos, zpos, czenith,cazimuth,
+								 cenergy*100, czenith, cazimuth, 1){}
+
+Cascade::Cascade(int event, double cenergy, double xpos, double ypos, double zpos,
 								 double czenith, double cazimuth,  double nenergy,
 								 double nzenith, double nazimuth, double oneweight):
 				 			   fEvent(event),

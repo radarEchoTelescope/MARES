@@ -11,30 +11,17 @@ int main(int argc, char** argv){
   std::string path_out = "";
   // std::string path_out = cs_filepath.substr(0,cs_filepath.find_last_of("."));
 
-  // std::string identifier  = argv[1];
+  std::string identifier  = argv[1];
 
   /* Make the cascade OR parse through load_cascade_file() */
-  
-
-  int evt = atof(argv[1]);
-  double cenergy = atof(argv[2]);
-  double xpos = atof(argv[3]);
-  double ypos = atof(argv[4]);
-  double zpos = atof(argv[5]);
-  double czenith = atof(argv[6]);
-  double cazimuth = atof(argv[7]);
-  std::string identifier  = argv[8];
-
-
-  // int evt = 0;
-  //double cenergy = 1E8; //[GeV]
+  int evt = 0;
+  double cenergy = 1E9; //[GeV]
   // double xpos = 0;
-  //double xpos = 0;
-  //double ypos = 0 ;
-  //double zpos = 0;
-  //double czenith = 90;
-  //double cazimuth = 0;
-  
+  double xpos = 0;
+  double ypos = 0 ;
+  double zpos = 0;
+  double czenith = 90;
+  double cazimuth = 0;
   czenith = deg2rad(czenith);
   cazimuth = deg2rad(cazimuth);
 

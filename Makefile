@@ -1,6 +1,6 @@
 #TARGET = return_field
-# TARGET = MS_single_event
-TARGET= MS_wire_test
+ TARGET = MS_single_event
+#TARGET= MS_wire_test
 DIR= ../IceRayTracing/namespace/woROOT/
 
 CC = g++
