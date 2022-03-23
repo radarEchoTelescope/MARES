@@ -538,7 +538,7 @@ void Cascade1D::TCS(const std::vector<std::vector<double>> &reflectance){
     for (int j = 0; j < reflectance[i].size(); j++){
       fTCS[i] += fTransparency[i][j] * pow(fDensity[i][j] * abs(fCSRadius[i][j]),2);
     }
-    fTCS[i] *= 6.6524587*1E-25 * pow(fDamping* fTX.Freq(),2) *pow(dR * pi* dL,2); // [cm^2]
+    fTCS[i] *= 6.6524587*1E-25 * fDamping* pow( fTX.Freq(),2) *pow(dR * pi* dL,2); // [cm^2]
     // Thomson scattering cross section in cm^2
     // N_e = n_e*dV = n_e * dR * dA = n_e * dR* pi*dL*dN
   }
