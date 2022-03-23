@@ -67,21 +67,21 @@ int main(int argc, char** argv){
 
   /* Choose what to write out by uncommenting the lines. */
   write_2D_array(nu_cascade.Coordinates(),    identifier_c + "_coords.txt", 1);
-  // write_1D_array(nu_cascade.Phase(),       identifier_c + "_phases.txt", 1);
+  write_1D_array(nu_cascade.Phase(),          identifier_c + "_phase.txt", 1);
   write_1D_array(nu_cascade.Attenuation(),    identifier_c + "_attenuation.txt", 1);
-  // write_1D_array(nu_cascade.ArrivalTime(),    identifier_c + "_arrival_times.txt", 1);
-  write_1D_array(nu_cascade.Directivity(),     identifier_c + "_directivity.txt", 1);
+  write_1D_array(nu_cascade.ArrivalTime(),    identifier_c + "_arrival_t.txt", 1);
+  write_1D_array(nu_cascade.Directivity(),    identifier_c + "_directivity.txt", 1);
   write_1D_array(nu_cascade.Polarization(),   identifier_c + "_polarization.txt", 1);
 
   write_1D_array(nu_cascade.Duration(),       identifier_c + "_duration.txt", 1);
   write_1D_array(nu_cascade.Waveform(),       identifier_c + "_waveform.txt", 1);
-  write_1D_array(nu_cascade.Power(),         identifier_c + "_power.txt", 1);
-  write_1D_array(nu_cascade.TCS(),            identifier_c + "_target_cs.txt", 1);
-  write_1D_array(nu_cascade.RCS(),            identifier_c + "_target_cs.txt", 1);
-  // write_2D_array(nu_cascade.Phase_time(),  identifier_c + "_phase_time.txt", 1);
+  write_1D_array(nu_cascade.Power(),          identifier_c + "_power.txt", 1);
+  write_1D_array(nu_cascade.TCS(),            identifier_c + "_TCS.txt", 1);
+  write_1D_array(nu_cascade.RCS(),            identifier_c + "_RCS.txt", 1);
+  write_2D_array(nu_cascade.Phase_time(),     identifier_c + "_phase_time.txt", 1);
   write_2D_array(nu_cascade.TCS_time(),       identifier_c + "_TCS_time.txt", 1);
-  // write_2D_array(nu_cascade.RCS_time(),    identifier_c + "_RCS_time.txt", 1);
-  // write_2D_array(nu_cascade.E_time(),   identifier_c + "_E_time.txt", 1);
+  write_2D_array(nu_cascade.RCS_time(),       identifier_c + "_RCS_time.txt", 1);
+  write_2D_array(nu_cascade.E_time(),         identifier_c + "_E_time.txt", 1);
 
     // Cascade-specific paramters
   write_2D_array(nu_cascade.Radius(),         identifier_c + "_radial_values.txt", 1);
@@ -97,17 +97,17 @@ int main(int argc, char** argv){
 
   /* Choose what to write out by uncommenting the lines. */
   // write_2D_array(thinwire.Coordinates(),    indentifier_l + "_coords.txt", 1);
-  // // write_1D_array(thinwire.Phase(),       indentifier_l + "_phases.txt", 1);
+  // // write_1D_array(thinwire.Phase(),       indentifier_l + "_phase.txt", 1);
   // write_1D_array(thinwire.Attenuation(),    indentifier_l + "_attenuation.txt", 1);
-  // // write_1D_array(thinwire.ArrivalTime(),    indentifier_l + "_arrival_times.txt", 1);
+  // // write_1D_array(thinwire.ArrivalTime(),    indentifier_l + "_arrival_time.txt", 1);
   // write_1D_array(thinwire.Directivty(),     indentifier_l + "_directivity.txt", 1);
   // write_1D_array(thinwire.Polarization(),   indentifier_l + "_polarization.txt", 1);
   //
   // write_1D_array(thinwire.Duration(),       indentifier_l + "_duration.txt", 1);
   // write_1D_array(thinwire.Waveform(),       indentifier_l + "_waveform.txt", 1);
   // write_1D_array(thinwire.Power()),         indentifier_l + "_power.txt", 1);
-  // write_1D_array(thinwire.TCS(),            indentifier_l + "_target_cs.txt", 1);
-  // write_1D_array(thinwire.RCS(),            indentifier_l + "_target_cs.txt", 1);
+  // write_1D_array(thinwire.TCS(),            indentifier_l + "_TCS.txt", 1);
+  // write_1D_array(thinwire.RCS(),            indentifier_l + "_RCS.txt", 1);
   // // write_2D_array(thinwire.Phase_time(),  indentifier_l + "_phase_time.txt", 1);
   // write_2D_array(thinwire.TCS_time(),       indentifier_l + "_TCS_time.txt", 1);
   // // write_2D_array(thinwire.RCS_time(),    indentifier_l + "_RCS_time.txt", 1);
