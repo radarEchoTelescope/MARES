@@ -250,7 +250,7 @@ void Scatter::RunScatter(){
                                 fDirectivity[i]       // Directivity of a segment
                                 ) / 100.0 *           // [m^2]
                             pow(e,-(t-fArrivalTime[i])/tau); // Lifetime decay
-                            
+
   // TCS was computed in cm^2 and we are moving now to m^2 outside of the sqrt)
 
           // If (flag), find the waveform to store it
@@ -343,7 +343,7 @@ Cascade1D::Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs): Scatter(tx, rx, cs)
     // Missing for multi-receiver setups:
     //  Figure out if TCS has been computed already.
 
-    fDamping = 1.0 / sqrt( pow(fTX.fFrequency, 4) + pow(fTX.fFrequency*f_coll,2) );
+    fDamping = 1.0 / sqrt( pow(fTX.Freq(), 4) + pow(fTX.Freq()*f_coll,2) );
 
     // From Density to TCS.
     SetCascadeCoodinates();
