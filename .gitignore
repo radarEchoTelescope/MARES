@@ -32,5 +32,6 @@
 *.app
 
 tests/
+# Executables 
 MS_single_event
-new_tcs/
+MS_wire_test
