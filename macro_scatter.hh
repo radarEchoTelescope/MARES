@@ -121,6 +121,7 @@ public:
 
 private:
 
+  double fDamping;
 
   std::vector<std::vector<double>> fCSLength;
   std::vector<std::vector<double>> fCSRadius;

@@ -249,8 +249,8 @@ void Scatter::RunScatter(){
           fRCSTime[ts][i] = sqrt(fTCS[i]  *      // A * rho
                                 fDirectivity[i]       // Directivity of a segment
                                 ) / 100.0 *           // [m^2]
-                            pow(e,-(t-fArrivalTime[i])/tau) * // Lifetime decay
-                            fPhaseTime[ts][i];
+                            pow(e,-(t-fArrivalTime[i])/tau); // Lifetime decay
+                            
   // TCS was computed in cm^2 and we are moving now to m^2 outside of the sqrt)
 
           // If (flag), find the waveform to store it
@@ -261,7 +261,8 @@ void Scatter::RunScatter(){
                                 ) *
                                 fAttenuation[i] *
                                 fPolarization[i] *
-                                fRCSTime[ts][i];
+                                fRCSTime[ts][i] *
+                                fPhaseTime[ts][i] ;
                               }
 
         // }  // Selection closing
@@ -341,6 +342,8 @@ Cascade1D::Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs): Scatter(tx, rx, cs)
 
     // Missing for multi-receiver setups:
     //  Figure out if TCS has been computed already.
+
+    fDamping = 1.0 / sqrt( pow(fTX.fFrequency, 4) + pow(fTX.fFrequency*f_coll,2) );
 
     // From Density to TCS.
     SetCascadeCoodinates();
@@ -496,7 +499,6 @@ ___before___ reaching a certain layer.
 */
       transmitivity = exp(-1.0 * dR * absorption[i][j]);
       transparency *= transmitivity;
-      // cout << transparency << endl;
       assert(transparency > 0 && "Opacity larger than 1!");   // sanity check
       fReflectance[i][j] = 1 - transmitivity;
 
@@ -534,9 +536,9 @@ void Cascade1D::TCS(const std::vector<std::vector<double>> &reflectance){
   fTCS = std::vector<double> ( reflectance.size(), 0.0 );
   for (int i = 0; i < reflectance.size(); i++){
     for (int j = 0; j < reflectance[i].size(); j++){
-      fTCS[i] += reflectance[i][j] * fTransparency[i][j] * pow(fDensity[i][j] * abs(fCSRadius[i][j]),2);
+      fTCS[i] += fTransparency[i][j] * pow(fDensity[i][j] * abs(fCSRadius[i][j]),2);
     }
-    fTCS[i] *= 6.6524587*1E-25 * pow(dR * pi* dL,2); // [cm^2]
+    fTCS[i] *= 6.6524587*1E-25 * pow(fDamping* fTX.Freq(),2) *pow(dR * pi* dL,2); // [cm^2]
     // Thomson scattering cross section in cm^2
     // N_e = n_e*dV = n_e * dR * dA = n_e * dR* pi*dL*dN
   }
