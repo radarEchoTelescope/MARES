@@ -12,25 +12,9 @@
 #include <random>
 // #define NDEBUG     // Turn off debug.
 
-// ----- Computational parameters ----------------------------------------------
-// const int nbin = 3000;               // # of bins for integration/array filling
-// const int nbin = 1E4;             // # of bins for integration/array filling
-
-const double gdL = 1; // [cm/bin]
-const double gdR  = 0.1;
-const double gdN = 1; // This is also a radial direction.
-
-// const double freq_obs = 450 * 1E6;
-const double freq_obs = 5E7;              // [Hz] Default observer frequency
-const double freq_sampling = 5E9;
-// sampling frequency should be between 10x and 100x freq_obs.
-
 // ----- Physical parameters ---------------------------------------------------
 
-    // Plasma ------------------------------------------------------------------
-//const double tau = 1E-9;               // [s] Plasma lifetime 1 ms
-const double tau = 1E-8;               // [s] Plasma lifetime 10 ns
-
+      // Plasma ----------------------------------------------------------------
 // const double f_coll = 0;             // [Hz] collision frequency
 // const double f_coll=88E12;              // [Hz] collision frequency
 const double f_coll= 64.733E12;              // [Hz] collision frequency

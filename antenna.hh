@@ -9,10 +9,9 @@ This header file defines the antenna positions.
 class Antenna{
 
 public:
-  Antenna(double power, double xpos, double ypos, double zpos);
-
-  Antenna(double power, double xpos, double ypos, double zpos,
-          double xpol, double ypol, double zpol, double gain, double frequency);
+  Antenna(double xpos, double ypos, double zpos,
+          double power, double frequency = 5E8, double gain = 0,
+          double xpol = 0, double ypol = 0, double zpol = 1);
 
   double GainDipole(double theta);
   double GainDipole(std::vector<double> dir);

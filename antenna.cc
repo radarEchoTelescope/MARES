@@ -1,8 +1,5 @@
 #include "antenna.hh"
 
-Antenna::Antenna(double power, double xpos, double ypos, double zpos) :
-Antenna(power, xpos, ypos, zpos, 0,0,1, 0, freq_obs){} //default freq_obs
-
 Antenna::Antenna(double power, double xpos, double ypos, double zpos,
                  double xpol, double ypol, double zpol, double gain, double frequency):
                 fPower(power),

@@ -1,7 +1,15 @@
 #include "macro_scatter.hh"
 
-Scatter::Scatter(Antenna& tx, Antenna& rx, Cascade& cs):
-  fTX(tx), fRX(rx), fCS(cs){
+Scatter::Scatter(Antenna& tx, Antenna& rx, Cascade& cs,
+        const double deltaL, const double deltaR,  const double deltaN,
+        const double lifetime, const double sampling):
+
+  fTX(tx), fRX(rx), fCS(cs), dL(deltaL), dR(deltaR), dN(deltaN),
+  tau(lifetime), sampling_ratio(sampling){
+
+    // Sanity check! Your sections are not unphysical due to lifetime constraint.
+ 	 assert(deltaL <= c_vac_cm*tau && "Cascade resolution is too large!");
+ 	 // This should be further checked against the probing wavelength.
 
   /* First: Set the antennas directions, module and dot product with cs */
   fTX.SetDirection( fCS.Pos() );
@@ -42,18 +50,13 @@ Scatter::Scatter(Antenna& tx, Antenna& rx, Cascade& cs):
     - R (TX frame) = L (CS frame)
   */
 
-  // Either global variable or they can be passed as a parameter when making the scatter.
-  dL = gdL;
-  dR = gdR;
-  dN = gdN;
-
   // dL = fCS.Ldiv();
   // dR = fCS.Rdiv();
   // dN = fCS.Rdiv();
 
   // nbins  = size / division.
   nR  = (int) ceil(R  / dR);
-  nL = (int) ceil(L / dL);
+  nL  = (int) ceil(L / dL);
 }
 
 // void Scatter::SetAtDirection(Antenna &at){ at.SetDirection( cs.Pos() ); }
@@ -78,7 +81,7 @@ void Scatter::SetSegments( const int& nSeg){
   fArrivalTime  = std::vector<double> ( nSeg, 0 );
   fAttenuation  = std::vector<double> ( nSeg, 0 );
   fPolarization = std::vector<double> ( nSeg, 0 );
-  fDirectivity = std::vector<double> ( nSeg, 0 );
+  fDirectivity  = std::vector<double> ( nSeg, 0 );
   fSegmentCoord = std::vector<std::vector<double>>(nSeg, vector<double> (6, 0));
 
   // Giving a non-uniform position in the cascade gets rid of artifacts in the FFT.
@@ -206,7 +209,7 @@ void Scatter::RunScatter(){
   double t_start  = *min_element(fArrivalTime.begin(), fArrivalTime.end()) - 5E-9 ;
   double t_end    = *max_element(fArrivalTime.begin(), fArrivalTime.end()) + tau +5E-9;
 
-  // double sampling = (100*fTX.Freq());
+  double freq_sampling = fTX.Freq()*sampling_ratio;
   int steps = (t_end - t_start)*freq_sampling;
 
   fDuration     = std::vector<double>(steps, 0);    // The time
@@ -337,8 +340,10 @@ Line1D::Line1D(Antenna& tx, Antenna& rx, Cascade& cs): Scatter(tx, rx, cs){
 }
 
 // -----------------------------------------------------------------------------
-
-Cascade1D::Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs): Scatter(tx, rx, cs){
+Cascade1D::Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs,
+        const double deltaL, const double deltaR, const double deltaN,
+        const double lifetime, const double sampling):
+        Scatter(tx, rx, cs, deltaL, deltaR, deltaN, lifetime, sampling){
 
     // Missing for multi-receiver setups:
     //  Figure out if TCS has been computed already.

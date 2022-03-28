@@ -5,65 +5,95 @@ Written to be used in a parallel computation (cluster) enviroment.
 
 #include "macro_scatter.hh"
 int main(int argc, char** argv){
-
   // I/O Setup
   // For a single event, the result is stored in the same folder as the executable.
-  std::string path_out = "";
+  // std::string path_out = "";
+
+  // ----- Computational parameters ----------------------------------------------
+  std::string identifier  = argv[1];
+
+  // const double freq_obs = 450 * 1E6;
+  // const double freq_obs = 5E7;              // [Hz] Default observer frequency
+
+  const double dL = 1; // [cm/bin]
+  const double dR = 0.1;
+  const double dN = 1; // This is also a radial direction.
+
+  const double sampling = 100;
+  // sampling frequency should be between 10x and 100x freq_obs.
 
   // Cascade parameters
 
-  std::string identifier  = argv[1];
+/* VALUES FOR REFERENCE AND FOR TEST */
+  // double csenergy   = 1E9;       // 2
+  // double csxpos     = 0;         // 3
+  // double csypos     = -250 ;     // 4
+  // double cszpos     = 0;         // 5
+  // double cszenith   = 90;        // 6
+  // double csazimuth  = 45;        // 7
+  //
+  // double txxpos     = 0;         // 8
+  // double txypos    = 0;         // 9
+  // double txzpos    = 0;         // 10
+  // double txxpol    = 0;         // 11
+  // double txypol    = 0;         // 12
+  // double txzpol    = 1;         // 13
+  // double txpower   = 1E3;       // 14
+  // double txfreq    = 5E8;       // 15
+  //
+  // double rxxpos    = 500;       // 16
+  // double rxypos    = 0;         // 17
+  // double rxzpos    = 0;         // 18
+  // double rxxpol    = 0;         // 19
+  // double rxypol    = 0;         // 20
+  // double rxzpol    = 1;         // 21
 
-  double cenergy = atof(argv[2]);
-  double xpos = atof(argv[3]);
-  double ypos = atof(argv[4]);
-  double zpos = atof(argv[5]);
-  double czenith = atof(argv[6]);
-  double cazimuth = atof(argv[7]);
+  // const double lifetime = 1E-8;               // [s] Plasma lifetime 10 ns
+  // const double lifetime = 1E-9;               // [s] Plasma lifetime 1 ms
+/* ACTUAL PASSED BY VALUES */
 
-  double txpower = atof(argv[8]);
-  double txxpos = atof(argv[9]);
-  double txypos = atof(argv[10]);
-  double txzpos = atof(argv[11]);
+  double csenergy = atof(argv[2]);
+  double csxpos = atof(argv[3]);
+  double csypos = atof(argv[4]);
+  double cszpos = atof(argv[5]);
+  double cszenith = atof(argv[6]);
+  double csazimuth = atof(argv[7]);
 
-  double rxxpos = atof(argv[12]);
-  double rxypos = atof(argv[13]);
-  double rxzpos = atof(argv[14]);
+  double txxpos = atof(argv[8]);
+  double txypos = atof(argv[9]);
+  double txzpos = atof(argv[10]);
+  double txxpol = atof(argv[11]);
+  double txypol = atof(argv[12]);
+  double txzpol = atof(argv[13]);
+  double txpower = atof(argv[14]);
+  double txfreq = atof(argv[15]);
 
-/* REFERENCE VALUES FOR A SIMPLE TEST*/
+  double rxxpos = atof(argv[16]);
+  double rxypos = atof(argv[17]);
+  double rxzpos = atof(argv[18]);
+  double rxxpol = atof(argv[19]);
+  double rxypol = atof(argv[20]);
+  double rxzpol = atof(argv[21]);
 
-  // double cenergy   = 1E9;
-  // double xpos      = 0;
-  // double ypos      = -250 ;
-  // double zpos      = 0;
-  // double czenith   = 90;
-  // double cazimuth  = 45;
-
-  // double txpower  = 1E4;
-  // double txxpos    = 0;
-  // double txypos    = 0;
-  // double txzpos    = 0;
-
-  // double rxxpos    = 500;
-  // double rxypos    = 0;
-  // double rxzpos    = 0;
-
-  czenith = deg2rad(czenith);
-  cazimuth = deg2rad(cazimuth);
-
+  double lifetime = atof(argv[22]);
 
   // No need to load a detector, just make two antennas
-  Antenna transmitter(txpower, txxpos, txypos, txzpos);
-  Antenna receiver(0, rxxpos, rxypos, rxzpos);
+  Antenna transmitter(txxpos, txypos, txzpos,
+                      txpower, txfreq, 0, // txgain = 0
+                      txxpol, txypol, txzpol);
+  Antenna receiver(   rxxpos, rxypos, rxzpos,
+                      0, 0, 0,
+                      rxxpol, rxypos, rxzpos);
 
-  Cascade cascade( 0, cenergy , xpos, ypos, zpos, czenith, cazimuth) ;
+  Cascade cascade( 0, csenergy , csxpos, csypos, cszpos,
+                  deg2rad(cszenith), deg2rad(csazimuth)) ;
 
   Antenna& tx = transmitter;
   Antenna& rx = receiver;
   Cascade& cs = cascade;
 
-  std::string identifier_c = path_out + "Cascade1D_" + identifier;
-  Cascade1D nu_cascade(tx,rx,cs);
+  std::string identifier_c = "Cascade1D_" + identifier;
+  Cascade1D nu_cascade(tx,rx,cs, dL, dR, dN, lifetime, sampling);
 
   /* Choose what to write out by uncommenting the lines. */
   write_2D_array(nu_cascade.Coordinates(),    identifier_c + "_coords.txt", 1);

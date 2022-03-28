@@ -16,7 +16,9 @@
 class Scatter {
 public:
 
-  Scatter(Antenna& tx, Antenna& rx, Cascade& cs);
+  Scatter(Antenna& tx, Antenna& rx, Cascade& cs,
+          const double deltaL = 1, const double deltaR = 0.1, const double deltaN = 1,
+          const double lifetime = 1E-8, const double sampling = 100);
 
   Antenna TX();
   Antenna RX();
@@ -58,6 +60,8 @@ protected:
   std::vector<double> fTCS; // currently given in cm^2
 
   double cD, sD;              // cosine and sine of the angle
+  double tau;       // Mean lifetime of the free electrons
+  double sampling_ratio;
 
 
   // Always done at construction, no reason to be changed.
@@ -100,8 +104,9 @@ private:
 class Cascade1D: public Scatter {
 public:
 
-  Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs);
-
+  Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs,
+          const double deltaL = 1, const double deltaR = 0.1, const double deltaN = 1,
+          const double lifetime = 1E-8, const double sampling = 100);
 
   // Accesors
 

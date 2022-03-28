@@ -14,9 +14,7 @@ Cascade::Cascade(int event, double cenergy, double xpos, double ypos, double zpo
 								 fSphericalAngles{czenith,cazimuth},
 								 fNeutrino{nenergy, nzenith, nazimuth,oneweight} {
 
-	 // Sanity check! Your sections are not unphysical due to lifetime constraint.
-	 assert(fLdiv <= c_vac_cm*tau && "Cascade resolution is too large!");
-	 // This should be further checked against the probing wavelength.
+
 
 	fDirection[0] = sin(fSphericalAngles[0])*cos(fSphericalAngles[1]);
 	fDirection[1] = sin(fSphericalAngles[0])*sin(fSphericalAngles[1]);
