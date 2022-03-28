@@ -212,6 +212,7 @@ void Scatter::RunScatter(){
   double freq_sampling = fTX.Freq()*sampling_ratio;
   int steps = (t_end - t_start)*freq_sampling;
 
+
   fDuration     = std::vector<double>(steps, 0);    // The time
   fWaveform     = std::vector<double>(steps, 0);    // The electric field
   fPower        = std::vector<double>(steps, 0);    // The electric field
@@ -364,6 +365,7 @@ Cascade1D::Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs,
 
     SetSegments(nL);
     RunScatter();
+
   }
 
 /* Make 2D-array of density profile in the TX frame

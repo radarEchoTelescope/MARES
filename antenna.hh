@@ -10,8 +10,8 @@ class Antenna{
 
 public:
   Antenna(double xpos, double ypos, double zpos,
-          double power, double frequency = 5E8, double gain = 0,
-          double xpol = 0, double ypol = 0, double zpol = 1);
+          double xpol = 0, double ypol = 0, double zpol = 1,
+          double power = 0, double frequency = 5E8, double gain = 0);
 
   double GainDipole(double theta);
   double GainDipole(std::vector<double> dir);

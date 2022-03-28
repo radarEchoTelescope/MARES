@@ -1,7 +1,8 @@
 #include "antenna.hh"
 
-Antenna::Antenna(double power, double xpos, double ypos, double zpos,
-                 double xpol, double ypol, double zpol, double gain, double frequency):
+Antenna::Antenna(double xpos, double ypos, double zpos,
+                 double xpol, double ypol, double zpol,
+                 double power, double frequency, double gain):
                 fPower(power),
                 fFrequency(frequency),
                 fWavelength(c_ice/frequency),
@@ -14,6 +15,7 @@ Antenna::Antenna(double power, double xpos, double ypos, double zpos,
   /* If gain = 0, default , unphysical value, then set default gains
   Default TX gain (nonzero power) =  1, Isotropic emission.
   Defalut RX gain (zero power): Effective area. */
+
 }
 
 void Antenna::SetDirection(std::vector<double> coords){

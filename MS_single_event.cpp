@@ -25,7 +25,7 @@ int main(int argc, char** argv){
   // Cascade parameters
 
 /* VALUES FOR REFERENCE AND FOR TEST */
-  // double csenergy   = 1E9;       // 2
+  // double csenergy   = 1E8;       // 2
   // double csxpos     = 0;         // 3
   // double csypos     = -250 ;     // 4
   // double cszpos     = 0;         // 5
@@ -47,9 +47,10 @@ int main(int argc, char** argv){
   // double rxxpol    = 0;         // 19
   // double rxypol    = 0;         // 20
   // double rxzpol    = 1;         // 21
-
+  //
   // const double lifetime = 1E-8;               // [s] Plasma lifetime 10 ns
   // const double lifetime = 1E-9;               // [s] Plasma lifetime 1 ms
+
 /* ACTUAL PASSED BY VALUES */
 
   double csenergy = atof(argv[2]);
@@ -78,11 +79,11 @@ int main(int argc, char** argv){
   double lifetime = atof(argv[22]);
 
   // No need to load a detector, just make two antennas
+
   Antenna transmitter(txxpos, txypos, txzpos,
-                      txpower, txfreq, 0, // txgain = 0
-                      txxpol, txypol, txzpol);
+                      txxpol, txypol, txzpol,
+                      txpower, txfreq); // txgain = 0
   Antenna receiver(   rxxpos, rxypos, rxzpos,
-                      0, 0, 0,
                       rxxpol, rxypos, rxzpos);
 
   Cascade cascade( 0, csenergy , csxpos, csypos, cszpos,
