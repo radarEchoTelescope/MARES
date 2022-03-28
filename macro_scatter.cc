@@ -253,7 +253,8 @@ void Scatter::RunScatter(){
           fRCSTime[ts][i] = sqrt(fTCS[i]  *      // A * rho
                                 fDirectivity[i]       // Directivity of a segment
                                 ) / 100.0 *           // [m^2]
-                            pow(e,-(t-fArrivalTime[i])/tau); // Lifetime decay
+                            pow(e,-(t-fArrivalTime[i])/tau)   // Lifetime decay
+                            * fPhaseTime[ts][i];
 
   // TCS was computed in cm^2 and we are moving now to m^2 outside of the sqrt)
 
@@ -265,8 +266,7 @@ void Scatter::RunScatter(){
                                 ) *
                                 fAttenuation[i] *
                                 fPolarization[i] *
-                                fRCSTime[ts][i] *
-                                fPhaseTime[ts][i] ;
+                                fRCSTime[ts][i];
                               }
 
         // }  // Selection closing
