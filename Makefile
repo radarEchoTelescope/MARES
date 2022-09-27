@@ -1,16 +1,16 @@
 #TARGET = return_field
  TARGET = MS_single_event
 #TARGET= MS_wire_test
-DIR= ../IceRayTracing/namespace/woROOT/
+#DIR= ../IceRayTracing/namespace/woROOT/
 
 CC = g++
-CFLAGS = -I$(DIR) #-Wall -O -g
+CFLAGS = -I$(DIR) -O -g #-Wall
 # -O performs optimizations, -g enables debugging
-LDLIBS= -lgsl -lgslcblas
+# LDLIBS= -lgsl -lgslcblas
 
 all: $(TARGET) clean
 
-OBJECTS= $(TARGET).o macro_scatter.o antenna.o cascade.o macro_settings.o $(DIR)IceRayTracing.o
+OBJECTS= $(TARGET).o cascade1D.o scatter.o antenna.o cascade.o macro_settings.o #$(DIR)IceRayTracing.o
 
 
 # For a given compilind order  xxxx: yyyy zzzz ttttt
@@ -22,8 +22,8 @@ OBJECTS= $(TARGET).o macro_scatter.o antenna.o cascade.o macro_settings.o $(DIR)
 # Use this to avoid including headers in compilation lines.
 # If you do, you will produce a yyyy.h.gsh file which is okay but might cause trouble.
 
-$(DIR)IceRayTracing.o: $(DIR)IceRayTracing.cc $(DIR)IceRayTracing.hh
-	$(CC) $(CFLAGS) -c $@ $<
+#$(DIR)IceRayTracing.o: $(DIR)IceRayTracing.cc $(DIR)IceRayTracing.hh
+#	$(CC) $(CFLAGS) -c $@ $<
 
 macro_settings.o: macro_settings.cc macro_settings.hh
 		$(CC) $(CFLAGS) -c $<
@@ -34,10 +34,13 @@ cascade.o: cascade.cc cascade.hh macro_settings.hh
 antenna.o: antenna.cc antenna.hh macro_settings.hh
 	$(CC) $(CFLAGS) -c $<
 
-macro_scatter.o: macro_scatter.cc macro_scatter.hh antenna.hh cascade.hh $(DIR)IceRayTracing.hh
-	$(CC) $(CFLAGS) -c $<
+scatter.o: scatter.cc scatter.hh antenna.hh cascade.hh #$(DIR)IceRayTracing.hh
+		$(CC) $(CFLAGS) -c $<
 
-$(TARGET).o: $(TARGET).cpp  macro_scatter.hh
+cascade1D.o: cascade1D.cc cascade1D.hh scatter.hh cascade.hh #$(DIR)IceRayTracing.hh
+			$(CC) $(CFLAGS) -c $<
+
+$(TARGET).o: $(TARGET).cpp  scatter.hh
 	$(CC) $(CFLAGS) -c $<
 
 $(TARGET): $(OBJECTS)

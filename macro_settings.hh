@@ -3,6 +3,7 @@
 
 #include <iostream>   // C++ only, file read/write
 #include <fstream>    // C++ only, screen read/write
+#include <stdlib.h>   // exit, EXIT_FAILURE
 #include <string.h>
 #include <vector>
 #include <iterator>
@@ -12,38 +13,117 @@
 #include <random>
 // #define NDEBUG     // Turn off debug.
 
+// Add flags here?
+// use_NKG
+// use_electron_plasma
+
 // ----- Physical parameters ---------------------------------------------------
 
+  // --- Units -----------------------------------------------------------------
+
+/* Inspired by the CLHEP global system of units.
+
+  use these to keep your numbers in the global system of units defined above:
+  ns, GHz, mm, nC
+  if you want to write something in terms of MHz, for example, just do
+  freq = 1200*MHz
+  and then freq will have units of GHz, as it should.
+
+      lengths
+  for example, if you wanted to calculate the time it took for a signal
+  to propagate 75 feet, you'd do:
+
+  75*ft/c_light
+
+  and it would return the correct time in nanoseconds.
+*/
+
+// length
+static constexpr double mm = 1;
+static constexpr double cm = 10*mm;
+static constexpr double m = 1000.*mm;
+//static constexpr double mm = .001*m;
+// static constexpr double ft = .3047*m;
+
+//energy
+static constexpr double MeV = 1.;
+static constexpr double GeV = 1000.*MeV;
+static constexpr double KeV = .001*MeV;
+static constexpr double eV = 1e-6*MeV;
+
+  //time
+static constexpr double ns = 1.;
+static constexpr double us = ns*1e3;
+static constexpr double ms = ns*1e6;
+static constexpr double s = ns*1e9;
+
+  //frequency
+static constexpr double GHz = 1./ns;
+static constexpr double THz = 1000.*GHz;
+static constexpr double MHz = .001*GHz;
+static constexpr double kHz = 1e-6*GHz;
+static constexpr double Hz = 1e-9*GHz;
+
+  //mass
+static constexpr double g = 1.;
+// static constexpr double kg = 1000*g;
+
+  // "Universal" Constants -------------------------------------------------------------
+
+// You should not need multiple definitions of c_vac
+  // static constexpr double c_vac=2.998E8;                        // [m/s]
+static constexpr double c_vac=2.9979246E8 *m/s;                    // [mm/ns]
+// static constexpr double c_vac_cm=c_vac /cm;                     // [cm/s]
+static constexpr double Z0=377;                                   // [Ohm]
+// static constexpr double classic_electr_radius = 2.8179403E-15 *m;
+// Thompson e- scattering cs
+static constexpr double thomson=6.6524574E-25 *cm*cm;             // [cm^2]
+// static constexpr double m_e=0.510998;                           // [MeV/c^2]
+
+// static constexpr double kelvin=1;                  // [K]
+// static constexpr double z_0=50;                    // [Ohm]
+// static constexpr double kB=8.617343e-11 *MeV/kelvin;  // [MeV/kelvin]
+// static constexpr double kBJoulesKelvin=1.38e-23/kelvin;      // [J/kelvin]
+
       // Plasma ----------------------------------------------------------------
-// const double f_coll = 0;             // [Hz] collision frequency
-// const double f_coll=88E12;              // [Hz] collision frequency
-const double f_coll= 64.733E12;              // [Hz] collision frequency
-const double memp = 1;                    // Plasma to electron mass ratio
+static constexpr double f_coll= 64.733 *THz;         // [Hz] RS collision frequency
+// static constexpr double f_coll=88 *THz;           // [Hz] collision frequency
+static constexpr double memp = 1;                    // Plasma to electron mass ratio
 
       // Ice  ------------------------------------------------------------------
-const double att_length=1450;             // [m] attenuation length
-const double refindex=1.78;               // refractive index
-const double rho_ice = 0.92;              // [g/cm^3] Density, from GEANT
-const double r_moliere = 7;               // [cm] Moliere Radius
-const double E_c = 0.0786;                // [GeV] Critical cascade energy
-const double X_0 = 36.08;                 // [g/cm^2] radiation columm density
-const double L_0 = X_0/rho_ice;           // [cm] = 39.22 radiation length
+static constexpr double refindex=1.78;               // refractive index
+static constexpr double att_length=1450 *m;          // Attenuation length
+static constexpr double c_ice=c_vac/refindex;        // [m/s] speed of light in ice
+// static constexpr double c_ice_cm=c_ice /cm;       // [cm/s] c in ice
+static constexpr double rho_ice = 0.92 *g/pow(cm,3); // Density, from GEANT
+static constexpr double Z_ice=c_vac/refindex;        // Impedance of ice
+static constexpr double r_moliere = 7 *cm;           // Moliere Radius in ice
 
-// ----- Physical constants ----------------------------------------------------
-const double pi=3.1415926535;
-const double e =2.71828;
+// static constexpr double E_ionization = 20 *eV;    // e- ionization energy 
+static constexpr double E_ionization = 69 *eV;       // e- ionization energy [RS]
+// Mass stopping power of ice - energy loss per ionizing particle (@ 1 GeV)
+static constexpr double E_deposition = 2 *MeV/g*pow(cm,2);       
+static constexpr double E_c = 0.0786 * GeV;          // Critical cascade energy for ionization
+static constexpr double X_0 = 36.08 *g/pow(cm,2);    // Radiation columm density
+static constexpr double L_0 = X_0/rho_ice;           // Radiation length = 39.22 cm
 
-    // Macroscopical [IS] ------------------------------------------------------
-const double c_vac=2.998E8;               // [m/s]
-const double c_ice=c_vac/refindex;        // [m/s] speed of light in ice
-const double Z0=119.917 ;                 // [pi * Ohm]
-const double Z_ice=c_vac/refindex;
+/* Other RS constants
 
-    // Microscopical [cgs] -----------------------------------------------------
-const double c_vac_cm=c_vac * 100;         // [cm/s]
-const double c_ice_cm=c_ice * 100;         // [cm/s] c in ice
-const double thompson=6.6524574E-25;      // [cm^2] Thompson e- scattering cs
+  static constexpr double rho=1.168e-3;//sea level density
+  static constexpr double x_0=36.7;//radiation length in air
 
+*/
+
+
+
+// ----- Math Constants --------------------------------------------------------
+// static constexpr double pi=3.1415926535;            // OLD
+static constexpr double pi=3.14159265358979323846;     // [RS] radians
+static constexpr double e =2.71828;                    // Do not mix with electron charge
+// static constexpr double deg=pi/180.;     //radians
+// static constexpr double degree=pi/180.;  //radians
+// static constexpr double twoPi = 2.*pi;   //radians
+// static complex<double> I=sqrt(complex<double>(-1));//imaginary unit, used for complex stuff
 
 // Math tools ------------------------------------------------------------------
 
@@ -110,7 +190,7 @@ std::vector<double> cross_product(std::vector<double> a, std::vector<double> b);
 class RN_uniform{
 
 public:
-  RN_uniform (double minval, double maxval, double seed = 42) :
+  RN_uniform (double minval, double maxval, double seed) :
       _generator(seed), _distribution(minval, maxval) {}
 
   double get() { return _distribution(_generator); }

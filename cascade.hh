@@ -11,52 +11,49 @@ class Cascade {
 public:
 
   Cascade(int evt, double cenergy, double xpos, double ypos, double zpos,
-          double czenith, double cazimuth);
+          double czenith, double cazimuth, int np = 1);
 
   Cascade(int evt, double cenergy, double xpos, double ypos, double zpos,
-          double czenith, double cazimuth, double nenergy,
-          double nzenith, double nazimuth, double oneweight);
+          double czenith, double cazimuth, int np, 
+          double nenergy, double nzenith, double nazimuth, double oneweight);
 
-  // Cascade's methods
+// Basic accessors
 
-  /* Particle (electron) density for penetration length X and radius r.
-  [g/cm^2, cm, GeV] */
-  double Density(double X, double r, double delta_r = 0.01);      // [#e-/ cm^3]
-  double PlasmaFreq(const double &dens);         // [Hz]
-  double Absorption(const double &dens, const double &freq_obs);
-  double Absorption2(const double &dens, const double &freq_obs);
-  double SkinDepth(const double &dens, const double &freq_obs);
-  double SkinDepth2(const double &dens, const double &freq_obs);
-
-  // Accesors
-  int  Evt() const;
-  double  Energy() const;
-  std::vector<double> Pos() const;
+  int    Evt()    const;
+  double Energy() const;
+  double Ltot()   const;
+  double Rtot()   const;
+  double Xtot()   const;
   std::vector<double> Dir() const;
+  std::vector<double> Pos() const;
   std::vector<double> Sph() const;
-
   double* Parent();
 
-  double Ldiv() const;
-  double Xdiv() const;
-  double Rdiv() const;
-
-  double Ltot() const;
-  double Xtot() const;
-  double Rtot() const;
-
-  double Lbins() const;
-  double Xbins() const;
-  double Rbins() const;
+// Method's storage accesors
+// User should only read and store the values after they are made.
 
   std::vector<std::vector<double>> Density();
+  std::vector<std::vector<double>> PlasmaFreq();
+  std::vector<std::vector<double>> Absorption();
+  std::vector<std::vector<double>> SkinDepth();
+
+  std::vector<std::vector<double>> Reflectance();
+  std::vector<std::vector<double>> Opacity();
+  std::vector<std::vector<double>> Transparency();
 
 
-private:
-  friend class Scatter; // Scatter can access private members.
+protected:
+    friend class Scatter; // Scatter can access private members.
+    // Scatter has access to setter functions. 
 
   int    fEvent;            // Event number.
+  int    fNp;               // Number of primaries; 
   double fEnergy;          // Energy of the cascade.
+  
+  // Max cascade depth: X_tot = 4* max depth from Heitler model estimate.
+  double fLtot;           // [cm]
+  double fRtot;           // [cm]
+  double fXtot;           // [g/cm^2] Penetration depth
 
   // Interaction point's position (Shower start, head).
   std::vector<double> fPosition{0,0,0};
@@ -70,22 +67,60 @@ private:
   // Neutrino parent values: energy, zenith, azimuth, oneweight.
   double fNeutrino[4];
 
+// Functions and methods
 
-  double fLdiv = 1;       // [cm] Length interval, resolution.
-  double fXdiv = fLdiv * rho_ice;
-  double fRdiv = 0.1;       // [cm] radial interval, resolution.
+/* (Classical) Particle (electron) number for penetration length X and radius r.
+  [g/cm^2, cm, GeV] */
+  // Uses 1 particle with fEnergy.
+  double Ne(double X, double r, double delta_r);           // [#e-/cm]
 
-  // Max cascade depth: X_tot = 4* max depth from Heitler model estimate.
-  double fLtot;           // [cm]
-  double fXtot;           // [g/cm^2] Penetration depth
-  double fRtot;           // [cm]
+  /* Particle (electron) density for penetration length X and radius r.
+  [g/cm^2, cm, GeV] */
+  // In that case each particle carries E energy, the mean energy per primary.
+  double Ne(double X, double r, double delta_r, double Ep, double Np);           // [#e-/cm]
 
-  double fLbins;          // Number of bins for cascade length
-  double fXbins;          // Number of bins for cascade depth
-  double fRbins;          // Number of bins for cascade radius
+  // (Classical) density, in case the cascade was orginated from 1 particle.
+  // Uses 1 particle with fEnergy.
+  double Density(double X, double r, double delta_r);      // [#e-/ cm^3]
+
+ /* Particle (electron) density for penetration length X and radius r.
+  [g/cm^2, cm, GeV] */
+  // Density in case the cascade was orginated from Np particles
+  // In that case each particle carries E energy, the mean energy per primary.
+  double Density(double X, double r, double delta_r, double Ep, double Np); 
+
+  // TO-DO: 2 species absorption! 
+
+  double PlasmaFreq(const double &dens);         // [Hz]
+  // Electron absorption
+
+  // Full electron absorption formula, defaults as free (unbound) 
+  // SINGLE SYSTEM OF UNITS! THESE TWO FUNCTIONS NOW RETURN VALUES IN mm! 
+  double Absorption(const double &dens, const double &freq_obs, const double &freq_nat = 0);
+  double SkinDepth(const double &dens, const double &freq_obs, const double &freq_nat = 0);
+
+  // Cascade's matrix storage and methods
 
   std::vector<std::vector<double>> fDensity;
-  void SetDensity();
+  std::vector<std::vector<double>> fPlasmaFrequency;
+  std::vector<std::vector<double>> fAbsorption;
+  std::vector<std::vector<double>> fSkinDepth;
+  std::vector<std::vector<double>> fReflectance;
+  std::vector<std::vector<double>> fOpacity;
+  std::vector<std::vector<double>> fTransparency;
+
+// TO_DO: Parallelise all the loops from here down with OMP.
+
+// length_vals and radius_vals are 2D matrices with the coordinates to evaluate the density.
+  void Density( const std::vector<std::vector<double>> &length_vals,
+                const std::vector<std::vector<double>> &radius_vals,
+                const double delta_r  );
+
+  void PlasmaFreq(const std::vector<std::vector<double>> &density);
+  void Absorption(const std::vector<std::vector<double>> &density, const double & freq);
+  void SkinDepth(const std::vector<std::vector<double>> &density, const double & freq);
+  // Transparency also computes reflectivity and opacity
+  void Transparency(const std::vector<std::vector<double>> &density, const double & freq, const double & delta_r);
 
   // double fRwaist;
   // std::vector<double> fRcrit; // [cm]
@@ -100,7 +135,7 @@ std::vector<Cascade> load_cascade_file(const std::string& cs_filepath);
 namespace{
 
   /* Ne, number of particles in the cascade */
-  double Ne(double X, double E);
+  double N(double X, double E);
 
   /* Shower age */
   double ShowerAge(double X, double E);

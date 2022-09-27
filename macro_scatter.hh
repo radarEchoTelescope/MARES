@@ -9,7 +9,7 @@
 // #include "macro_settings.hh"
 #include "cascade.hh"
 #include "antenna.hh"
-#include "IceRayTracing.hh"
+// #include "IceRayTracing.hh"
 // #define NDEBUG     // Turn off debug.
 
 /* Simple scatter event with bistatic configuration*/
@@ -57,12 +57,12 @@ protected:
   Antenna fTX;
   Antenna fRX;
   Cascade fCS;
-  std::vector<double> fTCS; // currently given in cm^2
 
-  double cD, sD;              // cosine and sine of the angle
   double tau;       // Mean lifetime of the free electrons
   double sampling_ratio;
+  double cD, sD;              // cosine and sine of the angle
 
+  std::vector<double> fTCS; // currently given in cm^2
 
   // Always done at construction, no reason to be changed.
   // void SetAtDirection(Antenna &at);
@@ -112,6 +112,7 @@ public:
 
   std::vector<std::vector<double>> Radius();
   std::vector<std::vector<double>> Density();
+
   double Rwaist();
   std::vector<double> Rcrit();
   std::vector<std::vector<double>> PlasmaFreq();
@@ -121,7 +122,7 @@ public:
   std::vector<std::vector<double>> Opacity();
   std::vector<double> TCS();
 
-  // std::vector<double> radar_cs();
+
 
 
 private:
@@ -130,6 +131,9 @@ private:
 
   std::vector<std::vector<double>> fCSLength;
   std::vector<std::vector<double>> fCSRadius;
+
+  std::vector<double> fTXMaxLength;
+  std::vector<double> fTXMaxRadius;
 
   std::vector<std::vector<double>> fDensity;
   double fRwaist;
@@ -142,8 +146,14 @@ private:
   std::vector<std::vector<double>> fOpacity;
 
   void SetCascadeCoodinates();
+
   void Density(const std::vector<std::vector<double>> &fCSLength,
                   const std::vector<std::vector<double>> &fCSRadius );
+
+  void Density2(const std::vector<std::vector<double>> &fCSLength,
+                  const std::vector<std::vector<double>> &fCSRadius );
+
+
   void Rcrit(const std::vector<std::vector<double>> &density, const double & freq);
   void PlasmaFreq(const std::vector<std::vector<double>> &density);
   void Absorption(const std::vector<std::vector<double>> &density, const double & freq);
@@ -152,13 +162,10 @@ private:
   void Opacity(const std::vector<std::vector<double>> &absorption);
   void TCS(const std::vector<std::vector<double>> &reflectance);
 
+  void SegmentMaxCoords(const std::vector<std::vector<double>> &reflectance);
+
 };
 
-class Cylinder1D: public Scatter{
-public:
-
-  Cylinder1D(Antenna& tx, Antenna& rx, Cascade& cs);
-};
 
 class Line1D: public Scatter{
 public:
@@ -166,6 +173,11 @@ public:
   Line1D(Antenna& tx, Antenna& rx, Cascade& cs);
 };
 
+class Cylinder1D: public Scatter{
+public:
+
+  Cylinder1D(Antenna& tx, Antenna& rx, Cascade& cs);
+};
 // std::vector<Scatter> run_scatter_events(Detector det, std::vector<Cascade> cascade_list){
 //   std::vector<Scatter> event_list;
 //   // For every cascade

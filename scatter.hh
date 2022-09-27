@@ -3,177 +3,150 @@
 // Enrique Huesca Santiago, 10-2019
 // Original FORTRAN code by Krijn D. de Vries 20-10-2019
 
-#ifndef MACRO_SCATTER
-#define MACRO_SCATTER
+#ifndef SCATTER
+#define SCATTER
 
 // #include "macro_settings.hh"
-#include "cascade.hh"
+// #include "cascade.hh"
 #include "antenna.hh"
-#include "IceRayTracing.hh"
+// #include "IceRayTracing.hh"
 // #define NDEBUG     // Turn off debug.
+
+struct ScatterPoint{
+
+  // I can make this bunch constant and set upon initialization
+  int ID;                                        // An identifier
+  double TCS;
+  std::vector<double> Size{1,1,1};
+  std::vector<double> Position{0,0,0};
+
+  double L;                                // Distance to the interaction vertex
+  std::vector<double> TXDir{0, 0, 0};      // Vector direction to cs point.
+  std::vector<double> RXDir{0, 0, 0};      // Vector direction to cs point.
+  double RTX;                              // Module of distance to cs point.
+  double RRX ;                             // Module of distance to cs point.
+
+  double Phase;
+  double StartTime;
+  double ArrivalTime;
+  double Attenuation;
+  double Directivity;
+  double PolEff;
+
+  std::vector<double> Polarization{0,0,0};
+  std::vector<double> EFieldAtRX{0,0,0};
+
+
+// Possible adittions that are not needed now
+  // std::vector<double> fSphericalAngles{0,0};      // Theta and phi in lab frame.
+
+  // double fDot = 0;             // Dot (inner) product with reference (cascade) direction.
+  // // This is the same as the cosine of the angle between them.
+  // double fDelta = 0;          // The angle.
+  // // fDelta is the projection angle, defined between 0 and pi only.
+
+  // double IRT_dist[2];
+  // double IRT_time[2];
+  // double IRT_angle[2];
+
+};
 
 /* Simple scatter event with bistatic configuration*/
 class Scatter {
 public:
 
-  Scatter(Antenna& tx, Antenna& rx, Cascade& cs);
+  Scatter(Antenna& tx, Antenna& rx, std::vector<ScatterPoint> points,
+          const double& lifetime = 1E-8, const double& sampling = 100);
 
+  Scatter(Antenna& tx, Antenna& rx,
+          const double& lifetime, const double& sampling);
+
+  /* The RX re-setter*/
+  void UpdateRX(const Antenna& new_RX);
+
+  void AddPoint(const ScatterPoint& p);
+  void AddPoints(const std::vector<ScatterPoint> new_points);
+
+/* Then, set your scatterers inside medium with one of the options below.
+ The choice of media for propagation affects the effective directions,
+ distances and times(?) of proapgation of the radio waves.
+ The choice of propagation _might_ change the other properties of the ScatterPoint. 
+  Spatial phase, Attenuation, Polarization, Directivity
+*/
+  void SetInConstIce();
+  void SetInBeam(const double& yb, const double& na, const double& nb);
+  void SetWithIRT();
+
+/* Computes the time integral of the interference of the points at the RX*/
+  void RunScatter(const bool save2Dmatrices = false);
+
+  // Accessors
   Antenna TX();
   Antenna RX();
-  Cascade CS();
+  // TO_DO Add accessor for points!
 
-  // Inner product between CS direction and TX-CS (line of sight).
-  double  Dot();
-  // Angle of the inner product (between 0 and pi).
-  double  Delta();
+    // For particular variable over the full point collection.
 
+  // TODO: ADD COORDINATES ACCESOR
   std::vector<std::vector<double>> Coordinates();
   std::vector<double> Phase();
-  std::vector<double> Attenuation();
   std::vector<double> ArrivalTime();
+  std::vector<double> Attenuation();
+  // TODO GET RID OF DIRECTIVITY
   std::vector<double> Directivity();
   std::vector<double> Polarization();
+  std::vector<double> TCS();
 
+  // The time integral results after RunScatter()
   std::vector<double> Duration();
   std::vector<double> Waveform();
   std::vector<double> Power();
-  std::vector<double> TCS();
   std::vector<double> RCS();
   std::vector<std::vector<double>> Phase_time();
-  std::vector<std::vector<double>> TCS_time();
+  // std::vector<std::vector<double>> TCS_time();
   std::vector<std::vector<double>> RCS_time();
   std::vector<std::vector<double>> E_time();
 
-  // Attenuation model goes here
-
+//  return electric field of a list of events
+// All variables need to be passed through arguments.
+// Written to be used in a parallel computation (cluster) enviroment.
 protected:
-
-  double L, R;
-  double dL, dR, dN;
-  int nL, nR;
 
   Antenna fTX;
   Antenna fRX;
-  Cascade fCS;
-  std::vector<double> fTCS; // currently given in cm^2
+  std::vector<ScatterPoint> fPoints;
+  double nP = fPoints.size();
 
-  double cD, sD;              // cosine and sine of the angle
-
+  double tau;
+  double sampling_ratio;
 
   // Always done at construction, no reason to be changed.
   // void SetAtDirection(Antenna &at);
   // void SetAtDirCenter(Antenna &at);
 
-  /* Segment the cascade in N segments and compute the properties for each segment:
-    Positions, distances, times and E fields */
-  void SetSegments(const int& nSeg);
-
-  /* Computes the interference of the segements over the time values */
-  void RunScatter();
-
 
 private:
+  void SetInConstIce(ScatterPoint& p);
+  void SetInBeam(ScatterPoint& p, const double& yb,
+                 const double& na, const double& nb);
+  
+// This function estimates the point in the interface where the reflection happens.
+// This does a bisection seach on the db value that provides an accurate dt.
+  double estimate_interface_x( const double& ya, const double& yb,
+    const double& dt, const double& n,
+    const double& tolerance = 1E-5 );
 
-  std::vector<double> fPhase;
-  std::vector<double> fArrivalTime;
-  std::vector<double> fAttenuation;
-  std::vector<double> fPolarization;
-  std::vector<double> fDirectivity;
-  std::vector<std::vector<double>> fSegmentCoord;
-  // Length, xpos, ypos, zpos, R_TX, R_RX
+// TO-DO Finish adding IRT. 
+  void SetWithIRT(ScatterPoint& p);
 
   std::vector<double> fDuration; // [ns]
   std::vector<double> fWaveform; // [V/m]
   std::vector<double> fPower;    // [W]
   std::vector<double> fRCS;      // [m^2]
 
-
-  std::vector<std::vector<double>> fTCSTime;
   std::vector<std::vector<double>> fRCSTime;
   std::vector<std::vector<double>> fPhaseTime;
   std::vector<std::vector<double>> fWaveformTime;
-
-
 };
-
-
-class Cascade1D: public Scatter {
-public:
-
-  Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs);
-
-
-  // Accesors
-
-  std::vector<std::vector<double>> Radius();
-  std::vector<std::vector<double>> Density();
-  double Rwaist();
-  std::vector<double> Rcrit();
-  std::vector<std::vector<double>> PlasmaFreq();
-  std::vector<std::vector<double>> Absorption();
-  std::vector<std::vector<double>> SkinDepth();
-  std::vector<std::vector<double>> Reflectance();
-  std::vector<std::vector<double>> Opacity();
-  std::vector<double> TCS();
-
-  // std::vector<double> radar_cs();
-
-
-private:
-
-
-  std::vector<std::vector<double>> fCSLength;
-  std::vector<std::vector<double>> fCSRadius;
-
-  std::vector<std::vector<double>> fDensity;
-  double fRwaist;
-  std::vector<double> fRcrit; // [cm]
-  std::vector<std::vector<double>> fPlasmaFrequency;
-  std::vector<std::vector<double>> fAbsorption;
-  std::vector<std::vector<double>> fSkinDepth;
-  std::vector<std::vector<double>> fReflectance;
-  std::vector<std::vector<double>> fTransparency;
-  std::vector<std::vector<double>> fOpacity;
-
-  void SetCascadeCoodinates();
-  void Density(const std::vector<std::vector<double>> &fCSLength,
-                  const std::vector<std::vector<double>> &fCSRadius );
-  void Rcrit(const std::vector<std::vector<double>> &density, const double & freq);
-  void PlasmaFreq(const std::vector<std::vector<double>> &density);
-  void Absorption(const std::vector<std::vector<double>> &density, const double & freq);
-  void SkinDepth(const std::vector<std::vector<double>> &density, const double & freq);
-  void Reflectance(const std::vector<std::vector<double>> &absorption);
-  void Opacity(const std::vector<std::vector<double>> &absorption);
-  void TCS(const std::vector<std::vector<double>> &reflectance);
-
-};
-
-class Cylinder1D: public Scatter{
-public:
-
-  Cylinder1D(Antenna& tx, Antenna& rx, Cascade& cs);
-};
-
-class Line1D: public Scatter{
-public:
-
-  Line1D(Antenna& tx, Antenna& rx, Cascade& cs);
-};
-
-// std::vector<Scatter> run_scatter_events(Detector det, std::vector<Cascade> cascade_list){
-//   std::vector<Scatter> event_list;
-//   // For every cascade
-//   for (auto& cs: cascade_list){
-//     // For every transmitter
-//     for (auto& tx : det.get_transmitters()){
-//       // For every RX
-//       for (auto& rx : det.get_receivers()){
-//         // Make the bistatic event.
-//         event_list.push_back(Scatter(tx,rx,cs));
-//       }
-//     }
-//   }
-// }
-
 
 #endif

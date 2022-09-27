@@ -8,7 +8,7 @@ Scatter::Scatter(Antenna& tx, Antenna& rx, Cascade& cs,
   tau(lifetime), sampling_ratio(sampling){
 
     // Sanity check! Your sections are not unphysical due to lifetime constraint.
- 	 assert(deltaL <= c_vac_cm*tau && "Cascade resolution is too large!");
+ 	 assert(deltaL <= c_vac*tau && "Cascade resolution is too large!");
  	 // This should be further checked against the probing wavelength.
 
   /* First: Set the antennas directions, module and dot product with cs */
@@ -30,6 +30,23 @@ Scatter::Scatter(Antenna& tx, Antenna& rx, Cascade& cs,
 
   fTX.SetAngle( fCS.Dir() );
   fRX.SetAngle( fCS.Dir() );
+
+
+    /* The current model breaks down at small angles when
+    |L*sin(delta)| < |r*cos(delta)|
+    or
+    r/L = |tan(delta)|
+    so
+    delta_critical = arctan(r/L)
+    */
+
+    // double delta_crit = atan(cs.Rtot()/cs.Ltot());
+    // std::cout << rad2deg(delta_crit) << std::endl;
+    // fDelta < delta_crit ? fDelta = delta_crit: 1;
+    // This is right now 0.5 degrees
+
+    // Or, something simpler, if delta is smaller than 1 degree, make it 1 degree.
+    // (fDelta < pi/180.0) ? fDelta = pi/180.0 : 1;
 
 
   // We can avoid computing the same values thousands of times.
@@ -72,39 +89,89 @@ Scatter::Scatter(Antenna& tx, Antenna& rx, Cascade& cs,
 // }
 
 
+
 /* Loop over the 1D segments  */
 void Scatter::SetSegments( const int& nSeg){
   double l, rt, rr, rt0, dSeg;
-  std::vector<double> seg_pos{0,0,0}, tx_seg{0,0,0}, rx_seg{0,0,0};
+  std::vector<double> R_TX_dir{0,0,0}, L_TX_dir{0,0,0}, seg_pos{0,0,0}, tx_seg{0,0,0}, rx_seg{0,0,0};
 
   fPhase        = std::vector<double> ( nSeg, 0 );
   fArrivalTime  = std::vector<double> ( nSeg, 0 );
   fAttenuation  = std::vector<double> ( nSeg, 0 );
   fPolarization = std::vector<double> ( nSeg, 0 );
   fDirectivity  = std::vector<double> ( nSeg, 0 );
-  fSegmentCoord = std::vector<std::vector<double>>(nSeg, vector<double> (6, 0));
+  fSegmentCoord = std::vector<std::vector<double>>(nSeg, std::vector<double> (6, 0));
 
   // Giving a non-uniform position in the cascade gets rid of artifacts in the FFT.
   RN_uniform rand_line(-0.5, 0.5, 42);          // Same seed for debugging.
   // RN_uniform rand_line(-0.5, 0.5, time(0));  // Different seed for random, independent runs.
 
   // This way we are making sure that we are covering the whole cascade length
-  dSeg = fCS.Ltot()/ nSeg / 100.0; // [m]
+  // dSeg = fCS.Ltot()/ nSeg / 100.0; // [m]
 
   // Sanity check! Your sections are not unphysical due to lifetime constraint.
-  assert(dSeg <= c_vac_cm*tau && "Cascade segments are too large!");
+  // assert(dSeg <= c_vac*tau && "Cascade segments are too large!");
   // This should be further checked against the probing wavelength.
+
+
 
   // Segment loop
   for(int i = 0 ; i < nSeg; i++){
+    //     // Set position
+//     l = (i + rand_line.get()) * dSeg;
+//     // l = i * dSeg;
+//     // [m] distance from the shower head (starting point)
+//
+// // TEST = Small randomisation (0.1 mm) in all directions.
+//     seg_pos[0]  = fCS.Pos()[0] + l*fCS.Dir()[0] + 1E-2*rand_line.get();
+//     seg_pos[1]  = fCS.Pos()[1] + l*fCS.Dir()[1] + 1E-2*rand_line.get();
+//     seg_pos[2]  = fCS.Pos()[2] + l*fCS.Dir()[2] + 1E-2*rand_line.get();
+//
+// //    seg_pos[0]  = fCS.Pos()[0] + l*fCS.Dir()[0];
+// //    seg_pos[1]  = fCS.Pos()[1] + l*fCS.Dir()[1];
+// //    seg_pos[2]  = fCS.Pos()[2] + l*fCS.Dir()[2];
+
     // Set position
-    l = (i + rand_line.get()) * dSeg;
-    // l = i * dSeg;
     // [m] distance from the shower head (starting point)
 
-    seg_pos[0]  = fCS.Pos()[0] + l*fCS.Dir()[0];
-    seg_pos[1]  = fCS.Pos()[1] + l*fCS.Dir()[1];
-    seg_pos[2]  = fCS.Pos()[2] + l*fCS.Dir()[2];
+
+/* So far, the plane R_TX, L_TX was created to cover the cascade at an angle and
+the values within were rotated to find the values in the cascade frame (density, etc).
+For geometry, a point P with coordinates (r,l) in the TX frame is placed in the
+3D lab frame at:
+
+P = CS_vertex + r*e(R_TX) +l*e(L_TX) (capitals == vector)
+
+For each segment in the L_TX direction, we can find the coordinates (r_max,l_max)
+of the point where the reflectivity is the highest (it should correlate with the
+peak density for the segment, too), and place the segment at that point.
+
+The choice of L_TX is the direction normal to R_TX that is consistent with the
+rotation matrix used in SetCascadeCoodinates(), which is the clockwise rotation
+of the TX frame with positive angle, or the cascade rotating anti-clockwise from
+the frame with positive delta.
+
+*/
+
+    R_TX_dir = normalize(fTX.Dir()) ;
+    L_TX_dir = cross_product( cross_product(R_TX_dir, normalize(fCS.Dir()) ), R_TX_dir);
+// Is this last step needed? I dont think so but just in case.
+    L_TX_dir = normalize(L_TX_dir);
+
+    // fTXMaxLength, fTXMaxRadius should have been computed in cm
+    // fCSPos is given in m
+
+    seg_pos[0]  = fTXMaxRadius[i]*R_TX_dir[0] + fTXMaxLength[i]*L_TX_dir[0];
+    seg_pos[1]  = fTXMaxRadius[i]*R_TX_dir[1] + fTXMaxLength[i]*L_TX_dir[1];
+    seg_pos[2]  = fTXMaxRadius[i]*R_TX_dir[2] + fTXMaxLength[i]*L_TX_dir[2];
+
+    // fTXMaxLength, fTXMaxRadius should have been computed in cm
+    // fCSPos is given in m
+    seg_pos[0]  = fCS.Pos()[0] + seg_pos[0]*cm/m;
+    seg_pos[1]  = fCS.Pos()[1] + seg_pos[1]*cm/m;
+    seg_pos[2]  = fCS.Pos()[2] + seg_pos[2]*cm/m;
+    // Now EVERYTHING is in m.
+
 
     // Set distances
     tx_seg = direction(fTX.Pos(), seg_pos);
@@ -200,6 +267,11 @@ void Scatter::SetSegments( const int& nSeg){
   }
 }
 
+
+
+
+
+
 /* Run time loop */
 // Requires set_segments and set_radar_cs();
 void Scatter::RunScatter(){
@@ -217,10 +289,10 @@ void Scatter::RunScatter(){
   fWaveform     = std::vector<double>(steps, 0);    // The electric field
   fPower        = std::vector<double>(steps, 0);    // The electric field
   fRCS          = std::vector<double>(steps, 0);    // The electric field
-  fPhaseTime    = std::vector<std::vector<double>>(steps, vector<double> (nSeg, 0));
-  fRCSTime      = std::vector<std::vector<double>>(steps, vector<double> (nSeg, 0));
-  fTCSTime      = std::vector<std::vector<double>>(steps, vector<double> (nSeg, 0));
-  fWaveformTime = std::vector<std::vector<double>>(steps, vector<double> (nSeg, 0));
+  fPhaseTime    = std::vector<std::vector<double>>(steps, std::vector<double> (nSeg, 0));
+  fRCSTime      = std::vector<std::vector<double>>(steps, std::vector<double> (nSeg, 0));
+  fTCSTime      = std::vector<std::vector<double>>(steps, std::vector<double> (nSeg, 0));
+  fWaveformTime = std::vector<std::vector<double>>(steps, std::vector<double> (nSeg, 0));
 
   /* THE RADAR RETURN EQUATION AT ELECTRIC FIELD LEVEL
   Er = E0 (Antenna/s constants)
@@ -353,7 +425,12 @@ Cascade1D::Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs,
 
     // From Density to TCS.
     SetCascadeCoodinates();
-    Density(fCSLength, fCSRadius);
+
+
+    // Density_beam TEST!!!
+
+
+    Density2(fCSLength, fCSRadius);
     PlasmaFreq(fDensity);                         // Not necessary for TCS
     Absorption(fDensity, fTX.Freq() );
     SkinDepth(fDensity, fTX.Freq() );             // Not necessary for TCS
@@ -362,6 +439,9 @@ Cascade1D::Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs,
     TCS(fReflectance);
 
     //  Once we have the TCS,
+
+    SegmentMaxCoords(fReflectance);
+
 
     SetSegments(nL);
     RunScatter();
@@ -380,12 +460,17 @@ void Cascade1D::SetCascadeCoodinates(){
   double a, b;
   fCSLength = std::vector<std::vector<double>> (nL, std::vector<double> (nR, 0));
   fCSRadius = std::vector<std::vector<double>> (nL, std::vector<double> (nR, 0));
+// dL, dR should be given in cm
+// fCSltot should be given in cm for now
+
 
   for (int i = 0; i < nL; i++){
     b = i* dL;
     for (int j = 0; j < nR; j++){
       a = j * dR;
 
+      // What it should be ??
+      // fCSLength[i][j] = (a - R/2)*cD + (b )*sD;
       fCSLength[i][j] = (a - R/2)*cD + (b - L/2)*sD + fCS.Ltot()/2;
       fCSRadius[i][j] = -(a - R/2)*sD + (b - L/2)*cD;
 
@@ -408,6 +493,23 @@ void Cascade1D::Density( const std::vector<std::vector<double>> &fCSLength,
     }
   }
 }
+
+void Cascade1D::Density2( const std::vector<std::vector<double>> &fCSLength,
+                            const std::vector<std::vector<double>> &fCSRadius ){
+  fDensity = std::vector<std::vector<double>> (fCSLength.size(),
+              std::vector<double> (fCSLength[0].size(), 0.0));
+
+  for (int i = 0; i < fDensity.size(); i++){
+    for (int j = 0; j < fDensity[i].size(); j++){
+      // Simple check to avoid computing values too far out from the cascade direction
+      if ( abs(fCSRadius[i][j]) <= fCS.Rtot() ) {
+        fDensity[i][j] = fCS.Density_beam(rho_ice*fCSLength[i][j], fCSRadius[i][j], 14.4, 1E9) ;
+      }
+    }
+  }
+}
+
+std::vector<std::vector<double>> Density();
 
 /* Computes r_crit, the radial values of the line where the plasma frequency
 equals the detection frequency (overdense line).
@@ -434,7 +536,7 @@ wp > w > 8980*sqrt(ne), w is frequency [Hz]!! */
 
 void Cascade1D::PlasmaFreq(const std::vector<std::vector<double>> &density){
   fPlasmaFrequency = std::vector<std::vector<double>> (density.size(),
-                      vector<double> (density[0].size(), 0));
+                      std::vector<double> (density[0].size(), 0));
 
   for (int i = 0; i < density.size(); i++){
     for (int j = 0; j < density[i].size(); j++){
@@ -445,7 +547,7 @@ void Cascade1D::PlasmaFreq(const std::vector<std::vector<double>> &density){
 
 void Cascade1D::Absorption(const std::vector<std::vector<double>> &density, const double & freq){
   fAbsorption = std::vector<std::vector<double>> (density.size(),
-                  vector<double> (density[0].size(), 0));
+                  std::vector<double> (density[0].size(), 0));
 
   for (int i = 0; i < density.size(); i++){
     for (int j = 0; j < density[i].size(); j++){
@@ -457,7 +559,7 @@ void Cascade1D::Absorption(const std::vector<std::vector<double>> &density, cons
 
 void Cascade1D::SkinDepth(const std::vector<std::vector<double>> &density, const double & freq){
   fSkinDepth = std::vector<std::vector<double>> (density.size(),
-                vector<double> (density[0].size(), 0));
+                std::vector<double> (density[0].size(), 0));
 
   for (int i = 0; i < density.size(); i++){
     for (int j = 0; j < density[i].size(); j++){
@@ -482,11 +584,11 @@ void Cascade1D::Reflectance(const std::vector<std::vector<double>> &absorption){
 	//OLD double reflectance, opacity;      // Unitless, tmp variables.
   double transparency, transmitivity;
   fTransparency = std::vector<std::vector<double>> (absorption.size(),
-                  vector<double> (absorption[0].size(), 0));
+                  std::vector<double> (absorption[0].size(), 0));
   fOpacity = std::vector<std::vector<double>> (absorption.size(),
-                  vector<double> (absorption[0].size(), 0));
+                  std::vector<double> (absorption[0].size(), 0));
   fReflectance = std::vector<std::vector<double>> (absorption.size(),
-                  vector<double> (absorption[0].size(), 0));
+                  std::vector<double> (absorption[0].size(), 0));
 
 	// Loop over the absorption matrix
   for (int i = 0; i < absorption.size(); i++){
@@ -550,6 +652,26 @@ void Cascade1D::TCS(const std::vector<std::vector<double>> &reflectance){
     // N_e = n_e*dV = n_e * dR * dA = n_e * dR* pi*dL*dN
   }
 }
+
+void Cascade1D::SegmentMaxCoords(const std::vector<std::vector<double>> &reflectance){
+  double l,r;
+  double nL = reflectance.size();
+  fTXMaxLength = std::vector<double> (nL);
+  fTXMaxRadius = std::vector<double> (nL);
+  // i lives in L_TX, j lives in R_TX
+  // (The integral of reflectance happens along j)
+  for (int i = 0; i < nL; i++){
+    // We want the index, not the value, therefore distance()
+    int j = distance(reflectance[i].begin(),
+            max_element(reflectance[i].begin(), reflectance[i].end() ) );
+    fTXMaxLength[i] = i*dL;   // This is b before the rotation
+    fTXMaxRadius[i] = j*dR;   // This is a before the rotation
+  }
+}
+
+
+
+
 
 // Accesors
 std::vector<std::vector<double>> Cascade1D::Radius() {return fCSRadius;}

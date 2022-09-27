@@ -9,12 +9,22 @@ This header file defines the antenna positions.
 class Antenna{
 
 public:
-  Antenna(double xpos, double ypos, double zpos,
+  Antenna(double xpos = 0, double ypos = 0, double zpos = 0,
           double xpol = 0, double ypol = 0, double zpol = 1,
-          double power = 0, double frequency = 5E8, double gain = 0);
+          double power = 0, double frequency = 500*MHz, double gain = 1.643);
 
+// Using RS approach now to define the gain in dB, but used as linear.
+// 0  dB = 1
+// 3  dB = 2
+// 5  dB = 7
+// 10 dB = 10
+
+  void SetDirection(std::vector<double> coords);
+  void SetAngle(std::vector<double> dir);
   double GainDipole(double theta);
-  double GainDipole(std::vector<double> dir);
+
+  // NOT ADDED YET
+  // double GainDipole(std::vector<double> dir);
 
   // Accesors
 
@@ -22,8 +32,8 @@ public:
   double Gain()   const;
   double E0()     const;    // [V/m]
   double Leff()   const;
-  double Eff()    const;
   double Load()   const;
+  double Efficiency()    const;
 
   double Freq()         const;  // [Hz]
   double Wavelength()   const;  // [m]
@@ -33,25 +43,21 @@ public:
   std::vector<double> Pos() const;
   std::vector<double> Pol() const;
 
+// W.r.t the interaction vertex / direction of interest
+  double Dot()   const;
+  double Delta() const;
   double  Dist() const;
   std::vector<double> Dir() const;
   std::vector<double> Sph() const;
 
-  double Dot()   const;
-  double Delta() const;
-
-  void SetDirection(std::vector<double> coords);
-  void SetAngle(std::vector<double> dir);
-
 private:
-  // friend class Scatter;
   friend class Detector;
 
-  double fPower;          // [W]
+  double fPower;                // [kW]
   double fGain;
-  double fLeff = 1;       // m
+  double fLeff = 1*m;           // [mm]
   double fEff  = 1;
-  double fLoad = 50;      // [pi*Ohm]
+  double fLoad = 50;            // [Ohm]
 
   // These are all related. Setting or changeing one needs to redo the rest.
   double fFrequency;               // [Hz] Observer frequency = 1E9 , 450 *1E
@@ -59,9 +65,9 @@ private:
   double fWavenumber;              // Wavenumber.
   double fAngularFreq;             // Angular freq_obs
 
-  std::vector<double> fPosition{0, 0, 0};
+  std::vector<double> fPosition{};
   // Standard antennas are vertically in the ice (Vpol)
-  std::vector<double> fPolarization{1, 0, 0};   // Polarization
+  std::vector<double> fPolarization{};   // Polarization
 
   double fDistance = 0;                         // Module of distance to cs point.
   std::vector<double> fDirection{0, 0, 0};      // Vector direction to cs point.
@@ -72,9 +78,9 @@ private:
   double fDelta = 0;          // The angle.
   // fDelta is the projection angle, defined between 0 and pi only.
 
-  // double IRT_dist[2];
-  // double IRT_angle[2];
 };
+
+// TODO- MAKE SPECIFIC CLASSES TRANSMITTER AND RECEIVER - PROTECT AGAINST MISLABEL. 
 
 
 class Detector{
@@ -86,7 +92,9 @@ public:
   Detector(std::string name);   // Model-based constructor
   /* Other models:
     - Bistatic
+    - T576
     - RET_CR
+    - RNOg-like star grid (just the RX, the idea is to load the RX and add TX manually)
   */
 
   std::vector<Antenna> Transmitters();
@@ -101,5 +109,123 @@ private:
   std::vector<Antenna> fReceivers;
 
 };
+
+//  Other Detector configurations in unnamed namespace, not accesible from outside
+namespace {
+  /* GEANT 4 Array Style, position of the antennas.
+
+  Each sub vector in the antennas vector hold the x, y and z position of an antenna.
+  Remember: the XZ plane is the horizontal plane (ice surface plane),
+  Y direction is vertically upwards, origin (0, 0, 0) is in the middle of the
+  ice shelf (so shelfSizeY/2 is BELOW the surface).
+  e.g. (0, shelfSizeY/2., 0) lies in the middle of the ice shelf surface,
+  an Y pos of -20.*m corresponds to 30 m below the surface
+  */
+  static const std::vector<std::vector<double>> RNOgAntennas =
+  {
+    {28.2842712475*m, -140.*m, 28.2842712475*m},
+    {-28.2842712475*m, -140.*m, -28.2842712475*m},
+    {28.2842712475*m, -140.*m, -28.2842712475*m},
+    {-28.2842712475*m, -140.*m, 28.2842712475*m},
+    {56.5685424949*m, -140.*m, 56.5685424949*m},
+    {-56.5685424949*m, -140.*m, -56.5685424949*m},
+    {56.5685424949*m, -140.*m, -56.5685424949*m},
+    {-56.5685424949*m, -140.*m, 56.5685424949*m},
+    {84.8528137424*m, -140.*m, 84.8528137424*m},
+    {-84.8528137424*m, -140.*m, -84.8528137424*m},
+    {84.8528137424*m, -140.*m, -84.8528137424*m},
+    {-84.8528137424*m, -140.*m, 84.8528137424*m},
+    {113.13708499*m, -140.*m, 113.13708499*m},
+    {-113.13708499*m, -140.*m, -113.13708499*m},
+    {113.13708499*m, -140.*m, -113.13708499*m},
+    {-113.13708499*m, -140.*m, 113.13708499*m},
+    {141.421356237*m, -140.*m, 141.421356237*m},
+    {-141.421356237*m, -140.*m, -141.421356237*m},
+    {141.421356237*m, -140.*m, -141.421356237*m},
+    {-141.421356237*m, -140.*m, 141.421356237*m},
+    {169.705627485*m, -140.*m, 169.705627485*m},
+    {-169.705627485*m, -140.*m, -169.705627485*m},
+    {169.705627485*m, -140.*m, -169.705627485*m},
+    {-169.705627485*m, -140.*m, 169.705627485*m},
+    {197.989898732*m, -140.*m, 197.989898732*m},
+    {-197.989898732*m, -140.*m, -197.989898732*m},
+    {197.989898732*m, -140.*m, -197.989898732*m},
+    {-197.989898732*m, -140.*m, 197.989898732*m},
+    {226.27416998*m, -140.*m, 226.27416998*m},
+    {-226.27416998*m, -140.*m, -226.27416998*m},
+    {226.27416998*m, -140.*m, -226.27416998*m},
+    {-226.27416998*m, -140.*m, 226.27416998*m},
+    {254.558441227*m, -140.*m, 254.558441227*m},
+    {-254.558441227*m, -140.*m, -254.558441227*m},
+    {254.558441227*m, -140.*m, -254.558441227*m},
+    {-254.558441227*m, -140.*m, 254.558441227*m},
+    {282.842712475*m, -140.*m, 282.842712475*m},
+    {-282.842712475*m, -140.*m, -282.842712475*m},
+    {282.842712475*m, -140.*m, -282.842712475*m},
+    {-282.842712475*m, -140.*m, 282.842712475*m},
+    {-300.0*m, -140.*m, 0.0*m},
+    {-280.0*m, -140.*m, 0.0*m},
+    {-260.0*m, -140.*m, 0.0*m},
+    {-240.0*m, -140.*m, 0.0*m},
+    {-220.0*m, -140.*m, 0.0*m},
+    {-200.0*m, -140.*m, 0.0*m},
+    {-180.0*m, -140.*m, 0.0*m},
+    {-160.0*m, -140.*m, 0.0*m},
+    {-140.0*m, -140.*m, 0.0*m},
+    {-120.0*m, -140.*m, 0.0*m},
+    {-100.0*m, -140.*m, 0.0*m},
+    {-80.0*m, -140.*m, 0.0*m},
+    {-60.0*m, -140.*m, 0.0*m},
+    {-40.0*m, -140.*m, 0.0*m},
+    {-20.0*m, -140.*m, 0.0*m},
+    {0.0*m, -140.*m, -300.0*m},
+    {0.0*m, -140.*m, -280.0*m},
+    {0.0*m, -140.*m, -260.0*m},
+    {0.0*m, -140.*m, -240.0*m},
+    {0.0*m, -140.*m, -220.0*m},
+    {0.0*m, -140.*m, -200.0*m},
+    {0.0*m, -140.*m, -180.0*m},
+    {0.0*m, -140.*m, -160.0*m},
+    {0.0*m, -140.*m, -140.0*m},
+    {0.0*m, -140.*m, -120.0*m},
+    {0.0*m, -140.*m, -100.0*m},
+    {0.0*m, -140.*m, -80.0*m},
+    {0.0*m, -140.*m, -60.0*m},
+    {0.0*m, -140.*m, -40.0*m},
+    {0.0*m, -140.*m, -20.0*m},
+    {0.0*m, -140.*m, 0.0*m},
+    {0.0*m, -140.*m, 20.0*m},
+    {0.0*m, -140.*m, 40.0*m},
+    {0.0*m, -140.*m, 60.0*m},
+    {0.0*m, -140.*m, 80.0*m},
+    {0.0*m, -140.*m, 100.0*m},
+    {0.0*m, -140.*m, 120.0*m},
+    {0.0*m, -140.*m, 140.0*m},
+    {0.0*m, -140.*m, 160.0*m},
+    {0.0*m, -140.*m, 180.0*m},
+    {0.0*m, -140.*m, 200.0*m},
+    {0.0*m, -140.*m, 220.0*m},
+    {0.0*m, -140.*m, 240.0*m},
+    {0.0*m, -140.*m, 260.0*m},
+    {0.0*m, -140.*m, 280.0*m},
+    {0.0*m, -140.*m, 300.0*m},
+    {20.0*m, -140.*m, 0.0*m},
+    {40.0*m, -140.*m, 0.0*m},
+    {60.0*m, -140.*m, 0.0*m},
+    {80.0*m, -140.*m, 0.0*m},
+    {100.0*m, -140.*m, 0.0*m},
+    {120.0*m, -140.*m, 0.0*m},
+    {140.0*m, -140.*m, 0.0*m},
+    {160.0*m, -140.*m, 0.0*m},
+    {180.0*m, -140.*m, 0.0*m},
+    {200.0*m, -140.*m, 0.0*m},
+    {220.0*m, -140.*m, 0.0*m},
+    {240.0*m, -140.*m, 0.0*m},
+    {260.0*m, -140.*m, 0.0*m},
+    {280.0*m, -140.*m, 0.0*m},
+    {300.0*m, -140.*m, 0.0*m}
+  };
+}
+
 
 #endif
