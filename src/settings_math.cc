@@ -1,6 +1,7 @@
-  #include "macro_settings.hh"
+#include "settings.hh"
 
 // Math tools ------------------------------------------------------------------
+
 int sgn(double val) { return (0.0 < val) - (val < 0.0);}
 
 double acos2(double x1, double x2, double y1, double y2){
@@ -16,21 +17,11 @@ double sinc(double x){
   return o;
 }
 
-// template <typename T>
-//T norm(){
-//  T sum{0};
 double norm(std::vector<double> vec_a){
   double n{0};
   for (auto a : vec_a){ n += pow(a,2); }
   return std::sqrt(n);
 }
-
-// double norm(std::vector<double> a){
-//   double n;
-//   if (a.size() == 3){ n = sqrt( pow(a[0], 2) + pow(a[1], 2) + pow(a[2],2)  );  }
-//   else if (a.size() == 2){ n = sqrt( pow(a[0], 2) + pow(a[1], 2) );  }
-//   return n;
-// }
 
 std::vector<double> direction(std::vector<double> a, std::vector<double> b){
   std::vector<double> out;
@@ -38,13 +29,8 @@ std::vector<double> direction(std::vector<double> a, std::vector<double> b){
                  b.begin(),               //input2
                  std::back_inserter(out),                //output
                  [](double x, double y){ return y-x; });
-  // std::vector<double> v = {a[0] - b[0], a[1] - b[1], a[2] - b[2]};
   return out;
 }
-
-// std::vector<double> direction(double[] a, double[] b){
-//
-// }
 
 std::vector<double> direction(double x1, double y1, double z1, double x2, double y2, double z2){
   std::vector<double> a = {x1, y1, z1};
@@ -103,30 +89,6 @@ std::vector<double> cross_product(double a1, double a2, double a3, double b1, do
   return ab;
 }
 
-//---- I/O functions -----------------------------------------------------------
-void write_1D_array(std::vector<double> array, std::string output_path, const bool trigger){
-  if(trigger){
-    std::ofstream output_file(output_path);
-    std::ostream_iterator<double> output_iterator(output_file, "\t");
-    copy(array.begin(), array.end(), output_iterator);
-    output_file.close();
-  }
-}
-
-void write_2D_array(std::vector<std::vector<double>> array, std::string output_path, const bool trigger){
-  if(trigger){
-    std::ofstream output_file(output_path);
-    std::ostream_iterator<double> output_iterator(output_file, "\t");
-    for (int i = 0; i < array.size(); i++){
-      copy(array.at(i).begin(), array.at(i).end(), output_iterator);
-      output_file << '\n';
-    }
-    output_file.close();
-  }
-}
-
-// Unused ----------------------------------------------------------------------
-//
 // Computing transpose of the matrix
 std::vector<std::vector<double>> transpose(std::vector<std::vector<double>> matrix){
   int row = matrix.size();

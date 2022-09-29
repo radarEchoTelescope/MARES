@@ -14,30 +14,31 @@
 
 struct ScatterPoint{
 
-  // I can make this bunch constant and set upon initialization
+  // These values should be set at the creation of the point
   int ID;                                        // An identifier
   double TCS;
   std::vector<double> Size{1,1,1};
+
+  // These values are set first, according to number of dimensions
+  double L;                                // Distance to the interaction vertex
   std::vector<double> Position{0,0,0};
 
-  double L;                                // Distance to the interaction vertex
+  // These values are set later, according to the mode of propatation of light. 
   std::vector<double> TXDir{0, 0, 0};      // Vector direction to cs point.
   std::vector<double> RXDir{0, 0, 0};      // Vector direction to cs point.
   double RTX;                              // Module of distance to cs point.
   double RRX ;                             // Module of distance to cs point.
-
   double Phase;
   double StartTime;
   double ArrivalTime;
   double Attenuation;
   double Directivity;
   double PolEff;
-
   std::vector<double> Polarization{0,0,0};
   std::vector<double> EFieldAtRX{0,0,0};
+};
 
-
-// Possible adittions that are not needed now
+// Possible adittions to scatterpoint that are not needed now
   // std::vector<double> fSphericalAngles{0,0};      // Theta and phi in lab frame.
 
   // double fDot = 0;             // Dot (inner) product with reference (cascade) direction.
@@ -49,17 +50,15 @@ struct ScatterPoint{
   // double IRT_time[2];
   // double IRT_angle[2];
 
-};
 
 /* Simple scatter event with bistatic configuration*/
 class Scatter {
 public:
 
   Scatter(Antenna& tx, Antenna& rx, std::vector<ScatterPoint> points,
-          const double& lifetime = 1E-8, const double& sampling = 100);
+          const double& sampling = 100);
 
-  Scatter(Antenna& tx, Antenna& rx,
-          const double& lifetime, const double& sampling);
+  Scatter(Antenna& tx, Antenna& rx, const double& sampling);
 
   /* The RX re-setter*/
   void UpdateRX(const Antenna& new_RX);
@@ -117,7 +116,7 @@ protected:
   std::vector<ScatterPoint> fPoints;
   double nP = fPoints.size();
 
-  double tau;
+  // double tau;
   double sampling_ratio;
 
   // Always done at construction, no reason to be changed.

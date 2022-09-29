@@ -4,7 +4,7 @@ This file defines the cascade class and all its associated functions
 #ifndef CASCADE_hh
 #define CASCADE_hh
 
-#include "macro_settings.hh"
+#include "settings.hh"
 
 // -----------------------------------------------------------------------------
 class Cascade {

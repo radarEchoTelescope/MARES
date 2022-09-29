@@ -1,11 +1,11 @@
 #include "scatter.hh"
 
 Scatter::Scatter(Antenna& tx, Antenna& rx, std::vector<ScatterPoint> points,
-                  const double& lifetime, const double& sampling):
-  fTX(tx), fRX(rx), fPoints(points), tau(lifetime), sampling_ratio(sampling){}
+                  const double& sampling):
+  fTX(tx), fRX(rx), fPoints(points), sampling_ratio(sampling){}
 
-Scatter::Scatter(Antenna& tx, Antenna& rx, const double& lifetime, const double& sampling):
-  Scatter(tx, rx, std::vector<ScatterPoint> {}, lifetime, sampling){}
+Scatter::Scatter(Antenna& tx, Antenna& rx, const double& sampling):
+  Scatter(tx, rx, std::vector<ScatterPoint> {}, sampling){}
 
 
 void Scatter::UpdateRX(const Antenna& new_RX){
@@ -33,15 +33,26 @@ void Scatter::SetInConstIce(){ for(auto& p: fPoints) {SetInConstIce(p);} }
 
 // Simplest model, straight lines, constant n.
 void Scatter::SetInConstIce(ScatterPoint& p){
-  // Set distances
+// Set distances
   p.TXDir = direction( fTX.Pos(), p.Position) ;
   p.RTX = norm(p.TXDir);
 
   p.RXDir = direction(p.Position, fRX.Pos());
   p.RRX = norm(p.RXDir);
 
-  // Set ArrivalTime
+/* Set times
+    // (Retarded) time where the scattered radio signal by the segment is produced.
+    // production = birth - fRTX/c_ice;
+
+    // (Advanced) time where the scattered signal by the segments arrives in the receiver.
+    // arrival = birth + Rr/c_ice;
+
+    // T0 = 0 by definition when the cascade begins (first element = head).
+    // p.ArrivalTime = p.L/c_vac + p.RRX/c_ice;
+    // time where the segment starts scattering.
+*/
   p.ArrivalTime = p.StartTime + p.RRX/c_ice;
+
 
   // Set phase
   p.Phase = fTX.Wavenumber()*(p.RTX + p.RRX) - pi/2;

@@ -4,7 +4,7 @@ This header file defines the antenna positions.
 #ifndef ANTENNA_hh
 #define ANTENNA_hh
 
-#include "macro_settings.hh"
+#include "settings.hh"
 
 class Antenna{
 
