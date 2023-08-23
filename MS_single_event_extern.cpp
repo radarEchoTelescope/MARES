@@ -138,18 +138,18 @@ int main(int argc, char** argv){
 
  
   /* Choose what to write out by uncommenting the lines. */
-  // // write_2D_array(nu_cascade.Coordinates(),    identifier_c + "_coords.txt", 1);
-  // write_1D_array(nu_cascade.Phase(),          identifier_c + "_phase.txt", 1);
-  // write_1D_array(nu_cascade.Attenuation(),    identifier_c + "_attenuation.txt", 1);
-  // write_1D_array(nu_cascade.ArrivalTime(),    identifier_c + "_arrival_t.txt", 1);
-  // write_1D_array(nu_cascade.Directivity(),    identifier_c + "_directivity.txt", 1);
-  // write_1D_array(nu_cascade.Polarization(),   identifier_c + "_polarization.txt", 1);
+  // write_2D_array(nu_cascade.Coordinates(),    identifier_c + "_coords.txt", 1);
+  write_1D_array(nu_cascade.Phase(),          identifier_c + "_phase.txt", 1);
+  write_1D_array(nu_cascade.Attenuation(),    identifier_c + "_attenuation.txt", 1);
+  write_1D_array(nu_cascade.ArrivalTime(),    identifier_c + "_arrival_t.txt", 1);
+  write_1D_array(nu_cascade.Directivity(),    identifier_c + "_directivity.txt", 1);
+  write_1D_array(nu_cascade.Polarization(),   identifier_c + "_polarization.txt", 1);
 
-  // write_1D_array(nu_cascade.Duration(),       identifier_c + "_duration.txt", 1);
-  // write_1D_array(nu_cascade.Waveform(),       identifier_c + "_waveform.txt", 1);
+  write_1D_array(nu_cascade.Duration(),       identifier_c + "_duration.txt", 1);
+  write_1D_array(nu_cascade.Waveform(),       identifier_c + "_waveform.txt", 1);
   // write_1D_array(nu_cascade.Power(),          identifier_c + "_power.txt", 1);
-  // write_1D_array(nu_cascade.TCS(),            identifier_c + "_TCS.txt", 1);
-  // write_1D_array(nu_cascade.RCS(),            identifier_c + "_RCS.txt", 1);
+  write_1D_array(nu_cascade.TCS(),            identifier_c + "_TCS.txt", 1);
+  write_1D_array(nu_cascade.RCS(),            identifier_c + "_RCS.txt", 1);
   // write_2D_array(nu_cascade.Phase_time(),     identifier_c + "_phase_time.txt", 1);
   // write_2D_array(nu_cascade.RCS_time(),       identifier_c + "_RCS_time.txt", 1);
   // write_2D_array(nu_cascade.E_time(),         identifier_c + "_E_time.txt", 1);
