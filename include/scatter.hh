@@ -9,7 +9,7 @@
 // #include "macro_settings.hh"
 // #include "cascade.hh"
 #include "antenna.hh"
-// #include "IceRayTracing.hh"
+#include "IceRayTracing.hh"
 // #define NDEBUG     // Turn off debug.
 
 struct ScatterPoint{
@@ -36,6 +36,19 @@ struct ScatterPoint{
   double PolEff;
   std::vector<double> Polarization{0,0,0};
   std::vector<double> EFieldAtRX{0,0,0};
+
+// These are needed for raytracing purposes (IceRayTracing)
+  double TXRayTime[2];
+  double TXRayDistance[2];
+  double TXRayStartAngle[2];
+  double TXRayEndAngle[2];
+  double TXRayAttenuation[2];
+
+  double RXRayTime[2];
+  double RXRayDistance[2];
+  double RXRayStartAngle[2];
+  double RXRayEndAngle[2];
+  double RXRayAttenuation[2];
 };
 
 // Possible adittions to scatterpoint that are not needed now
@@ -46,13 +59,11 @@ struct ScatterPoint{
   // double fDelta = 0;          // The angle.
   // // fDelta is the projection angle, defined between 0 and pi only.
 
-  // double IRT_dist[2];
-  // double IRT_time[2];
-  // double IRT_angle[2];
 
 
 /* Simple scatter event with bistatic configuration*/
 class Scatter {
+    // friend class Scatter1D;
 public:
 
   Scatter(Antenna& tx, Antenna& rx, std::vector<ScatterPoint> points,
@@ -71,18 +82,27 @@ public:
  distances and times(?) of proapgation of the radio waves.
  The choice of propagation _might_ change the other properties of the ScatterPoint. 
   Spatial phase, Attenuation, Polarization, Directivity
-*/
-  void SetInConstIce();
-  void SetInBeam(const double& yb, const double& na, const double& nb);
-  void SetWithIRT();
 
+Careful, because the medium change and refraction means that the relative
+  position of the antennas does not correlate with the distance that the light travels.
+*/ 
+
+// Simplest model, rays are straight lines, constant n.
+  void SetInConstIce();
+// Uzair's IRT assumes that the air-ice interface is the plane z = 0. ({0,0,1,0})
+  void SetWithIRT();
+//The plane should be a vector with coordinates A,B,C,D: Ax+By+Cz+D=0.
+  // void SetInBoundary(const std::vector<double> plane, const double& na, const double& nb);
+  //The plane should be a vector with coordinates A,B,C,D: Ax+By+Cz+D=0.
+  void SetInBeam(const std::vector<double> plane, const double& na, const double& nb);
+  
 /* Computes the time integral of the interference of the points at the RX*/
   void RunScatter(const bool save2Dmatrices = false);
 
   // Accessors
   Antenna TX();
   Antenna RX();
-  // TO_DO Add accessor for points!
+  std::vector<ScatterPoint> Points();
 
     // For particular variable over the full point collection.
 
@@ -126,17 +146,49 @@ protected:
 
 private:
   void SetInConstIce(ScatterPoint& p);
-  void SetInBeam(ScatterPoint& p, const double& yb,
+// TO-DO Finish adding IRT. 
+  void SetWithIRT(ScatterPoint& p);
+  // void SetInBoundary(ScatterPoint& p, const std::vector<double> interface_plane,
+  //                const double& na, const double& nb);
+  void SetInBeam(ScatterPoint& p, const std::vector<double> interface_plane,
                  const double& na, const double& nb);
   
 // This function estimates the point in the interface where the reflection happens.
-// This does a bisection seach on the db value that provides an accurate dt.
-  double estimate_interface_x( const double& ya, const double& yb,
-    const double& dt, const double& n,
-    const double& tolerance = 1E-5 );
+// This does a bisection seach on the lb value that provides an accurate dt.
+  double estimate_interface_point( const double& ra, const double& rb,
+    const double& lt, const double& n,
+    const double& tolerance = 1E-4, const int& n_tries = 1E4  );
 
-// TO-DO Finish adding IRT. 
-  void SetWithIRT(ScatterPoint& p);
+  /* TO PLACE THE SCATTER EVENT IN A BEAM TEST
+
+Coordiantes assigned to match RS/GEANT convention. 
+WARNING: This does not match IRT coordinates???
+  z as the direction of the beam.
+  x as the perpendicular to the beam in the plane where RX lives.
+  y as the vertical == 0.
+
+    (P) - - - - - - - - - - - (lt) - - - - - > beam (l direction = z beam direction)
+    |   \                      |
+    |(rb,lb)  \                |     (B == "Beam" medium)
+    |------------I------------------ (interface)
+    |              \   (ra, la)|     (A == "Air" medium)
+    |                 \        |
+    |                    \     |
+    (rt) -------------------(RX)
+    |
+    |
+    (r direction == x beam direction)
+
+  rb is the distance between the beam line and the interface.
+  (The size of the beam target medium)
+  ra is the distance between the interface and the receiver.
+  rt is the total distance between the point and the antenna
+    in the "vertical" direction of reflection.
+  
+  We need to figure out the la, lb values to know where the reflection happens,
+  and what are the total path lengths of the rays.
+*/
+
 
   std::vector<double> fDuration; // [ns]
   std::vector<double> fWaveform; // [V/m]

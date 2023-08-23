@@ -11,13 +11,14 @@ class Antenna{
 public:
   Antenna(double xpos = 0, double ypos = 0, double zpos = 0,
           double xpol = 0, double ypol = 0, double zpol = 1,
-          double power = 0, double frequency = 500*MHz, double gain = 1.643);
+          double power = 0, double frequency = 500*MHz, double gain = 2.122);
 
 // Using RS approach now to define the gain in dB, but used as linear.
 // 0  dB = 1
 // 3  dB = 2
 // 5  dB = 7
 // 10 dB = 10
+// 2.122 dB ~= 1.63 (ideal small dipole).
 
   void SetDirection(std::vector<double> coords);
   void SetAngle(std::vector<double> dir);

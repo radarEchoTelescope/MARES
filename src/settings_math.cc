@@ -48,7 +48,6 @@ double distance(std::vector<double> a, std::vector<double> b){
 double distance(double x1, double y1, double x2, double y2){
   std::vector<double> a = {x1, y1};
   std::vector<double> b = {x2, y2};
-
   return norm(direction(a,b));
 }
 
@@ -64,11 +63,24 @@ double projection(std::vector<double> a, std::vector<double> b){
   return p;
 }
 
+double shortest_distance(std::vector<double> plane, std::vector<double> point){
+  double out;
+  out  = abs(plane[0]*point[0] + plane[1]*point[1] + plane[2]*point[2] + plane[3])
+        / norm( {plane[0], plane[1], plane[2] });
+  return out;
+}
+
 std::vector<double> normalize(std::vector<double> a){
   double n = norm(a);
-  a[0] = a[0]/n;
-  a[1] = a[1]/n;
-  a[2] = a[2]/n;
+  if(n != 0){
+    a[0] = a[0]/n;
+    a[1] = a[1]/n;
+    a[2] = a[2]/n;
+  } else {
+    a[0] = 0.;
+    a[1] = 0.;
+    a[2] = 0.;
+  }
   return a;
 }
 
@@ -87,6 +99,52 @@ std::vector<double> cross_product(double a1, double a2, double a3, double b1, do
   std::vector<double> b = {b1, b2, b3};
   std::vector<double> ab = cross_product(a,b);
   return ab;
+}
+
+// Rotates the vector counter clockwise over given angle around rotAxis.
+// Counter clockwise is defined wrt observer which has rotAxis pointing towards it.
+std::vector<double> rotate(std::vector<double> vector_in, std::vector<double> rotAxis, double theta){
+    // The rotation angle must be given in rad
+    
+    // The incoming vector
+    double _x = vector_in[0];
+    double _y = vector_in[1];
+    double _z = vector_in[2];
+
+    // The axis components
+    double ux = rotAxis[0];
+    double uy = rotAxis[1];
+    double uz = rotAxis[2];
+
+    // The rotated vector components
+    double xr = ( cos(theta) + ux*ux*(1.-cos(theta)) ) * _x
+                    + ( ux*uy*(1.-cos(theta)) - uz*sin(theta) ) * _y
+                    + ( ux*uz*(1.-cos(theta)) + uy*sin(theta) ) * _z;
+    double yr = ( uy*ux*(1.-cos(theta)) + uz*sin(theta) ) * _x
+                    + ( cos(theta) + uy*uy*(1.-cos(theta)) ) * _y
+                    + ( uy*uz*(1.-cos(theta)) - ux*sin(theta) ) * _z;
+    double zr = ( uz*ux*(1.-cos(theta)) - uy*sin(theta) ) * _x
+                    + ( uz*uy*(1.-cos(theta)) + ux*sin(theta) ) * _y
+                    + ( cos(theta) + uz*uz*(1.-cos(theta)) ) * _z;
+    std::vector<double> rotVect{xr, yr, zr};
+    return rotVect;
+}
+
+std::vector<double> find_perpendicular(std::vector<double> vector_in){
+      // The outgoing vector
+    double x = -vector_in[1];
+    double y = vector_in[0];
+    double z = 0;
+    std::vector<double> vector_out{x, y, z};
+
+    if(projection(vector_in,vector_out) == 0){return vector_out;}
+    else{
+      double x = -vector_in[2];
+      double y = 0;
+      double z = vector_in[1];
+      std::vector<double> vector_out{x, y, z};
+      return vector_out;
+    }
 }
 
 // Computing transpose of the matrix

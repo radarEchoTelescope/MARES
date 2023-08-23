@@ -1,0 +1,96 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"jsonFile" : "directory-.-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "2.8.12"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4
+					]
+				}
+			],
+			"name" : "",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "MS_single_event",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "MARES::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-MARES-65519bec0e9bad49e5ff.json",
+					"name" : "MARES",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "MS_single_event::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-MS_single_event-edbe2147d419ca40fa28.json",
+					"name" : "MS_single_event",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "MS_single_event_beam::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-MS_single_event_beam-4250694519fa7a680f6b.json",
+					"name" : "MS_single_event_beam",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "MS_single_event_extern::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-MS_single_event_extern-7b83afc9690bc1fa2a88.json",
+					"name" : "MS_single_event_extern",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "MS_single_point::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-MS_single_point-fe906142aeb507dc521c.json",
+					"name" : "MS_single_point",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/ehuescas/Radar/MARES/build",
+		"source" : "/home/ehuescas/Radar/MARES"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

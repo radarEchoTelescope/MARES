@@ -1,0 +1,2 @@
+/usr/bin/ar qc libMARES.a CMakeFiles/MARES.dir/lib/IceRayTracing/namespace/woROOT/IceRayTracing.cc.o CMakeFiles/MARES.dir/src/antenna.cc.o CMakeFiles/MARES.dir/src/cascade.cc.o CMakeFiles/MARES.dir/src/cascade1D.cc.o CMakeFiles/MARES.dir/src/scatter.cc.o CMakeFiles/MARES.dir/src/scatter1D.cc.o CMakeFiles/MARES.dir/src/settings_math.cc.o CMakeFiles/MARES.dir/src/settings_params.cc.o CMakeFiles/MARES.dir/src/settings.cc.o
+/usr/bin/ranlib libMARES.a

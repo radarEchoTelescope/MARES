@@ -119,9 +119,11 @@ Detector::Detector(std::string name){
     // A BEAM SETUP USES GEANT COORDINATE SYSTEM:
     // THE BEAM MOVES ALONG Z, Y IS VERTICAL. 
     fTransmitters.push_back( Antenna(-3.877*m, 0, -0.294*m,   // Position
+                                      // 0, 1, 0,            // Polarisation
                                       0, 0, 1,            // Polarisation
                                       50, 2.1*GHz, 12) );   // Power, frequency, gain.
     fReceivers.push_back(    Antenna(-3.877*m, 0, 4.294*m,
+                                    // 0, 1, 0,            // Polarisation
                                      0, 0, 1,
                                      0, 2.1*GHz, 18) );
     fReceivers.push_back(    Antenna(-6.395*m, 0, 3.553*m,

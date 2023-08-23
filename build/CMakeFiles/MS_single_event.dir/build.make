@@ -73,155 +73,30 @@ CMakeFiles/MS_single_event.dir/MS_single_event.cpp.o: CMakeFiles/MS_single_event
 CMakeFiles/MS_single_event.dir/MS_single_event.cpp.o: ../MS_single_event.cpp
 CMakeFiles/MS_single_event.dir/MS_single_event.cpp.o: CMakeFiles/MS_single_event.dir/compiler_depend.ts
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ehuescas/Radar/MARES/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/MS_single_event.dir/MS_single_event.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MS_single_event.dir/MS_single_event.cpp.o -MF CMakeFiles/MS_single_event.dir/MS_single_event.cpp.o.d -o CMakeFiles/MS_single_event.dir/MS_single_event.cpp.o -c /home/ehuescas/Radar/MARES/MS_single_event.cpp
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MS_single_event.dir/MS_single_event.cpp.o -MF CMakeFiles/MS_single_event.dir/MS_single_event.cpp.o.d -o CMakeFiles/MS_single_event.dir/MS_single_event.cpp.o -c /home/ehuescas/Radar/MARES/MS_single_event.cpp
 
 CMakeFiles/MS_single_event.dir/MS_single_event.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MS_single_event.dir/MS_single_event.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ehuescas/Radar/MARES/MS_single_event.cpp > CMakeFiles/MS_single_event.dir/MS_single_event.cpp.i
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ehuescas/Radar/MARES/MS_single_event.cpp > CMakeFiles/MS_single_event.dir/MS_single_event.cpp.i
 
 CMakeFiles/MS_single_event.dir/MS_single_event.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MS_single_event.dir/MS_single_event.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ehuescas/Radar/MARES/MS_single_event.cpp -o CMakeFiles/MS_single_event.dir/MS_single_event.cpp.s
-
-CMakeFiles/MS_single_event.dir/src/antenna.cc.o: CMakeFiles/MS_single_event.dir/flags.make
-CMakeFiles/MS_single_event.dir/src/antenna.cc.o: ../src/antenna.cc
-CMakeFiles/MS_single_event.dir/src/antenna.cc.o: CMakeFiles/MS_single_event.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ehuescas/Radar/MARES/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/MS_single_event.dir/src/antenna.cc.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MS_single_event.dir/src/antenna.cc.o -MF CMakeFiles/MS_single_event.dir/src/antenna.cc.o.d -o CMakeFiles/MS_single_event.dir/src/antenna.cc.o -c /home/ehuescas/Radar/MARES/src/antenna.cc
-
-CMakeFiles/MS_single_event.dir/src/antenna.cc.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MS_single_event.dir/src/antenna.cc.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ehuescas/Radar/MARES/src/antenna.cc > CMakeFiles/MS_single_event.dir/src/antenna.cc.i
-
-CMakeFiles/MS_single_event.dir/src/antenna.cc.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MS_single_event.dir/src/antenna.cc.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ehuescas/Radar/MARES/src/antenna.cc -o CMakeFiles/MS_single_event.dir/src/antenna.cc.s
-
-CMakeFiles/MS_single_event.dir/src/cascade.cc.o: CMakeFiles/MS_single_event.dir/flags.make
-CMakeFiles/MS_single_event.dir/src/cascade.cc.o: ../src/cascade.cc
-CMakeFiles/MS_single_event.dir/src/cascade.cc.o: CMakeFiles/MS_single_event.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ehuescas/Radar/MARES/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/MS_single_event.dir/src/cascade.cc.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MS_single_event.dir/src/cascade.cc.o -MF CMakeFiles/MS_single_event.dir/src/cascade.cc.o.d -o CMakeFiles/MS_single_event.dir/src/cascade.cc.o -c /home/ehuescas/Radar/MARES/src/cascade.cc
-
-CMakeFiles/MS_single_event.dir/src/cascade.cc.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MS_single_event.dir/src/cascade.cc.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ehuescas/Radar/MARES/src/cascade.cc > CMakeFiles/MS_single_event.dir/src/cascade.cc.i
-
-CMakeFiles/MS_single_event.dir/src/cascade.cc.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MS_single_event.dir/src/cascade.cc.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ehuescas/Radar/MARES/src/cascade.cc -o CMakeFiles/MS_single_event.dir/src/cascade.cc.s
-
-CMakeFiles/MS_single_event.dir/src/cascade1D.cc.o: CMakeFiles/MS_single_event.dir/flags.make
-CMakeFiles/MS_single_event.dir/src/cascade1D.cc.o: ../src/cascade1D.cc
-CMakeFiles/MS_single_event.dir/src/cascade1D.cc.o: CMakeFiles/MS_single_event.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ehuescas/Radar/MARES/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/MS_single_event.dir/src/cascade1D.cc.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MS_single_event.dir/src/cascade1D.cc.o -MF CMakeFiles/MS_single_event.dir/src/cascade1D.cc.o.d -o CMakeFiles/MS_single_event.dir/src/cascade1D.cc.o -c /home/ehuescas/Radar/MARES/src/cascade1D.cc
-
-CMakeFiles/MS_single_event.dir/src/cascade1D.cc.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MS_single_event.dir/src/cascade1D.cc.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ehuescas/Radar/MARES/src/cascade1D.cc > CMakeFiles/MS_single_event.dir/src/cascade1D.cc.i
-
-CMakeFiles/MS_single_event.dir/src/cascade1D.cc.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MS_single_event.dir/src/cascade1D.cc.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ehuescas/Radar/MARES/src/cascade1D.cc -o CMakeFiles/MS_single_event.dir/src/cascade1D.cc.s
-
-CMakeFiles/MS_single_event.dir/src/scatter.cc.o: CMakeFiles/MS_single_event.dir/flags.make
-CMakeFiles/MS_single_event.dir/src/scatter.cc.o: ../src/scatter.cc
-CMakeFiles/MS_single_event.dir/src/scatter.cc.o: CMakeFiles/MS_single_event.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ehuescas/Radar/MARES/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/MS_single_event.dir/src/scatter.cc.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MS_single_event.dir/src/scatter.cc.o -MF CMakeFiles/MS_single_event.dir/src/scatter.cc.o.d -o CMakeFiles/MS_single_event.dir/src/scatter.cc.o -c /home/ehuescas/Radar/MARES/src/scatter.cc
-
-CMakeFiles/MS_single_event.dir/src/scatter.cc.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MS_single_event.dir/src/scatter.cc.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ehuescas/Radar/MARES/src/scatter.cc > CMakeFiles/MS_single_event.dir/src/scatter.cc.i
-
-CMakeFiles/MS_single_event.dir/src/scatter.cc.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MS_single_event.dir/src/scatter.cc.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ehuescas/Radar/MARES/src/scatter.cc -o CMakeFiles/MS_single_event.dir/src/scatter.cc.s
-
-CMakeFiles/MS_single_event.dir/src/scatter1D.cc.o: CMakeFiles/MS_single_event.dir/flags.make
-CMakeFiles/MS_single_event.dir/src/scatter1D.cc.o: ../src/scatter1D.cc
-CMakeFiles/MS_single_event.dir/src/scatter1D.cc.o: CMakeFiles/MS_single_event.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ehuescas/Radar/MARES/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/MS_single_event.dir/src/scatter1D.cc.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MS_single_event.dir/src/scatter1D.cc.o -MF CMakeFiles/MS_single_event.dir/src/scatter1D.cc.o.d -o CMakeFiles/MS_single_event.dir/src/scatter1D.cc.o -c /home/ehuescas/Radar/MARES/src/scatter1D.cc
-
-CMakeFiles/MS_single_event.dir/src/scatter1D.cc.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MS_single_event.dir/src/scatter1D.cc.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ehuescas/Radar/MARES/src/scatter1D.cc > CMakeFiles/MS_single_event.dir/src/scatter1D.cc.i
-
-CMakeFiles/MS_single_event.dir/src/scatter1D.cc.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MS_single_event.dir/src/scatter1D.cc.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ehuescas/Radar/MARES/src/scatter1D.cc -o CMakeFiles/MS_single_event.dir/src/scatter1D.cc.s
-
-CMakeFiles/MS_single_event.dir/src/settings.cc.o: CMakeFiles/MS_single_event.dir/flags.make
-CMakeFiles/MS_single_event.dir/src/settings.cc.o: ../src/settings.cc
-CMakeFiles/MS_single_event.dir/src/settings.cc.o: CMakeFiles/MS_single_event.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ehuescas/Radar/MARES/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/MS_single_event.dir/src/settings.cc.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MS_single_event.dir/src/settings.cc.o -MF CMakeFiles/MS_single_event.dir/src/settings.cc.o.d -o CMakeFiles/MS_single_event.dir/src/settings.cc.o -c /home/ehuescas/Radar/MARES/src/settings.cc
-
-CMakeFiles/MS_single_event.dir/src/settings.cc.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MS_single_event.dir/src/settings.cc.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ehuescas/Radar/MARES/src/settings.cc > CMakeFiles/MS_single_event.dir/src/settings.cc.i
-
-CMakeFiles/MS_single_event.dir/src/settings.cc.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MS_single_event.dir/src/settings.cc.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ehuescas/Radar/MARES/src/settings.cc -o CMakeFiles/MS_single_event.dir/src/settings.cc.s
-
-CMakeFiles/MS_single_event.dir/src/settings_math.cc.o: CMakeFiles/MS_single_event.dir/flags.make
-CMakeFiles/MS_single_event.dir/src/settings_math.cc.o: ../src/settings_math.cc
-CMakeFiles/MS_single_event.dir/src/settings_math.cc.o: CMakeFiles/MS_single_event.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ehuescas/Radar/MARES/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/MS_single_event.dir/src/settings_math.cc.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MS_single_event.dir/src/settings_math.cc.o -MF CMakeFiles/MS_single_event.dir/src/settings_math.cc.o.d -o CMakeFiles/MS_single_event.dir/src/settings_math.cc.o -c /home/ehuescas/Radar/MARES/src/settings_math.cc
-
-CMakeFiles/MS_single_event.dir/src/settings_math.cc.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MS_single_event.dir/src/settings_math.cc.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ehuescas/Radar/MARES/src/settings_math.cc > CMakeFiles/MS_single_event.dir/src/settings_math.cc.i
-
-CMakeFiles/MS_single_event.dir/src/settings_math.cc.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MS_single_event.dir/src/settings_math.cc.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ehuescas/Radar/MARES/src/settings_math.cc -o CMakeFiles/MS_single_event.dir/src/settings_math.cc.s
-
-CMakeFiles/MS_single_event.dir/src/settings_params.cc.o: CMakeFiles/MS_single_event.dir/flags.make
-CMakeFiles/MS_single_event.dir/src/settings_params.cc.o: ../src/settings_params.cc
-CMakeFiles/MS_single_event.dir/src/settings_params.cc.o: CMakeFiles/MS_single_event.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ehuescas/Radar/MARES/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/MS_single_event.dir/src/settings_params.cc.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MS_single_event.dir/src/settings_params.cc.o -MF CMakeFiles/MS_single_event.dir/src/settings_params.cc.o.d -o CMakeFiles/MS_single_event.dir/src/settings_params.cc.o -c /home/ehuescas/Radar/MARES/src/settings_params.cc
-
-CMakeFiles/MS_single_event.dir/src/settings_params.cc.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MS_single_event.dir/src/settings_params.cc.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ehuescas/Radar/MARES/src/settings_params.cc > CMakeFiles/MS_single_event.dir/src/settings_params.cc.i
-
-CMakeFiles/MS_single_event.dir/src/settings_params.cc.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MS_single_event.dir/src/settings_params.cc.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ehuescas/Radar/MARES/src/settings_params.cc -o CMakeFiles/MS_single_event.dir/src/settings_params.cc.s
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ehuescas/Radar/MARES/MS_single_event.cpp -o CMakeFiles/MS_single_event.dir/MS_single_event.cpp.s
 
 # Object files for target MS_single_event
 MS_single_event_OBJECTS = \
-"CMakeFiles/MS_single_event.dir/MS_single_event.cpp.o" \
-"CMakeFiles/MS_single_event.dir/src/antenna.cc.o" \
-"CMakeFiles/MS_single_event.dir/src/cascade.cc.o" \
-"CMakeFiles/MS_single_event.dir/src/cascade1D.cc.o" \
-"CMakeFiles/MS_single_event.dir/src/scatter.cc.o" \
-"CMakeFiles/MS_single_event.dir/src/scatter1D.cc.o" \
-"CMakeFiles/MS_single_event.dir/src/settings.cc.o" \
-"CMakeFiles/MS_single_event.dir/src/settings_math.cc.o" \
-"CMakeFiles/MS_single_event.dir/src/settings_params.cc.o"
+"CMakeFiles/MS_single_event.dir/MS_single_event.cpp.o"
 
 # External object files for target MS_single_event
 MS_single_event_EXTERNAL_OBJECTS =
 
 MS_single_event: CMakeFiles/MS_single_event.dir/MS_single_event.cpp.o
-MS_single_event: CMakeFiles/MS_single_event.dir/src/antenna.cc.o
-MS_single_event: CMakeFiles/MS_single_event.dir/src/cascade.cc.o
-MS_single_event: CMakeFiles/MS_single_event.dir/src/cascade1D.cc.o
-MS_single_event: CMakeFiles/MS_single_event.dir/src/scatter.cc.o
-MS_single_event: CMakeFiles/MS_single_event.dir/src/scatter1D.cc.o
-MS_single_event: CMakeFiles/MS_single_event.dir/src/settings.cc.o
-MS_single_event: CMakeFiles/MS_single_event.dir/src/settings_math.cc.o
-MS_single_event: CMakeFiles/MS_single_event.dir/src/settings_params.cc.o
 MS_single_event: CMakeFiles/MS_single_event.dir/build.make
+MS_single_event: libMARES.a
+MS_single_event: /usr/lib/x86_64-linux-gnu/libgsl.so
+MS_single_event: /usr/lib/x86_64-linux-gnu/libgslcblas.so
 MS_single_event: CMakeFiles/MS_single_event.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ehuescas/Radar/MARES/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Linking CXX executable MS_single_event"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ehuescas/Radar/MARES/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable MS_single_event"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/MS_single_event.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

@@ -1,6 +1,8 @@
 #ifndef SETTINGS_hh
 #define SETTINGS_hh
 
+// #define NDEBUG     // Turn off debug.
+
 #include <iostream>   // C++ only, file read/write
 #include <fstream>    // C++ only, screen read/write
 #include <stdlib.h>   // exit, EXIT_FAILURE
@@ -11,7 +13,6 @@
 #include <math.h>     // Math stuff: pow,sqrt,etc.
 #include <assert.h>   // Debug purposes
 #include <random>
-// #define NDEBUG     // Turn off debug.
 
 // ----- Physical parameters ---------------------------------------------------
 
@@ -43,6 +44,7 @@ static constexpr double m = 1000.*mm;
 
 //energy
 static constexpr double MeV = 1.;
+static constexpr double EeV = 1e12*MeV;
 static constexpr double PeV = 1e9*MeV;
 static constexpr double GeV = 1000.*MeV;
 static constexpr double KeV = .001*MeV;
@@ -148,6 +150,27 @@ std::vector<T> arange(T start, T stop, T step ){
   return values;
 }
 
+template<typename T>
+std::vector<T>& operator+=(std::vector<T> &lhs, const std::vector<T> &rhs) {
+    if (lhs.size() != rhs.size())
+        throw std::length_error("vectors must be same size to add");
+    for (auto i = 0; i < lhs.size(); ++i) {lhs[i] += rhs[i];}
+    return lhs;
+}
+
+template<typename T>
+std::vector<T> operator+ (std::vector<T> lhs, const std::vector<T> &rhs) {  return lhs += rhs; }
+
+template<typename T>
+std::vector<T>& operator*=(std::vector<T> &lhs, const T &rhs) {
+    for (auto i = 0; i < lhs.size(); ++i) {lhs[i] *= rhs;}
+    return lhs;
+}
+
+template<typename T>
+std::vector<T> operator* (std::vector<T> lhs, const T &rhs) {  return lhs *= rhs; }
+template<typename T>
+std::vector<T> operator* (const T &rhs, std::vector<T> lhs) {  return lhs *= rhs; }
 
 int sgn(double val);
 
@@ -163,10 +186,13 @@ double distance(double x1, double y1, double x2, double y2);
 double distance(double x1, double y1, double z1, double x2, double y2, double z2);
 double projection(std::vector<double> a, std::vector<double> b);
 
+double shortest_distance(std::vector<double> plane, std::vector<double> point);
+
 std::vector<double> normalize(std::vector<double> a);
 std::vector<double> cross_product(double a1, double a2, double a3, double b1, double b2, double b3);
 std::vector<double> cross_product(std::vector<double> a, std::vector<double> b);
-
+std::vector<double> rotate(std::vector<double> vector_in, std::vector<double> rotAxis, double angle);
+std::vector<double> find_perpendicular(std::vector<double> vector_in);
 std::vector<std::vector<double>> transpose(std::vector<std::vector<double>> matrix);
 
   // Random number generator

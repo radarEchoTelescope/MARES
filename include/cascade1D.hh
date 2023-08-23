@@ -17,6 +17,8 @@ public:
         const double deltaL = 1, const double deltaR = 0.1, const double deltaN = 1,
         const double sampling = 100);
 
+  void SetInDirection(double rand_seed = 42);
+
   std::vector<double> TCS();
   std::vector<std::vector<double>> Radius();
   std::vector<std::vector<double>> Length();
@@ -63,11 +65,8 @@ private:
     the solutions for delta and minus delta in the plane frame are equivalent.
 */
 
-// The three values that you need to find the TCS of a layer are
-// Radius (from the core), Density and Transparency of that point.
   std::vector<double> fTCS;
-  void TCS(const std::vector<std::vector<double>> &radius,
-           const std::vector<std::vector<double>> &density);
+  void SetTCS();
 
 };
 #endif

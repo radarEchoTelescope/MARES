@@ -13,15 +13,14 @@ void Scatter1D::SetInDirection(std::vector<double> vertex,
                         std::vector<double> direction,
                         double length, double rand_seed){
 
-  ScatterPoint p;
   double dSeg = length/nP;
   // This does not work
   // if(rand_seed){ RN_uniform rand_line(-0.5, 0.5, rand_seed);}
   RN_uniform rand_line(-0.5, 0.5, rand_seed);
 
   for(int i = 0 ; i < nP; i++){
-    p = fPoints[i];
-
+    ScatterPoint& p = fPoints[i];
+    
     if(rand_seed){ 
       p.L = (i + rand_line.get()) * dSeg;
     } else{ 
@@ -34,6 +33,7 @@ void Scatter1D::SetInDirection(std::vector<double> vertex,
     p.Position[0] = p.L*direction[0] + vertex[0];
     p.Position[1] = p.L*direction[1] + vertex[1];
     p.Position[2] = p.L*direction[2] + vertex[2];
+
   }
 }
 

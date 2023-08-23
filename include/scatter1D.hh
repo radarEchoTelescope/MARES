@@ -3,9 +3,10 @@
 
 #include "scatter.hh"
 
-// TO-DO: Finish writing and cleanup this class
+// TO-DO: Finish cleanup this class
 
 class Scatter1D: public Scatter {
+    friend class Cascade1D;
 public:
 // The constructor(s) makes a Scatter object without changes
     Scatter1D(Antenna& tx, Antenna& rx, std::vector<ScatterPoint> points,

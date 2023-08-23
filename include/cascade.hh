@@ -32,6 +32,7 @@ public:
 // Method's storage accesors
 // User should only read and store the values after they are made.
 
+  std::vector<std::vector<double>> Ne();
   std::vector<std::vector<double>> Density();
   std::vector<std::vector<double>> PlasmaFreq();
   std::vector<std::vector<double>> Absorption();
@@ -51,9 +52,10 @@ protected:
   double fEnergy;          // Energy of the cascade.
   
   // Max cascade depth: X_tot = 4* max depth from Heitler model estimate.
-  double fLtot;           // [cm]
-  double fRtot;           // [cm]
-  double fXtot;           // [g/cm^2] Penetration depth
+  double fXtot;           // Penetration depth
+  double fLtot;           // 
+  double fRtot;           // 
+  double fRnorm;          // Normalization factor for intwiv for this Rtot.
 
   // Interaction point's position (Shower start, head).
   std::vector<double> fPosition{0,0,0};
@@ -69,19 +71,19 @@ protected:
 
 // Functions and methods
 
-/* (Classical) Particle (electron) number for penetration length X and radius r.
-  [g/cm^2, cm, GeV] */
+/* (Classical) Particle (electron) number for penetration length X.
+  [g/mm^2] */
   // Uses 1 particle with fEnergy.
-  double Ne(double X, double r, double delta_r);           // [#e-/cm]
+  double Ne(double X);           // [#e-/mm]
 
-  /* Particle (electron) density for penetration length X and radius r.
-  [g/cm^2, cm, GeV] */
+  /* Particle (electron) density for penetration length X.
+  [g/mm^2, MeV] */
   // In that case each particle carries E energy, the mean energy per primary.
-  double Ne(double X, double r, double delta_r, double Ep, double Np);           // [#e-/cm]
+  double Ne(double X, double Ep, double Np);           // [#e-/cm]
 
   // (Classical) density, in case the cascade was orginated from 1 particle.
   // Uses 1 particle with fEnergy.
-  double Density(double X, double r, double delta_r);      // [#e-/ cm^3]
+  double Density(double X, double r, double delta_r);      // [#e-/ mm^3]
 
  /* Particle (electron) density for penetration length X and radius r.
   [g/cm^2, cm, GeV] */
@@ -95,12 +97,12 @@ protected:
   // Electron absorption
 
   // Full electron absorption formula, defaults as free (unbound) 
-  // SINGLE SYSTEM OF UNITS! THESE TWO FUNCTIONS NOW RETURN VALUES IN mm! 
   double Absorption(const double &dens, const double &freq_obs, const double &freq_nat = 0);
   double SkinDepth(const double &dens, const double &freq_obs, const double &freq_nat = 0);
 
   // Cascade's matrix storage and methods
 
+  std::vector<std::vector<double>> fNe;
   std::vector<std::vector<double>> fDensity;
   std::vector<std::vector<double>> fPlasmaFrequency;
   std::vector<std::vector<double>> fAbsorption;
@@ -112,6 +114,10 @@ protected:
 // TO_DO: Parallelise all the loops from here down with OMP.
 
 // length_vals and radius_vals are 2D matrices with the coordinates to evaluate the density.
+  void Ne( const std::vector<std::vector<double>> &length_vals,
+                const std::vector<std::vector<double>> &radius_vals,
+                const double delta_r  );
+
   void Density( const std::vector<std::vector<double>> &length_vals,
                 const std::vector<std::vector<double>> &radius_vals,
                 const double delta_r  );
@@ -132,7 +138,7 @@ protected:
 std::vector<Cascade> load_cascade_file(const std::string& cs_filepath);
 
 // Helper functions, used by other functions only
-namespace{
+namespace NKG{
 
   /* Ne, number of particles in the cascade */
   double N(double X, double E);
@@ -143,9 +149,19 @@ namespace{
   /* Lateral particle distribution for radius r and penetration length X. */
   double wiv1(double r, double s);
 
-  /* Integral of lateral particle distribution between two radii. */
-  double intwiv(double r, double delta_r, double s = 1.01);    // [cm, cm, g/cm^2, GeV]
-  // "Hard-coded" s = 1 for now. s = 1.01 to avoid divergencies.
+  /* Integral of lateral particle distribution between r and r + dr.
+		This integral is performed using the trapezoid rule.
+
+		https://www.whitman.edu/mathematics/calculus_online/section08.06.html
+
+		The error associated with this method is known. Over the the step size
+
+		E(step) = dr^3/ (12* imx^2) *M where M is the maximum value of the second
+		derivative of the function over the interval [r, r + dr].
+ */
+  double intwiv(double r, double delta_r, double s = 1.01, double imx = 50.0);  
+  // "Hard-coded" s = 1 for in-ice showers. s = 1.01 to avoid divergencies.
+  // Imx is the number of steps that are used for the integral. 
 }
 
 #endif
