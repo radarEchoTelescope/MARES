@@ -20,7 +20,7 @@ int main(int argc, char** argv){
   const double dR = 0.1 *cm;
   const double dN = 1   *cm; // This is also a radial direction.
 
-  const double sampling = 10;
+  const double sampling = 100;
   // sampling frequency should be between 10x and 100x freq_obs.
 
   // If you want to save the traces for every time step in the simulation. 
