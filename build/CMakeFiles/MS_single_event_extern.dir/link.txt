@@ -1,1 +1,1 @@
-/usr/bin/g++ -rdynamic CMakeFiles/MS_single_event_extern.dir/MS_single_event_extern.cpp.o -o MS_single_event_extern  libMARES.a /usr/lib/x86_64-linux-gnu/libgsl.so /usr/lib/x86_64-linux-gnu/libgslcblas.so 
+/usr/bin/c++ -rdynamic CMakeFiles/MS_single_event_extern.dir/MS_single_event_extern.cpp.o -o MS_single_event_extern  libMARES.a /usr/lib/x86_64-linux-gnu/libgsl.so /usr/lib/x86_64-linux-gnu/libgslcblas.so 

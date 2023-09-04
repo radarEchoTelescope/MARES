@@ -73,15 +73,15 @@ CMakeFiles/MS_single_event_beam.dir/MS_single_event_beam.cpp.o: CMakeFiles/MS_si
 CMakeFiles/MS_single_event_beam.dir/MS_single_event_beam.cpp.o: ../MS_single_event_beam.cpp
 CMakeFiles/MS_single_event_beam.dir/MS_single_event_beam.cpp.o: CMakeFiles/MS_single_event_beam.dir/compiler_depend.ts
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ehuescas/Radar/MARES/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/MS_single_event_beam.dir/MS_single_event_beam.cpp.o"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MS_single_event_beam.dir/MS_single_event_beam.cpp.o -MF CMakeFiles/MS_single_event_beam.dir/MS_single_event_beam.cpp.o.d -o CMakeFiles/MS_single_event_beam.dir/MS_single_event_beam.cpp.o -c /home/ehuescas/Radar/MARES/MS_single_event_beam.cpp
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MS_single_event_beam.dir/MS_single_event_beam.cpp.o -MF CMakeFiles/MS_single_event_beam.dir/MS_single_event_beam.cpp.o.d -o CMakeFiles/MS_single_event_beam.dir/MS_single_event_beam.cpp.o -c /home/ehuescas/Radar/MARES/MS_single_event_beam.cpp
 
 CMakeFiles/MS_single_event_beam.dir/MS_single_event_beam.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MS_single_event_beam.dir/MS_single_event_beam.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ehuescas/Radar/MARES/MS_single_event_beam.cpp > CMakeFiles/MS_single_event_beam.dir/MS_single_event_beam.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ehuescas/Radar/MARES/MS_single_event_beam.cpp > CMakeFiles/MS_single_event_beam.dir/MS_single_event_beam.cpp.i
 
 CMakeFiles/MS_single_event_beam.dir/MS_single_event_beam.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MS_single_event_beam.dir/MS_single_event_beam.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ehuescas/Radar/MARES/MS_single_event_beam.cpp -o CMakeFiles/MS_single_event_beam.dir/MS_single_event_beam.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ehuescas/Radar/MARES/MS_single_event_beam.cpp -o CMakeFiles/MS_single_event_beam.dir/MS_single_event_beam.cpp.s
 
 # Object files for target MS_single_event_beam
 MS_single_event_beam_OBJECTS = \

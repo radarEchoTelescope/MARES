@@ -36,6 +36,6 @@ tests/
 # MS_single_event
 MS_wire_test
 .ipynb_checkpoints
-To delete/
+To_delete/
 # lib/IceRayTracing
 build/

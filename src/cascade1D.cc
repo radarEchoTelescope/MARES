@@ -141,8 +141,9 @@ void Cascade1D::SetTCS(){
       // CAREFUL! Sum(n)^2 != Sum(n^2)!!!
     }
     
-    fTCS[i] = tmp_tcs*fDamping * thomson * 1.5;
+    fTCS[i] = tmp_tcs*fDamping * thomson * 1.5 /dR;
     //1.5 is (the gain of) the Herzian dipole factor
+    // dR fixes the number of steps??
   }
 }
 
