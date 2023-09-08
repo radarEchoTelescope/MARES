@@ -1,6 +1,5 @@
 file(REMOVE_RECURSE
   "CMakeFiles/MS_single_event.dir/MS_single_event.cpp.o"
-  "CMakeFiles/MS_single_event.dir/MS_single_event.cpp.o.d"
   "MS_single_event"
   "MS_single_event.pdb"
 )

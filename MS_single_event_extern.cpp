@@ -18,9 +18,9 @@ int main(int argc, char** argv){
 
   const double dL = 1   *cm; // [cm/bin]
   const double dR = 0.1 *cm;
-  const double dN = 1   *cm; // This is also a radial direction.
+  const double dN = 1   *mm; // This is also a radial direction.
 
-  const double sampling = 100;
+  const double sampling = 50;
   // sampling frequency should be between 10x and 100x freq_obs.
 
   // If you want to save the traces for every time step in the simulation. 
@@ -139,11 +139,11 @@ int main(int argc, char** argv){
  
   /* Choose what to write out by uncommenting the lines. */
   // write_2D_array(nu_cascade.Coordinates(),    identifier_c + "_coords.txt", 1);
-  write_1D_array(nu_cascade.Phase(),          identifier_c + "_phase.txt", 1);
-  write_1D_array(nu_cascade.Attenuation(),    identifier_c + "_attenuation.txt", 1);
-  write_1D_array(nu_cascade.ArrivalTime(),    identifier_c + "_arrival_t.txt", 1);
-  write_1D_array(nu_cascade.Directivity(),    identifier_c + "_directivity.txt", 1);
-  write_1D_array(nu_cascade.Polarization(),   identifier_c + "_polarization.txt", 1);
+  // write_1D_array(nu_cascade.Phase(),          identifier_c + "_phase.txt", 1);
+  // write_1D_array(nu_cascade.Attenuation(),    identifier_c + "_attenuation.txt", 1);
+  // write_1D_array(nu_cascade.ArrivalTime(),    identifier_c + "_arrival_t.txt", 1);
+  // write_1D_array(nu_cascade.Directivity(),    identifier_c + "_directivity.txt", 1);
+  // write_1D_array(nu_cascade.Polarization(),   identifier_c + "_polarization.txt", 1);
 
   write_1D_array(nu_cascade.Duration(),       identifier_c + "_duration.txt", 1);
   write_1D_array(nu_cascade.Waveform(),       identifier_c + "_waveform.txt", 1);

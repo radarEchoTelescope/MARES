@@ -1,6 +1,5 @@
 file(REMOVE_RECURSE
   "CMakeFiles/MS_single_event_extern.dir/MS_single_event_extern.cpp.o"
-  "CMakeFiles/MS_single_event_extern.dir/MS_single_event_extern.cpp.o.d"
   "MS_single_event_extern"
   "MS_single_event_extern.pdb"
 )
