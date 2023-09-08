@@ -79,6 +79,7 @@ include CMakeFiles/MARES.dir/flags.make
 
 CMakeFiles/MARES.dir/lib/IceRayTracing/namespace/woROOT/IceRayTracing.cc.o: CMakeFiles/MARES.dir/flags.make
 CMakeFiles/MARES.dir/lib/IceRayTracing/namespace/woROOT/IceRayTracing.cc.o: ../lib/IceRayTracing/namespace/woROOT/IceRayTracing.cc
+<<<<<<< HEAD
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/user/ehuescas/MARES/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/MARES.dir/lib/IceRayTracing/namespace/woROOT/IceRayTracing.cc.o"
 	/cvmfs/sft.cern.ch/lcg/releases/gcc/10.1.0-6f386/x86_64-centos7/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/MARES.dir/lib/IceRayTracing/namespace/woROOT/IceRayTracing.cc.o -c /user/ehuescas/MARES/lib/IceRayTracing/namespace/woROOT/IceRayTracing.cc
 
@@ -193,6 +194,131 @@ CMakeFiles/MARES.dir/src/settings.cc.i: cmake_force
 CMakeFiles/MARES.dir/src/settings.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MARES.dir/src/settings.cc.s"
 	/cvmfs/sft.cern.ch/lcg/releases/gcc/10.1.0-6f386/x86_64-centos7/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /user/ehuescas/MARES/src/settings.cc -o CMakeFiles/MARES.dir/src/settings.cc.s
+=======
+CMakeFiles/MARES.dir/lib/IceRayTracing/namespace/woROOT/IceRayTracing.cc.o: CMakeFiles/MARES.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ehuescas/Radar/MARES/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/MARES.dir/lib/IceRayTracing/namespace/woROOT/IceRayTracing.cc.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MARES.dir/lib/IceRayTracing/namespace/woROOT/IceRayTracing.cc.o -MF CMakeFiles/MARES.dir/lib/IceRayTracing/namespace/woROOT/IceRayTracing.cc.o.d -o CMakeFiles/MARES.dir/lib/IceRayTracing/namespace/woROOT/IceRayTracing.cc.o -c /home/ehuescas/Radar/MARES/lib/IceRayTracing/namespace/woROOT/IceRayTracing.cc
+
+CMakeFiles/MARES.dir/lib/IceRayTracing/namespace/woROOT/IceRayTracing.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MARES.dir/lib/IceRayTracing/namespace/woROOT/IceRayTracing.cc.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ehuescas/Radar/MARES/lib/IceRayTracing/namespace/woROOT/IceRayTracing.cc > CMakeFiles/MARES.dir/lib/IceRayTracing/namespace/woROOT/IceRayTracing.cc.i
+
+CMakeFiles/MARES.dir/lib/IceRayTracing/namespace/woROOT/IceRayTracing.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MARES.dir/lib/IceRayTracing/namespace/woROOT/IceRayTracing.cc.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ehuescas/Radar/MARES/lib/IceRayTracing/namespace/woROOT/IceRayTracing.cc -o CMakeFiles/MARES.dir/lib/IceRayTracing/namespace/woROOT/IceRayTracing.cc.s
+
+CMakeFiles/MARES.dir/src/antenna.cc.o: CMakeFiles/MARES.dir/flags.make
+CMakeFiles/MARES.dir/src/antenna.cc.o: ../src/antenna.cc
+CMakeFiles/MARES.dir/src/antenna.cc.o: CMakeFiles/MARES.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ehuescas/Radar/MARES/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/MARES.dir/src/antenna.cc.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MARES.dir/src/antenna.cc.o -MF CMakeFiles/MARES.dir/src/antenna.cc.o.d -o CMakeFiles/MARES.dir/src/antenna.cc.o -c /home/ehuescas/Radar/MARES/src/antenna.cc
+
+CMakeFiles/MARES.dir/src/antenna.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MARES.dir/src/antenna.cc.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ehuescas/Radar/MARES/src/antenna.cc > CMakeFiles/MARES.dir/src/antenna.cc.i
+
+CMakeFiles/MARES.dir/src/antenna.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MARES.dir/src/antenna.cc.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ehuescas/Radar/MARES/src/antenna.cc -o CMakeFiles/MARES.dir/src/antenna.cc.s
+
+CMakeFiles/MARES.dir/src/cascade.cc.o: CMakeFiles/MARES.dir/flags.make
+CMakeFiles/MARES.dir/src/cascade.cc.o: ../src/cascade.cc
+CMakeFiles/MARES.dir/src/cascade.cc.o: CMakeFiles/MARES.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ehuescas/Radar/MARES/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/MARES.dir/src/cascade.cc.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MARES.dir/src/cascade.cc.o -MF CMakeFiles/MARES.dir/src/cascade.cc.o.d -o CMakeFiles/MARES.dir/src/cascade.cc.o -c /home/ehuescas/Radar/MARES/src/cascade.cc
+
+CMakeFiles/MARES.dir/src/cascade.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MARES.dir/src/cascade.cc.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ehuescas/Radar/MARES/src/cascade.cc > CMakeFiles/MARES.dir/src/cascade.cc.i
+
+CMakeFiles/MARES.dir/src/cascade.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MARES.dir/src/cascade.cc.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ehuescas/Radar/MARES/src/cascade.cc -o CMakeFiles/MARES.dir/src/cascade.cc.s
+
+CMakeFiles/MARES.dir/src/cascade1D.cc.o: CMakeFiles/MARES.dir/flags.make
+CMakeFiles/MARES.dir/src/cascade1D.cc.o: ../src/cascade1D.cc
+CMakeFiles/MARES.dir/src/cascade1D.cc.o: CMakeFiles/MARES.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ehuescas/Radar/MARES/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/MARES.dir/src/cascade1D.cc.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MARES.dir/src/cascade1D.cc.o -MF CMakeFiles/MARES.dir/src/cascade1D.cc.o.d -o CMakeFiles/MARES.dir/src/cascade1D.cc.o -c /home/ehuescas/Radar/MARES/src/cascade1D.cc
+
+CMakeFiles/MARES.dir/src/cascade1D.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MARES.dir/src/cascade1D.cc.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ehuescas/Radar/MARES/src/cascade1D.cc > CMakeFiles/MARES.dir/src/cascade1D.cc.i
+
+CMakeFiles/MARES.dir/src/cascade1D.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MARES.dir/src/cascade1D.cc.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ehuescas/Radar/MARES/src/cascade1D.cc -o CMakeFiles/MARES.dir/src/cascade1D.cc.s
+
+CMakeFiles/MARES.dir/src/scatter.cc.o: CMakeFiles/MARES.dir/flags.make
+CMakeFiles/MARES.dir/src/scatter.cc.o: ../src/scatter.cc
+CMakeFiles/MARES.dir/src/scatter.cc.o: CMakeFiles/MARES.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ehuescas/Radar/MARES/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/MARES.dir/src/scatter.cc.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MARES.dir/src/scatter.cc.o -MF CMakeFiles/MARES.dir/src/scatter.cc.o.d -o CMakeFiles/MARES.dir/src/scatter.cc.o -c /home/ehuescas/Radar/MARES/src/scatter.cc
+
+CMakeFiles/MARES.dir/src/scatter.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MARES.dir/src/scatter.cc.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ehuescas/Radar/MARES/src/scatter.cc > CMakeFiles/MARES.dir/src/scatter.cc.i
+
+CMakeFiles/MARES.dir/src/scatter.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MARES.dir/src/scatter.cc.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ehuescas/Radar/MARES/src/scatter.cc -o CMakeFiles/MARES.dir/src/scatter.cc.s
+
+CMakeFiles/MARES.dir/src/scatter1D.cc.o: CMakeFiles/MARES.dir/flags.make
+CMakeFiles/MARES.dir/src/scatter1D.cc.o: ../src/scatter1D.cc
+CMakeFiles/MARES.dir/src/scatter1D.cc.o: CMakeFiles/MARES.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ehuescas/Radar/MARES/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/MARES.dir/src/scatter1D.cc.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MARES.dir/src/scatter1D.cc.o -MF CMakeFiles/MARES.dir/src/scatter1D.cc.o.d -o CMakeFiles/MARES.dir/src/scatter1D.cc.o -c /home/ehuescas/Radar/MARES/src/scatter1D.cc
+
+CMakeFiles/MARES.dir/src/scatter1D.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MARES.dir/src/scatter1D.cc.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ehuescas/Radar/MARES/src/scatter1D.cc > CMakeFiles/MARES.dir/src/scatter1D.cc.i
+
+CMakeFiles/MARES.dir/src/scatter1D.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MARES.dir/src/scatter1D.cc.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ehuescas/Radar/MARES/src/scatter1D.cc -o CMakeFiles/MARES.dir/src/scatter1D.cc.s
+
+CMakeFiles/MARES.dir/src/settings_math.cc.o: CMakeFiles/MARES.dir/flags.make
+CMakeFiles/MARES.dir/src/settings_math.cc.o: ../src/settings_math.cc
+CMakeFiles/MARES.dir/src/settings_math.cc.o: CMakeFiles/MARES.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ehuescas/Radar/MARES/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/MARES.dir/src/settings_math.cc.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MARES.dir/src/settings_math.cc.o -MF CMakeFiles/MARES.dir/src/settings_math.cc.o.d -o CMakeFiles/MARES.dir/src/settings_math.cc.o -c /home/ehuescas/Radar/MARES/src/settings_math.cc
+
+CMakeFiles/MARES.dir/src/settings_math.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MARES.dir/src/settings_math.cc.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ehuescas/Radar/MARES/src/settings_math.cc > CMakeFiles/MARES.dir/src/settings_math.cc.i
+
+CMakeFiles/MARES.dir/src/settings_math.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MARES.dir/src/settings_math.cc.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ehuescas/Radar/MARES/src/settings_math.cc -o CMakeFiles/MARES.dir/src/settings_math.cc.s
+
+CMakeFiles/MARES.dir/src/settings_params.cc.o: CMakeFiles/MARES.dir/flags.make
+CMakeFiles/MARES.dir/src/settings_params.cc.o: ../src/settings_params.cc
+CMakeFiles/MARES.dir/src/settings_params.cc.o: CMakeFiles/MARES.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ehuescas/Radar/MARES/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/MARES.dir/src/settings_params.cc.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MARES.dir/src/settings_params.cc.o -MF CMakeFiles/MARES.dir/src/settings_params.cc.o.d -o CMakeFiles/MARES.dir/src/settings_params.cc.o -c /home/ehuescas/Radar/MARES/src/settings_params.cc
+
+CMakeFiles/MARES.dir/src/settings_params.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MARES.dir/src/settings_params.cc.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ehuescas/Radar/MARES/src/settings_params.cc > CMakeFiles/MARES.dir/src/settings_params.cc.i
+
+CMakeFiles/MARES.dir/src/settings_params.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MARES.dir/src/settings_params.cc.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ehuescas/Radar/MARES/src/settings_params.cc -o CMakeFiles/MARES.dir/src/settings_params.cc.s
+
+CMakeFiles/MARES.dir/src/settings.cc.o: CMakeFiles/MARES.dir/flags.make
+CMakeFiles/MARES.dir/src/settings.cc.o: ../src/settings.cc
+CMakeFiles/MARES.dir/src/settings.cc.o: CMakeFiles/MARES.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ehuescas/Radar/MARES/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/MARES.dir/src/settings.cc.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MARES.dir/src/settings.cc.o -MF CMakeFiles/MARES.dir/src/settings.cc.o.d -o CMakeFiles/MARES.dir/src/settings.cc.o -c /home/ehuescas/Radar/MARES/src/settings.cc
+
+CMakeFiles/MARES.dir/src/settings.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MARES.dir/src/settings.cc.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ehuescas/Radar/MARES/src/settings.cc > CMakeFiles/MARES.dir/src/settings.cc.i
+
+CMakeFiles/MARES.dir/src/settings.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MARES.dir/src/settings.cc.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ehuescas/Radar/MARES/src/settings.cc -o CMakeFiles/MARES.dir/src/settings.cc.s
+>>>>>>> 63b6a042bb0bf5a8ff24331e57fb223c48e17988
 
 # Object files for target MARES
 MARES_OBJECTS = \

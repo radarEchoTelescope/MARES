@@ -79,6 +79,7 @@ include CMakeFiles/MS_single_point.dir/flags.make
 
 CMakeFiles/MS_single_point.dir/MS_single_point.cpp.o: CMakeFiles/MS_single_point.dir/flags.make
 CMakeFiles/MS_single_point.dir/MS_single_point.cpp.o: ../MS_single_point.cpp
+<<<<<<< HEAD
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/user/ehuescas/MARES/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/MS_single_point.dir/MS_single_point.cpp.o"
 	/cvmfs/sft.cern.ch/lcg/releases/gcc/10.1.0-6f386/x86_64-centos7/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/MS_single_point.dir/MS_single_point.cpp.o -c /user/ehuescas/MARES/MS_single_point.cpp
 
@@ -89,6 +90,19 @@ CMakeFiles/MS_single_point.dir/MS_single_point.cpp.i: cmake_force
 CMakeFiles/MS_single_point.dir/MS_single_point.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MS_single_point.dir/MS_single_point.cpp.s"
 	/cvmfs/sft.cern.ch/lcg/releases/gcc/10.1.0-6f386/x86_64-centos7/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /user/ehuescas/MARES/MS_single_point.cpp -o CMakeFiles/MS_single_point.dir/MS_single_point.cpp.s
+=======
+CMakeFiles/MS_single_point.dir/MS_single_point.cpp.o: CMakeFiles/MS_single_point.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ehuescas/Radar/MARES/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/MS_single_point.dir/MS_single_point.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MS_single_point.dir/MS_single_point.cpp.o -MF CMakeFiles/MS_single_point.dir/MS_single_point.cpp.o.d -o CMakeFiles/MS_single_point.dir/MS_single_point.cpp.o -c /home/ehuescas/Radar/MARES/MS_single_point.cpp
+
+CMakeFiles/MS_single_point.dir/MS_single_point.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MS_single_point.dir/MS_single_point.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ehuescas/Radar/MARES/MS_single_point.cpp > CMakeFiles/MS_single_point.dir/MS_single_point.cpp.i
+
+CMakeFiles/MS_single_point.dir/MS_single_point.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MS_single_point.dir/MS_single_point.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ehuescas/Radar/MARES/MS_single_point.cpp -o CMakeFiles/MS_single_point.dir/MS_single_point.cpp.s
+>>>>>>> 63b6a042bb0bf5a8ff24331e57fb223c48e17988
 
 # Object files for target MS_single_point
 MS_single_point_OBJECTS = \

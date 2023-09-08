@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 /cvmfs/sft.cern.ch/lcg/releases/gcc/10.1.0-6f386/x86_64-centos7/bin/g++    -rdynamic CMakeFiles/MS_single_event_beam.dir/MS_single_event_beam.cpp.o  -o MS_single_event_beam  -Wl,-rpath,/cvmfs/sft.cern.ch/lcg/views/LCG_98python3/x86_64-centos7-gcc10-opt/lib libMARES.a /cvmfs/sft.cern.ch/lcg/views/LCG_98python3/x86_64-centos7-gcc10-opt/lib/libgsl.so /cvmfs/sft.cern.ch/lcg/views/LCG_98python3/x86_64-centos7-gcc10-opt/lib/libgslcblas.so 
+=======
+/usr/bin/c++ -rdynamic CMakeFiles/MS_single_event_beam.dir/MS_single_event_beam.cpp.o -o MS_single_event_beam  libMARES.a /usr/lib/x86_64-linux-gnu/libgsl.so /usr/lib/x86_64-linux-gnu/libgslcblas.so 
+>>>>>>> 63b6a042bb0bf5a8ff24331e57fb223c48e17988
