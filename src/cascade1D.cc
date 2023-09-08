@@ -59,7 +59,7 @@ void Cascade1D::SetTXFrame(){
 
   nR = (int) ceil(R  / dR);
   nL = (int) ceil(L / dL);
-  std::cout << dL << std::endl;
+
 
 // Sanity check! Your sections are not unphysical due to lifetime constraint.
   // assert(fLtot / nL  <= c_vac*tau && "Cascade segments are too large!");
