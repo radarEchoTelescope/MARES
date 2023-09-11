@@ -49,6 +49,6 @@ set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/MARES.dir/DependInfo.cmake"
   "CMakeFiles/MS_single_point.dir/DependInfo.cmake"
   "CMakeFiles/MS_single_event.dir/DependInfo.cmake"
-  "CMakeFiles/MS_single_event_beam.dir/DependInfo.cmake"
+  "CMakeFiles/MS_beam_event.dir/DependInfo.cmake"
   "CMakeFiles/MS_single_event_extern.dir/DependInfo.cmake"
   )

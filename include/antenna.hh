@@ -9,16 +9,17 @@ This header file defines the antenna positions.
 class Antenna{
 
 public:
-  Antenna(double xpos = 0, double ypos = 0, double zpos = 0,
-          double xpol = 0, double ypol = 0, double zpol = 1,
-          double power = 0, double frequency = 500*MHz, double gain = 2.122);
+  Antenna(double xpos, double ypos, double zpos,
+          double xpol, double ypol, double zpol,
+          double power, double frequency, double gaindB);
 
 // Using RS approach now to define the gain in dB, but used as linear.
-// 0  dB = 1
-// 3  dB = 2
-// 5  dB = 7
-// 10 dB = 10
-// 2.122 dB ~= 1.63 (ideal small dipole).
+// 0  dBi = 1
+// 1.76 dBi ~= 1.5, ideal small dipole
+// 2.15 dBi = 1.64, half-wavelength dipole
+// 3  dBi = 2
+// 5  dBi = 7
+// 10 dBi = 10
 
   void SetDirection(std::vector<double> coords);
   void SetAngle(std::vector<double> dir);

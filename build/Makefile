@@ -156,17 +156,17 @@ MS_single_event/fast:
 .PHONY : MS_single_event/fast
 
 #=============================================================================
-# Target rules for targets named MS_single_event_beam
+# Target rules for targets named MS_beam_event
 
 # Build rule for target.
-MS_single_event_beam: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 MS_single_event_beam
-.PHONY : MS_single_event_beam
+MS_beam_event: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 MS_beam_event
+.PHONY : MS_beam_event
 
 # fast build rule for target.
-MS_single_event_beam/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/MS_single_event_beam.dir/build.make CMakeFiles/MS_single_event_beam.dir/build
-.PHONY : MS_single_event_beam/fast
+MS_beam_event/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MS_beam_event.dir/build.make CMakeFiles/MS_beam_event.dir/build
+.PHONY : MS_beam_event/fast
 
 #=============================================================================
 # Target rules for targets named MS_single_event_extern
@@ -180,6 +180,30 @@ MS_single_event_extern: cmake_check_build_system
 MS_single_event_extern/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/MS_single_event_extern.dir/build.make CMakeFiles/MS_single_event_extern.dir/build
 .PHONY : MS_single_event_extern/fast
+
+MS_beam_event.o: MS_beam_event.cpp.o
+.PHONY : MS_beam_event.o
+
+# target to build an object file
+MS_beam_event.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MS_beam_event.dir/build.make CMakeFiles/MS_beam_event.dir/MS_beam_event.cpp.o
+.PHONY : MS_beam_event.cpp.o
+
+MS_beam_event.i: MS_beam_event.cpp.i
+.PHONY : MS_beam_event.i
+
+# target to preprocess a source file
+MS_beam_event.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MS_beam_event.dir/build.make CMakeFiles/MS_beam_event.dir/MS_beam_event.cpp.i
+.PHONY : MS_beam_event.cpp.i
+
+MS_beam_event.s: MS_beam_event.cpp.s
+.PHONY : MS_beam_event.s
+
+# target to generate assembly for a file
+MS_beam_event.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MS_beam_event.dir/build.make CMakeFiles/MS_beam_event.dir/MS_beam_event.cpp.s
+.PHONY : MS_beam_event.cpp.s
 
 MS_single_event.o: MS_single_event.cpp.o
 .PHONY : MS_single_event.o
@@ -204,30 +228,6 @@ MS_single_event.s: MS_single_event.cpp.s
 MS_single_event.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/MS_single_event.dir/build.make CMakeFiles/MS_single_event.dir/MS_single_event.cpp.s
 .PHONY : MS_single_event.cpp.s
-
-MS_single_event_beam.o: MS_single_event_beam.cpp.o
-.PHONY : MS_single_event_beam.o
-
-# target to build an object file
-MS_single_event_beam.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/MS_single_event_beam.dir/build.make CMakeFiles/MS_single_event_beam.dir/MS_single_event_beam.cpp.o
-.PHONY : MS_single_event_beam.cpp.o
-
-MS_single_event_beam.i: MS_single_event_beam.cpp.i
-.PHONY : MS_single_event_beam.i
-
-# target to preprocess a source file
-MS_single_event_beam.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/MS_single_event_beam.dir/build.make CMakeFiles/MS_single_event_beam.dir/MS_single_event_beam.cpp.i
-.PHONY : MS_single_event_beam.cpp.i
-
-MS_single_event_beam.s: MS_single_event_beam.cpp.s
-.PHONY : MS_single_event_beam.s
-
-# target to generate assembly for a file
-MS_single_event_beam.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/MS_single_event_beam.dir/build.make CMakeFiles/MS_single_event_beam.dir/MS_single_event_beam.cpp.s
-.PHONY : MS_single_event_beam.cpp.s
 
 MS_single_event_extern.o: MS_single_event_extern.cpp.o
 .PHONY : MS_single_event_extern.o
@@ -502,16 +502,16 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... MARES"
+	@echo "... MS_beam_event"
 	@echo "... MS_single_event"
-	@echo "... MS_single_event_beam"
 	@echo "... MS_single_event_extern"
 	@echo "... MS_single_point"
+	@echo "... MS_beam_event.o"
+	@echo "... MS_beam_event.i"
+	@echo "... MS_beam_event.s"
 	@echo "... MS_single_event.o"
 	@echo "... MS_single_event.i"
 	@echo "... MS_single_event.s"
-	@echo "... MS_single_event_beam.o"
-	@echo "... MS_single_event_beam.i"
-	@echo "... MS_single_event_beam.s"
 	@echo "... MS_single_event_extern.o"
 	@echo "... MS_single_event_extern.i"
 	@echo "... MS_single_event_extern.s"

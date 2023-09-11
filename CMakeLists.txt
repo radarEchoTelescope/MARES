@@ -56,7 +56,7 @@ add_library(MARES ${LIB_SOURCES} ${LIB_HEADERS})
 set( EXEC_SOURCES
     ${PROJECT_SOURCE_DIR}/MS_single_point.cpp
     ${PROJECT_SOURCE_DIR}/MS_single_event.cpp
-    ${PROJECT_SOURCE_DIR}/MS_single_event_beam.cpp
+    ${PROJECT_SOURCE_DIR}/MS_beam_event.cpp
     ${PROJECT_SOURCE_DIR}/MS_single_event_extern.cpp
  )
 

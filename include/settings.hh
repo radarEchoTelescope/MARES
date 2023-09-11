@@ -97,6 +97,15 @@ static constexpr double thomson=6.6524574E-25 *cm*cm;             // [cm^2]
 // Simulation parameters --------------------------------------------    
 // see "settings_params.hh"
 
+      // Computational parameters  --------------------------------------------
+
+extern double _dL; // [cm/bin]
+extern double _dR;
+extern double _dN; // This is also a radial direction.
+
+extern double _sampling;
+
+
     // Plasma ----------------------------------------------------------------
 extern double _lifetime;         // Mean plasma lifetime
 extern double _f_coll;           // RS collision frequency

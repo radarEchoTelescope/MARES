@@ -113,8 +113,8 @@ Detector::Detector(){};
 
 Detector::Detector(std::string name){
   if(name == "bistatic" || name == "Bistatic"){
-    fTransmitters.push_back( Antenna(0,0,0, 0,0,1, 10, 500*MHz) ); // Vertical, 10 kW, 500 Hz
-    fReceivers.push_back( Antenna(0, 500*m, 0, 0) );
+    fTransmitters.push_back( Antenna(0,0,0, 0,0,1, 10, 500*MHz, 2.15) ); // Vertical, 10 kW, 500 Hz
+    fReceivers.push_back( Antenna( 0,500*m,0, 0,0,1, 0, 500*MHz, 2.15) );
    } else if (name == "T576" || name == "t576"){
     // A BEAM SETUP USES GEANT COORDINATE SYSTEM:
     // THE BEAM MOVES ALONG Z, Y IS VERTICAL. 
@@ -133,15 +133,18 @@ Detector::Detector(std::string name){
                                      0, 0, 1,
                                      0, 2.1*GHz, 18) );
   } else if (name == "RET_CR" || name == "ret_cr"){
-    fTransmitters.push_back( Antenna(0,0,0, 0,0,1, 50, 200*MHz) ); // Vertical, 50 kW, 200 MHz
-    fReceivers.push_back( Antenna( 200*m,      0, 0) );
-    fReceivers.push_back( Antenna( 100*m, -100*m, 0) );
-    fReceivers.push_back( Antenna(-100*m, -100*m, 0) );
-    fReceivers.push_back( Antenna(-100*m,  100*m, 0) );
-    fReceivers.push_back( Antenna( 200*m , 200*m, 0) );
-    fReceivers.push_back( Antenna( 200*m ,-200*m, 0) );
-    fReceivers.push_back( Antenna(-200*m ,-200*m, 0) );
-    fReceivers.push_back( Antenna(-200*m , 200*m, 0) );
+
+    // TO-DO UPDATE RETCR VALUES HERE
+    
+    // fTransmitters.push_back( Antenna(0,0,0, 0,0,1, 50, 200*MHz, 2.15) ); // Vertical, 50 kW, 200 MHz
+    // fReceivers.push_back( Antenna( 200*m,      0, 0) );
+    // fReceivers.push_back( Antenna( 100*m, -100*m, 0) );
+    // fReceivers.push_back( Antenna(-100*m, -100*m, 0) );
+    // fReceivers.push_back( Antenna(-100*m,  100*m, 0) );
+    // fReceivers.push_back( Antenna( 200*m , 200*m, 0) );
+    // fReceivers.push_back( Antenna( 200*m ,-200*m, 0) );
+    // fReceivers.push_back( Antenna(-200*m ,-200*m, 0) );
+    // fReceivers.push_back( Antenna(-200*m , 200*m, 0) );
   } else if (name == "RNOg"){
     // Simon's GEANT RNOg model
     // GEANT defines vertical direction as y axis, so we need to swap indices.

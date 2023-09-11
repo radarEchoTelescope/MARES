@@ -2,7 +2,13 @@
 This executable needs a single string as an argument to run
 E.g.,
 
-./MS_single_event test_run
+./MS_beam_event test_run
+
+This executable was designed to replice a radar detection within a 
+test beam, like the SLAC T576 experiment, but it works for any interface
+between two media. 
+
+Here, as an example, the T576 paramters are used. 
 */
 
 #include "cascade1D.hh"
@@ -17,7 +23,7 @@ int main(int argc, char** argv){
   std::string identifier  = argv[1];
  
  // Full identifier (in case you have similar executables). 
-  std::string identifier_c = "Cascade1D_" + identifier;
+  std::string identifier_c = "Beam1D_" + identifier;
 
   // 2- Cascade's parameters 
   // [!NOTICE] Units are not assumed in MARES.
@@ -25,19 +31,18 @@ int main(int argc, char** argv){
   // List of available units at settings.hh
 
     // Energy per particle
-  double csenergy   = 10  *PeV;    
+  double csenergy   = 10  *GeV;    
   double csxpos     = 0   *m;       
   double csypos     = 0   *m;
   double cszpos     = 0   *m;
-  double cszenith   = 90;
-  double csazimuth  = 90;
+  // To put the T576 cascade in front of the TX (sanity check). 
+  // double cszpos     = -0.294 *m;       // 5
+  double cszenith   = 0;
+  double csazimuth  = 0;
     // Number of primaries
-  double csnumber   = 1;
-
-  /* CASCADE DIRECTION REMINDER
-    (90,90) = [0,1,0]
-    (0,--) = [0,0,1]
-  */
+  // A beam usually starts with a bunch of electrons 
+  // That's why the energy above is defined per primary particle.
+  double csnumber   = 1E9;
 
   // Now we make the cascade's object
   Cascade cascade( 0, csenergy, csxpos, csypos, cszpos, 
@@ -49,46 +54,10 @@ int main(int argc, char** argv){
   // There are pre-defined detector configurations available in antenna.hh and antenna.cc
   // You can use a detector configuration and pick a TX and a RX. 
 
-  // Detector dect("bistatic");
-  // Antenna tx = dect.Transmitters()[0];
-  // Antenna rx = dect.Receivers()[0];
-  
-  // Or define your own antennas manually:
-  
-    // Transmitter, TX
-  double txxpos   = 0   *m;
-  double txypos   = 0   *m;
-  double txzpos   = -100  *m;
-  double txxpol   = 0;
-  double txypol   = 1;
-  double txzpol   = 0;
-  double txpower  = 1E3;
-  double txfreq   = 50 *Hz;
-  double txgaindB = 0;
-  // Half-dipole gaindB = 2.15 dBi
-
-  Antenna transmitter(txxpos, txypos, txzpos,
-                      txxpol, txypol, txzpol,
-                      txpower, txfreq, txgaindB);
-  Antenna& tx = transmitter;
-
-  double rxxpos   = -250  *m;
-  double rxypos   = 0  *m;
-  double rxzpos   = 0  *m;
-  double rxxpol   = 0;
-  double rxypol   = 1;
-  double rxzpol   = 0;
-
-  // The frequency is used to determine the antenna's effective area
-  // So far, we have taken rx and tx to operate at the same freq.
-  
-  double rxfreq = txfreq;
-  double rxgaindB = 0;
-
-  Antenna receiver(   rxxpos, rxypos, rxzpos,
-                      rxxpol, rxypol, rxzpol,
-                      0 , txfreq, rxgaindB);
-  Antenna& rx = receiver;
+  Detector slac("t576");
+  Antenna tx = slac.Transmitters()[0];
+  // Using only one receiver antenna
+  Antenna rx = slac.Receivers()[0];
 
   // 4 - With TX, RX and CS, we make a Cascade1D object.
   // This generates the density frame and a list of scattering points. 
@@ -122,29 +91,21 @@ int main(int argc, char** argv){
 
   // 6 - Choose the propagation mode.
 
-    // Constant and uniform medium of density n, large-scale attenuation given by att_length. 
-  nu_cascade.SetInConstIce();
+  /* Propagate with an interface. 
+  The scattering points and the antennas are in two different media.
 
-// OR
-    // Use IceRayTracing to propagate through non-constant, realistic ice media. 
-  
-  /* WARNING */
-  /* 
-      This propagation mode has been implemented but not tested. 
-      Use at your own risk and apply appropiate sanity checks.
-   */
+  The interface between the media is a plane with equation Ax + By + Cz + D = 0
+  na = 1, nb =1.51 are the refractive indices of the two media at both sides of the interface.
+  */
 
-  // nu_cascade.SetWithIRT();
-
-// OR
-    // Propagate with an interface. See MS_single_event_beam.cpp.  
-  // nu_cascade.SetInBeam();
+  // The T576 plane is  x = -0.6 m, so
+  std::vector<double> interface {1,0,0,0.6*m};
+  nu_cascade.SetInBeam(interface, 1, 1.51);
 
   // 7 - Run the scatter proper. 
 
     // If you want to save the individual traces for every time step in the simulation. 
   const bool save_time_profiles = false;
-
   nu_cascade.RunScatter(save_time_profiles);
 
   // 8 - Choose to save to disk.

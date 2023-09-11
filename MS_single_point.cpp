@@ -1,115 +1,165 @@
-/* Radar scatter computation - return electric field of a list of events
-All variables need to be passed through arguments.
-Written to be used in a parallel computation (cluster) enviroment.
+/* Bistatic Radar Scatter executable for MARES
+This executable needs a single string as an argument to run
+E.g.,
+
+./MS_single_point point_example
+
+THIS IS A BASIC EXAMPLE FOR A SINGLE POINT IN SPACE. 
+For a full cascade simulation, see MS_single_event.cpp
 */
 
 #include "cascade1D.hh"
 
-// !!! Include CLHEP-like global units at first definition. 
-// !!! UNITS ARE NO LONGER ASSUMED. 
-
 int main(int argc, char** argv){
-  // Computational parameters ----------------------------------------------
 
-  // For a single event, the result is stored in the same folder as the executable.
-  // std::string path_out = "";
-
+  // 1- Unique event identifier -----------------------------------
+  /* This is the name of this event, used in the output files. 
+  These files are produced in the same folder as the executable.
+  Usually the cluster takes care of the final output directory. 
+  */
   std::string identifier  = argv[1];
+ 
+ // Full identifier (in case you have similar executables). 
+  std::string identifier_c = "SinglePoint_" + identifier;
 
-  // sampling frequency should be between 10x and 100x freq_obs.
-  const double sampling = 100;
+  // --------------------------------------------------------------- 
+  // 2 - Antennas
+  // There are pre-defined detector configurations available in antenna.hh and antenna.cc
+  // You can use a detector configuration and pick a TX and a RX. 
 
-  // If you want electric field vs time, enable this. 
-  // const bool save_time_profiles = false;
-
-  // Default model variables are in file "settings_params.hh"
-  // If set here, they will override the defaults.
-
-// For a single bistatic event, we can use a detector configuration
-
-  Detector slac("t576");
-
-// Or just make two antennas
+  Detector dect("bistatic");
+  Antenna tx = dect.Transmitters()[0];
+  Antenna rx = dect.Receivers()[0];
+  
+  // Or define your own antennas manually:
+  
+    // Transmitter, TX
+  // double txxpos   = 0   *m;
+  // double txypos   = 0   *m;
+  // double txzpos   = -100  *m;
+  // double txxpol   = 0;
+  // double txypol   = 1;
+  // double txzpol   = 0;
+  // double txpower  = 1E3;
+  // double txfreq   = 50 *Hz;
+  // double txgaindB = 0;
+  // // Half-dipole gaindB = 2.15 dBi
 
   // Antenna transmitter(txxpos, txypos, txzpos,
   //                     txxpol, txypol, txzpol,
-  //                     txpower, txfreq);
-  // Antenna receiver(   rxxpos, rxypos, rxzpos,
-  //                     rxxpol, rxypol, rxzpol);
-
+  //                     txpower, txfreq, txgaindB);
   // Antenna& tx = transmitter;
+
+  // double rxxpos   = -250  *m;
+  // double rxypos   = 0  *m;
+  // double rxzpos   = 0  *m;
+  // double rxxpol   = 0;
+  // double rxypol   = 1;
+  // double rxzpol   = 0;
+
+  // // The frequency is used to determine the antenna's effective area
+  // // So far, we have taken rx and tx to operate at the same freq.
+  
+  // double rxfreq = txfreq;
+  // double rxgaindB = 0;
+
+  // Antenna receiver(   rxxpos, rxypos, rxzpos,
+  //                     rxxpol, rxypol, rxzpol,
+  //                     0 , txfreq, rxgaindB);
   // Antenna& rx = receiver;
 
-  // You can create an "empty" scatter devoid of scattering points.
-  Scatter testbeam(slac.Transmitters()[0],slac.Receivers()[0],sampling);
+  // ------------------------------------------------------------
+  // 3 - We create a generic scatter object devoid of scattering points. 
+  
+  /* 
+    The cascade classes that are (or can be) implemented later  
+    - so far, only Cascade1D - are derived from this scatter class.
 
-  // This way, you can create and add your own points later. 
+    If you find another way to represent your case as a collection of points,
+    Scatter will run the event. 
+  */
+
+  Scatter test_points(tx,rx);
+  
+  // We can specify here the sampling ratio for the time-dependent part
+  // of the simulation (generating the waveform). 
+  // It represents how much higer is the sampling frequency w.r.t TX's freq.
+  // The sampling ratio should be between 10 and 100.
+
+  // The defaults for the model variables in the file "src/settings_params.hh"
+
+  // const double sampling = 100;
+  // Scatter test_points(tx,rx,sampling);
+
+  // Let's create an example point now. 
+  // The information about the scattering element is stored in the ScatterPoint struct. 
+
   ScatterPoint p;
- 
+
+    // Add position
+  p.Position = {250,0,-250*m};
+    // Physical dimensions. 
   p.L = 1*cm;
-  p.Position = {0,0,2*m};
+    // Cross section 0.5 m^2
+  p.TCS = 0.5*pow(m,2);
 
-  // SLAC aligment test, point in front of TX. 
-  // p.Position = {0,0,-0.294*m};
+  test_points.AddPoint(p);
+  // ------------------------------------------------------------
 
-  p.TCS = 0.4*pow(m,2);
+  // 4 - Choose the propagation mode.
 
-  testbeam.AddPoint(p);
-  // testbeam.AddPoint(p);
-  // testbeam.AddPoint(p);
-  // testbeam.AddPoint(p);
-  // testbeam.AddPoint(p);
+    // Constant and uniform medium of density n, large-scale attenuation given by att_length. 
+  test_points.SetInConstIce();
 
-  // testbeam.AddPoint(p);
-  // testbeam.AddPoint(p);
-  // testbeam.AddPoint(p);
-  // testbeam.AddPoint(p);
-  // testbeam.AddPoint(p);
-
-// Next, choose the propagation mode: 
+// OR
+    // Use IceRayTracing to propagate through non-constant, realistic ice media. 
   
-  // Uniform constant medium
-  testbeam.SetInConstIce();
-  std::cout << testbeam.Points()[1].Position<< std::endl; 
+  /* WARNING */
+  /* 
+      This propagation mode has been implemented but not tested. 
+      Use at your own risk and apply appropiate sanity checks.
+   */
 
+  // test_points.SetWithIRT();
+
+// OR
+    // Propagate with an interface. See MS_single_event_beam.cpp.  
+  // test_points.SetInBeam();
+
+  // 7 - Run the scatter proper. 
+
+    // If you want to save the individual traces for every time step in the simulation. 
+  const bool save_time_profiles = false;
+
+  test_points.RunScatter(save_time_profiles);
+
+  // 8 - Choose to save to disk.
   
-  // Beam-like setting, where the points and the antennas are
-  // in two different media, separated by an interface.
+    /*
+      There is a 1 at the end that acts as a flag. 
+      0 will not write the array.
+    */
   
-  // The interface is a plane with equation Ax + By + Cz + D = 0
-  // na, nb are the refractive indices of the two media at both sides of the interface.
+      
+      // Scatter object products: Positions and propagation 
+  // write_2D_array(test_points.Coordinates(),    identifier_c + "_coords.txt", 1);
+  // write_1D_array(test_points.Phase(),          identifier_c + "_phase.txt", 1);
+  // write_1D_array(test_points.Attenuation(),    identifier_c + "_attenuation.txt", 1);
+  // write_1D_array(test_points.ArrivalTime(),    identifier_c + "_arrival_t.txt", 1);
+  // write_1D_array(test_points.Directivity(),    identifier_c + "_directivity.txt", 1);
+  // write_1D_array(test_points.Polarization(),   identifier_c + "_polarization.txt", 1);
 
-  // The T576 plane is  x = -0.6 m, so
-  // std::vector<double> interface {1,0,0,0.6*m};
-  // testbeam.SetInBeam(interface, 1, 1.51);
+      // Scatter products: Time-dependent variables. 
+  write_1D_array(test_points.Duration(),       identifier_c + "_duration.txt", 1);
+  write_1D_array(test_points.Waveform(),       identifier_c + "_waveform.txt", 1);
+  // write_1D_array(test_points.Power(),          identifier_c + "_power.txt", 1);
+  // write_1D_array(test_points.TCS(),            identifier_c + "_TCS.txt", 1);
+  // write_1D_array(test_points.RCS(),            identifier_c + "_RCS.txt", 1);
 
-  // Use Uzair's IceRayTracing for non-constant media. 
-   // SetWithIRT();
-
-
-// Finally, run the scatter. 
-  testbeam.RunScatter();
-
-  std::string identifier_c = "SinglePoint_" + identifier;
-
- 
-  /* Choose what to write out by uncommenting the lines. */
-  // write_2D_array(testbeam.Coordinates(),    identifier_c + "_coords.txt", 1);
-  write_1D_array(testbeam.Phase(),          identifier_c + "_phase.txt", 1);
-  write_1D_array(testbeam.Attenuation(),    identifier_c + "_attenuation.txt", 1);
-  write_1D_array(testbeam.ArrivalTime(),    identifier_c + "_arrival_t.txt", 1);
-  write_1D_array(testbeam.Directivity(),    identifier_c + "_directivity.txt", 1);
-  write_1D_array(testbeam.Polarization(),   identifier_c + "_polarization.txt", 1);
-
-  write_1D_array(testbeam.Duration(),       identifier_c + "_duration.txt", 1);
-  write_1D_array(testbeam.Waveform(),       identifier_c + "_waveform.txt", 1);
-  // write_1D_array(testbeam.Power(),          identifier_c + "_power.txt", 1);
-  write_1D_array(testbeam.TCS(),            identifier_c + "_TCS.txt", 1);
-  // write_1D_array(testbeam.RCS(),            identifier_c + "_RCS.txt", 1);
-
-  // write_2D_array(testbeam.Phase_time(),     identifier_c + "_phase_time.txt", 1);
-  // write_2D_array(testbeam.RCS_time(),       identifier_c + "_RCS_time.txt", 1);
-  // write_2D_array(testbeam.E_time(),         identifier_c + "_E_time.txt", 1);
+      // These are the time_profiles. 
+  // write_2D_array(test_points.Phase_time(),     identifier_c + "_phase_time.txt", 1);
+  // write_2D_array(test_points.RCS_time(),       identifier_c + "_RCS_time.txt", 1);
+  // write_2D_array(test_points.E_time(),         identifier_c + "_E_time.txt", 1);
 
 }
 // End

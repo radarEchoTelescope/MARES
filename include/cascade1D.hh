@@ -14,8 +14,8 @@ class Cascade1D: public Scatter1D, public Cascade {
 public:
 
   Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs,
-        const double deltaL = 1, const double deltaR = 0.1, const double deltaN = 1,
-        const double sampling = 100);
+        const double deltaL = _dL, const double deltaR = _dR, const double deltaN = _dN,
+        const double sampling = _sampling);
 
   void SetInDirection(double rand_seed = 42);
 

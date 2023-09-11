@@ -117,6 +117,7 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
   IceRayTracing::GetRayTracingSolutions(z1, x1, z0, RayTime, RayPath, 
           LaunchAngle, RecieveAngle, IgnoreCh, IncidenceAngleInIce, A0, frequency, AttRay);
 
+  // Ignore channel, 0 = direct ray, 1 is refracted ray.
   if(IgnoreCh[0] != 0){
     p.TXRayTime[0]        = RayTime[0];
     p.TXRayDistance[0]    = RayPath[0];
@@ -129,6 +130,7 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
   }
 // The exit condition can be safely removed if necessary (Multi-RX setups). 
 
+  // 0 = refracted or 1 = reflected. 
   if(IgnoreCh[1] != 0) {
     p.TXRayTime[1]        = RayTime[1];
     p.TXRayDistance[1]    = RayPath[1];
@@ -175,6 +177,7 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
     p.RXRayAttenuation[1] = AttRay[1];
   }
 
+  // TRIPLE CHECK IRT UNITS, IT SHOULD BE METERS AND DEGREES. 
 
   // TODO TRIPLE CHECK THAT THIS IS STILL VALID
   // Set phase
@@ -192,8 +195,8 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
 // DOES IRT INCLUDE ICE ATTENUATION?
   // E field attenuation at reciever from position dependant factors:
   // e^-r/Latt from medium attenuation
-  p.Attenuation =  pow(e, -(p.RTX + p.RRX)/(2*att_length) ) ;
-
+  // p.Attenuation =  pow(e, -(p.RTX + p.RRX)/(2*att_length) ) ;
+  p.Attenuation = p.TXRayAttenuation[0]*p.RXRayAttenuation[0];
 
 
   // Segment's polarization direction == E field at segment.
@@ -208,7 +211,7 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
   // axis can interact to form a scattered  wave. That is not our case, our layers will scatter as a free charge
 
   // Directivty is hardcoded as a small Herztian dipole.
-  p.Directivity = 1.5*norm(p.EFieldAtRX);
+  // p.Directivity = 1.5*norm(p.EFieldAtRX);
    // 3/2*sin(theta_R)*sin(theta_T)
 }
 
@@ -644,6 +647,7 @@ void Scatter::RunScatter(const bool save2Dmatrices){
         // The voltage has to also include polarization and attenuation effects. 
         voltage_time[i] =  sqrt_rcs_time[i] * 1.0/(p.RTX*p.RRX) *
                             p.PolEff * p.Attenuation;
+                            // 1;
       }
     }
 

@@ -67,9 +67,9 @@ class Scatter {
 public:
 
   Scatter(Antenna& tx, Antenna& rx, std::vector<ScatterPoint> points,
-          const double& sampling = 100);
+          const double& sampling = _sampling);
 
-  Scatter(Antenna& tx, Antenna& rx, const double& sampling);
+  Scatter(Antenna& tx, Antenna& rx, const double& sampling = _sampling);
 
   /* The RX re-setter*/
   void UpdateRX(const Antenna& new_RX);
