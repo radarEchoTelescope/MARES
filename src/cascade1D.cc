@@ -59,7 +59,6 @@ void Cascade1D::SetTXFrame(){
 
   nR = (int) ceil(R  / dR);
   nL = (int) ceil(L / dL);
-  // std::cout << dL << std::endl;
 
 // Sanity check! Your sections are not unphysical due to lifetime constraint.
   // assert(fLtot / nL  <= c_vac*tau && "Cascade segments are too large!");
@@ -143,7 +142,7 @@ void Cascade1D::SetTCS(){
     
     fTCS[i] = tmp_tcs*fDamping * thomson * 1.5 /dR;
     //1.5 is (the gain of) the Herzian dipole factor
-    // dR fixes the number of steps??
+    // dR is necessary to normaise here the number of steps/iterations that we do in this loop. 
   }
 }
 
