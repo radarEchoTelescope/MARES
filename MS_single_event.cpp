@@ -63,7 +63,7 @@ int main(int argc, char** argv){
   double txypol   = 1;
   double txzpol   = 0;
   double txpower  = 1E3;
-  double txfreq   = 50 *Hz;
+  double txfreq   = 50 *MHz;
   double txgaindB = 0;
   // Half-dipole gaindB = 2.15 dBi
 

@@ -30,9 +30,10 @@ int main(int argc, char** argv){
   double cszpos     = atof(argv[5]) *m;
   double cszenith   = atof(argv[6]) *deg;
   double csazimuth  = atof(argv[7]) *deg;
+  double csnumber   = atof(argv[8]);
 
   // Now we make the cascade's object
-  Cascade cascade( 0, csenergy, csxpos, csypos, cszpos, cszenith, csazimuth);
+  Cascade cascade( 0, csenergy, csxpos, csypos, cszpos, cszenith, csazimuth, csnumber);
   // And pointer. 
   Cascade& cs = cascade;
 
@@ -41,15 +42,15 @@ int main(int argc, char** argv){
   // We assume that you want to make the antennas too 
   
     // Transmitter, TX
-  double txxpos   = atof(argv[8])   *m;
-  double txypos   = atof(argv[9])   *m;
-  double txzpos   = atof(argv[10])  *m;
-  double txxpol   = atof(argv[11]);
-  double txypol   = atof(argv[12]);
-  double txzpol   = atof(argv[13]);
-  double txpower  = atof(argv[14]);
-  double txfreq   = atof(argv[15]) *Hz;
-  double txgaindB = atof(argv[16]);
+  double txxpos   = atof(argv[9])   *m;
+  double txypos   = atof(argv[10])  *m;
+  double txzpos   = atof(argv[11])  *m;
+  double txxpol   = atof(argv[12]);
+  double txypol   = atof(argv[13]);
+  double txzpol   = atof(argv[14]);
+  double txpower  = atof(argv[15]);
+  double txfreq   = atof(argv[16]) *Hz;
+  double txgaindB = atof(argv[17]);
 
   Antenna transmitter(txxpos, txypos, txzpos,
                       txxpol, txypol, txzpol,
@@ -57,19 +58,16 @@ int main(int argc, char** argv){
   Antenna& tx = transmitter;
   
 
-  double rxxpos   = atof(argv[17])  *m;
-  double rxypos   = atof(argv[18])  *m;
-  double rxzpos   = atof(argv[19])  *m;
-  double rxxpol   = atof(argv[20]);
-  double rxypol   = atof(argv[21]);
-  double rxzpol   = atof(argv[22]);
-
-  // The frequency is used to determine the antenna's effective area
+  double rxxpos   = atof(argv[18])  *m;
+  double rxypos   = atof(argv[19])  *m;
+  double rxzpos   = atof(argv[20])  *m;
+  double rxxpol   = atof(argv[21]);
+  double rxypol   = atof(argv[22]);
+  double rxzpol   = atof(argv[23]);
+  // The frequency is used in the receiverto determine the antenna's effective area
   // So far, we have taken rx and tx to operate at the same freq.
-  // double rxfreq = atof(argv[23])   *Hz;
-  // double rxgaindB = atof(argv[24]);
-
-  double rxgaindB = atof(argv[23]);
+  double rxfreq   = atof(argv[24])   *Hz;
+  double rxgaindB = atof(argv[25]);
 
   Antenna receiver(   rxxpos, rxypos, rxzpos,
                       rxxpol, rxypol, rxzpol,

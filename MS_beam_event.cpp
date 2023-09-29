@@ -79,6 +79,9 @@ int main(int argc, char** argv){
   // The defaults for the resolution variables and other model 
   // parameters are in file "settings_params.hh"
 
+  // The T576 beam was assumed to have a free electron lifetime of 3 ns, 
+  // this value needs to be changed in settings_params.cc
+
   // 5 - Choose how to place the segments. 
 
     // Along the direction of propagation of the cascade.

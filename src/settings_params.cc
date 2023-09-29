@@ -30,8 +30,9 @@ double _sampling = 50;
 
 
       // Plasma ----------------------------------------------------------------
-double _lifetime = 3 *ns;            // Mean plasma lifetime
-double _f_coll= 64.733 *THz;         // [Hz] RS collision frequency
+double _lifetime = 10 *ns;            // Mean plasma lifetime
+double _f_coll= 100 *THz;         // [Hz] Collision frequency estimate
+// double _f_coll= 64.733 *THz;         // [Hz] RS collision frequency
 double _memp = 1;                    // Plasma to electron mass ratio
 
       // Ice  ------------------------------------------------------------------

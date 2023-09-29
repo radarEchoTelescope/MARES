@@ -38,4 +38,5 @@ MS_wire_test
 .ipynb_checkpoints
 To_delete/
 # lib/IceRayTracing
-build/
+build/*
+elastic_collision_freq/
