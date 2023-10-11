@@ -55,7 +55,7 @@ public:
 private:
   friend class Detector;
 
-  double fPower;                // [kW]
+  double fPower;                // [W]
   double fGain;
   double fLeff = 1*m;           // [mm]
   double fEff  = 1;

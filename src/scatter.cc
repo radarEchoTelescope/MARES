@@ -646,8 +646,8 @@ void Scatter::RunScatter(const bool save2Dmatrices){
         // Waveform == Voltage now
         // The voltage has to also include polarization and attenuation effects. 
         voltage_time[i] =  sqrt_rcs_time[i] * 1.0/(p.RTX*p.RRX) *
-                            p.PolEff * p.Attenuation;
-                            // 1;
+                            // p.PolEff * p.Attenuation;
+                            1;
       }
     }
 

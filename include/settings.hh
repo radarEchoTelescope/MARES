@@ -65,7 +65,12 @@ static constexpr double Hz = 1e-9*GHz;
 
   //mass
 static constexpr double g = 1.;
-// static constexpr double kg = 1000*g;
+static constexpr double kg = 1000.*g;
+
+  //work
+static constexpr double W = 1;
+// static constexpr double W = kg*pow(m,2)*pow(s,-3);
+static constexpr double kW = 1000.*W;
 
 // "Universal" Constants -------------------------------------------------------------
 

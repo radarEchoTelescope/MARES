@@ -37,8 +37,8 @@ int main(int argc, char** argv){
   double cszpos     = 0   *m;
   // To put the T576 cascade in front of the TX (sanity check). 
   // double cszpos     = -0.294 *m;       // 5
-  double cszenith   = 0;
-  double csazimuth  = 0;
+  double cszenith   = 0 *deg;
+  double csazimuth  = 0 *deg;
     // Number of primaries
   // A beam usually starts with a bunch of electrons 
   // That's why the energy above is defined per primary particle.
@@ -105,6 +105,20 @@ int main(int argc, char** argv){
   std::vector<double> interface {1,0,0,0.6*m};
   nu_cascade.SetInBeam(interface, 1, 1.51);
 
+  /* IMPORANT! If you want to disable the Fresnel coefficients effects while 
+  running in beam mode, you need to edit out manually one line in scatter.cc
+  
+  -------------------------------------
+                              p.PolEff * p.Attenuation;
+  -------------------------------------
+
+  Right now, it is line 649 in scatter.cc
+
+  You need to re-enable it if you want to run a different mode.
+
+  TO-DO: Make this a flag-enabled option.
+  */
+
   // 7 - Run the scatter proper. 
 
     // If you want to save the individual traces for every time step in the simulation. 
@@ -142,8 +156,8 @@ int main(int argc, char** argv){
   write_1D_array(nu_cascade.Duration(),       identifier_c + "_duration.txt", 1);
   write_1D_array(nu_cascade.Waveform(),       identifier_c + "_waveform.txt", 1);
   // write_1D_array(nu_cascade.Power(),          identifier_c + "_power.txt", 1);
-  // write_1D_array(nu_cascade.TCS(),            identifier_c + "_TCS.txt", 1);
-  // write_1D_array(nu_cascade.RCS(),            identifier_c + "_RCS.txt", 1);
+  write_1D_array(nu_cascade.TCS(),            identifier_c + "_TCS.txt", 1);
+  write_1D_array(nu_cascade.RCS(),            identifier_c + "_RCS.txt", 1);
 
       // These are the time_profiles. 
   // write_2D_array(nu_cascade.Phase_time(),     identifier_c + "_phase_time.txt", 1);

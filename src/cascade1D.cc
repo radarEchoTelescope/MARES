@@ -121,8 +121,18 @@ the number of electrons N_e in each shell.
 void Cascade1D::SetTCS(){
 
   double transparency, transmitivity, tmp_tcs;
+  // OLD
   // This is the damping factor, already squared. 
-  double fDamping = 1.0 / sqrt( pow(fTX.Freq(), 4) + pow(fTX.Freq()*f_coll,2) );
+  // double fDamping = 1.0 / sqrt( pow(fTX.Freq(), 4) + pow(fTX.Freq()*f_coll,2) );
+
+  // FIXED?
+  double fDamping = 1.0 / (1 + pow(f_coll/fTX.AngularFreq(), 2) );
+
+  // std::cout<< f_coll << std::endl;
+  // std::cout<< fTX.Freq() << std::endl;
+  // std::cout<< fDamping2 << std::endl;
+  // std::cout << fDamping << std::endl;
+
   fTCS = std::vector<double> ( fDensity.size(), 0.0 );
   for (int i = 0; i < fDensity.size(); i++){
     transmitivity = 1; transparency = 1, tmp_tcs = 0;
@@ -136,11 +146,25 @@ void Cascade1D::SetTCS(){
       
       // We sum into one TCS the contributions from the TCS from the 
       // separate shells.
-      tmp_tcs += pow(fNe[i][j],2) * transparency;
+
       // CAREFUL! Sum(n)^2 != Sum(n^2)!!!
+// PREVIOUSLY ------------------------------
+    //   tmp_tcs += pow(fNe[i][j],2) * transparency;
+    // }
+    
+    // fTCS[i] = tmp_tcs*fDamping * thomson * 1.5 /dR;
+// ------------------------------------------
+// NOW --------------------------------------
+      tmp_tcs += fNe[i][j];
     }
     
-    fTCS[i] = tmp_tcs*fDamping * thomson * 1.5 /dR;
+    fTCS[i] = pow(tmp_tcs,2)*transparency*fDamping * thomson * 1.5 /dR;
+// ------------------------------------------
+
+      std::cout << fTCS[i] << std::endl;
+
+
+    
     //1.5 is (the gain of) the Herzian dipole factor
     // dR is necessary to normaise here the number of steps/iterations that we do in this loop. 
   }

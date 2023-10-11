@@ -29,8 +29,8 @@ int main(int argc, char** argv){
   double csxpos     = 0   *m;       
   double csypos     = 0   *m;
   double cszpos     = 0   *m;
-  double cszenith   = 90;
-  double csazimuth  = 90;
+  double cszenith   = 90  *deg;
+  double csazimuth  = 90  *deg;
     // Number of primaries
   double csnumber   = 1;
 
@@ -158,9 +158,9 @@ int main(int argc, char** argv){
     /* Some of these will only be enerated on demand. They are not needed for the scatter.*/
 
   // write_2D_array(nu_cascade.Radius(),         identifier_c + "_radial_values.txt", 1);
-  // write_2D_array(nu_cascade.Ne(),             identifier_c + "_e_number.txt", 1);
-  // write_2D_array(nu_cascade.Density(),        identifier_c + "_density_tx.txt", 1);
-  // write_2D_array(nu_cascade.PlasmaFreq(),     identifier_c + "_plasma_freq.txt", 1);
+  write_2D_array(nu_cascade.Ne(),             identifier_c + "_e_number.txt", 1);
+  write_2D_array(nu_cascade.Density(),        identifier_c + "_density_tx.txt", 1);
+  write_2D_array(nu_cascade.PlasmaFreq(),     identifier_c + "_plasma_freq.txt", 1);
   // write_2D_array(nu_cascade.Absorption(),     identifier_c + "_absorption.txt", 1);
   // write_2D_array(nu_cascade.SkinDepth(),      identifier_c + "_skin_depth.txt", 1);
   // write_2D_array(nu_cascade.Reflectance(),    identifier_c + "_reflectance.txt", 1);

@@ -113,7 +113,7 @@ Detector::Detector(){};
 
 Detector::Detector(std::string name){
   if(name == "bistatic" || name == "Bistatic"){
-    fTransmitters.push_back( Antenna(0,0,0, 0,0,1, 10, 500*MHz, 2.15) ); // Vertical, 10 kW, 500 Hz
+    fTransmitters.push_back( Antenna(0,0,0, 0,0,1, 10, 500*MHz, 2.15) ); // Vertical, 10 W, 500 Hz
     fReceivers.push_back( Antenna( 0,500*m,0, 0,0,1, 0, 500*MHz, 2.15) );
    } else if (name == "T576" || name == "t576"){
     // A BEAM SETUP USES GEANT COORDINATE SYSTEM:
