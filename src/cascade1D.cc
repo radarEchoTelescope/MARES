@@ -1,9 +1,9 @@
 #include "cascade1D.hh"
 
 Cascade1D::Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs,
-                    const double deltaL, const double deltaR, const double deltaN,
+                    const double deltaL, const double deltaR,
                     const double sampling):
-  Scatter1D(tx, rx, sampling), Cascade(cs), dL(deltaL), dR(deltaR), dN(deltaN){
+  Scatter1D(tx, rx, sampling), Cascade(cs), dL(deltaL), dR(deltaR){
 
 /* First: Set the antennas directions, module and dot product with cs */
   fTX.SetDirection( cs.Pos() );
@@ -161,7 +161,7 @@ void Cascade1D::SetTCS(){
     fTCS[i] = pow(tmp_tcs,2)*transparency*fDamping * thomson * 1.5 /dR;
 // ------------------------------------------
 
-      std::cout << fTCS[i] << std::endl;
+      // std::cout << fTCS[i] << std::endl;
 
 
     

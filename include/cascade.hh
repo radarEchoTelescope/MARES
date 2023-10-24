@@ -30,11 +30,13 @@ public:
   double* Parent();
 
 // Method's storage accesors
-// User should only read and store the values after they are made.
+// User should and can only read and store the values after they are made.
 
   std::vector<std::vector<double>> Ne();
   std::vector<std::vector<double>> Density();
   std::vector<std::vector<double>> PlasmaFreq();
+
+  // 
   std::vector<std::vector<double>> Absorption();
   std::vector<std::vector<double>> SkinDepth();
 
@@ -42,6 +44,22 @@ public:
   std::vector<std::vector<double>> Opacity();
   std::vector<std::vector<double>> Transparency();
 
+  void save_output_files(const std::string& output_path, const std::array<bool, 8>& flags = {0});
+  /*In order to save the member functions, you need to 
+  pass an array of flags choosing what members to save:
+
+    True = Save this field
+    False = Don't save this field
+
+  0 = Ne
+  1 = Density
+  2 = Plasma freq
+  3 = Absorption
+  4 = Skin depth
+  5 = Reflectance
+  6 = Opacity
+  7 = Transparency
+  */
 
 protected:
     friend class Scatter; // Scatter can access private members.
@@ -70,6 +88,8 @@ protected:
   double fNeutrino[4];
 
 // Functions and methods
+
+// TODO= Revise Units here
 
 /* (Classical) Particle (electron) number for penetration length X.
   [g/mm^2] */
@@ -128,11 +148,6 @@ protected:
   // Transparency also computes reflectivity and opacity
   void Transparency(const std::vector<std::vector<double>> &density, const double & freq, const double & delta_r);
 
-  // double fRwaist;
-  // std::vector<double> fRcrit; // [cm]
-  // void SetRcrit(const std::vector<std::vector<double>> &density = fDensity,
-  //               const double &freq = freq_obs);
-
 };
 
 std::vector<Cascade> load_cascade_file(const std::string& cs_filepath);
@@ -166,23 +181,3 @@ namespace NKG{
 
 #endif
 // -----------------------------------------------------------------------------
-
-
-/* You don't want to allow the code to edit these values.
-These are needed if you add the default empty constructor.
-
-  // Cascade() {}
-
-  void set_position(double x, double y, double z){ pos = {x,y,z}; }
-  void set_direction_w_sph_ang(double theta_ang, double phi_ang){
-    theta = theta_ang;
-    phi = phi_ang;
-    dir[0] = sin(theta)*cos(phi);
-    dir[1] = sin(theta)*sin(phi);
-    dir[2] = cos(theta);
-  }
-  void set_direction_cartesian(double x, double y, double z){ dir = {x,y,z}; }
-  void set_parent_neutrino(double nenergy, double nazimuth, double nzenith,
-    double oneweight) {neutrino = {nenergy, nzenith , nazimuth, oneweight}; }
-  void set_max_depth(fEnergy){X_tot = 4*(log(fEnergy/E_c)/log(2) )*X_int;}
-*/

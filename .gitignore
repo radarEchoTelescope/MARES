@@ -40,3 +40,4 @@ To_delete/
 # lib/IceRayTracing
 build/*
 elastic_collision_freq/
+outputs/

@@ -132,7 +132,7 @@ void Cascade::Ne( const std::vector<std::vector<double>> &length_vals,
     for (int j = 0; j < fNe[i].size(); j++){
       // Simple check to avoid computing values too far out from the cascade direction
       if ( abs(radius_vals[i][j]) <= fRtot ) {
-        fDensity[i][j] = Ne(rho_ice*length_vals[i][j], radius_vals[i][j], delta_r);
+        fNe[i][j] = Ne(rho_ice*length_vals[i][j], radius_vals[i][j], delta_r);
       }
     }
   }
@@ -160,7 +160,7 @@ void Cascade::PlasmaFreq(const std::vector<std::vector<double>> &density){
 
   for (int i = 0; i < density.size(); i++){
     for (int j = 0; j < density[i].size(); j++){
-      if (density[i][j] != 0) {fPlasmaFrequency[i][j] = PlasmaFreq(density[i][j]);}
+      if (density[i][j] != 0) {fPlasmaFrequency[i][j] = Cascade::PlasmaFreq(density[i][j]);}
     }
   }
 }
@@ -283,14 +283,27 @@ std::vector<std::vector<double>> Cascade::Opacity(){
     exit(EXIT_FAILURE);
     } 
   return fOpacity; 
-  }
+}
 std::vector<std::vector<double>> Cascade::Transparency(){
   if (fTransparency.empty()){
     std::cerr << "Transparency has not been set!" << std::endl;
     exit(EXIT_FAILURE);
   }
    return fTransparency; 
-   }
+}
+// ----------------------------------------------------------------------------
+
+void Cascade::save_output_files(const std::string& output_path, const std::array<bool, 8>& flags){
+
+  if(flags[0]){ write_2D_array(Ne(),          output_path + "_e_number.txt");}
+  if(flags[1]){ write_2D_array(Density(),     output_path + "_density_tx.txt");}
+  if(flags[2]){ write_2D_array(PlasmaFreq(),  output_path + "_plasma_freq.txt");}
+  if(flags[3]){ write_2D_array(Absorption(),  output_path + "_absorption.txt");}
+  if(flags[4]){ write_2D_array(SkinDepth(),   output_path + "_skin_depth.txt");}
+  if(flags[5]){ write_2D_array(Reflectance(), output_path + "_reflectance.txt");}
+  if(flags[6]){ write_2D_array(Opacity(),     output_path + "_opacity.txt");}
+  if(flags[7]){ write_2D_array(Transparency(),output_path + "_transparency.txt");}
+}
 
 // -----------------------------------------------------------------------------
 std::vector<Cascade> load_cascade_file(const std::string& cs_filepath){

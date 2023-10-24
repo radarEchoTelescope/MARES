@@ -82,7 +82,7 @@ int main(int argc, char** argv){
   Scatter test_points(tx,rx);
   
   // We can specify here the sampling ratio for the time-dependent part
-  // of the simulation (generating the waveform). 
+  // of the simulation (generating the voltage waveform). 
   // It represents how much higer is the sampling frequency w.r.t TX's freq.
   // The sampling ratio should be between 10 and 100.
 
@@ -151,7 +151,7 @@ int main(int argc, char** argv){
 
       // Scatter products: Time-dependent variables. 
   write_1D_array(test_points.Duration(),       identifier_c + "_duration.txt", 1);
-  write_1D_array(test_points.Waveform(),       identifier_c + "_waveform.txt", 1);
+  write_1D_array(test_points.Voltage(),       identifier_c + "_voltage.txt", 1);
   // write_1D_array(test_points.Power(),          identifier_c + "_power.txt", 1);
   // write_1D_array(test_points.TCS(),            identifier_c + "_TCS.txt", 1);
   // write_1D_array(test_points.RCS(),            identifier_c + "_RCS.txt", 1);

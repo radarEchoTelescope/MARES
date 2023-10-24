@@ -13,6 +13,9 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/lib/IceRayTracing/namespace/woROOT/)
 
 find_package(GSL REQUIRED)
+find_package(PkgConfig)
+pkg_check_modules(LIBCONFIG_PLUSPLUS libconfig++ REQUIRED)
+
 
 #----------------------------------------------------------------------------
 # Build MARES library
@@ -28,9 +31,10 @@ set( LIB_SOURCES
     ${PROJECT_SOURCE_DIR}/src/cascade.cc
     ${PROJECT_SOURCE_DIR}/src/cascade1D.cc
     ${PROJECT_SOURCE_DIR}/src/scatter.cc
+    ${PROJECT_SOURCE_DIR}/src/scatter_propagation.cc
     ${PROJECT_SOURCE_DIR}/src/scatter1D.cc
     ${PROJECT_SOURCE_DIR}/src/settings_math.cc
-    ${PROJECT_SOURCE_DIR}/src/settings_params.cc
+    ${PROJECT_SOURCE_DIR}/src/settings_defaults.cc
     ${PROJECT_SOURCE_DIR}/src/settings.cc
 
 )
@@ -39,14 +43,15 @@ set( LIB_HEADERS
     ${PROJECT_SOURCE_DIR}/lib/IceRayTracing/namespace/woROOT/IceRayTracing.hh
     ${PROJECT_SOURCE_DIR}/include/antenna.hh
     ${PROJECT_SOURCE_DIR}/include/cascade.hh
-    ${PROJECT_SOURCE_DIR}/src/cascade1D.cc
+    ${PROJECT_SOURCE_DIR}/include/cascade1D.hh
+    ${PROJECT_SOURCE_DIR}/include/global_units_constants.hh
     ${PROJECT_SOURCE_DIR}/include/scatter.hh
     ${PROJECT_SOURCE_DIR}/include/scatter1D.hh
     ${PROJECT_SOURCE_DIR}/include/settings.hh
 
 )
 
-add_library(MARES ${LIB_SOURCES} ${LIB_HEADERS})
+add_library(libMARES ${LIB_SOURCES} ${LIB_HEADERS})
 
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the MARES library
@@ -58,6 +63,7 @@ set( EXEC_SOURCES
     ${PROJECT_SOURCE_DIR}/MS_single_event.cpp
     ${PROJECT_SOURCE_DIR}/MS_beam_event.cpp
     ${PROJECT_SOURCE_DIR}/MS_single_event_extern.cpp
+    ${PROJECT_SOURCE_DIR}/MARES.cpp
  )
 
 
@@ -67,8 +73,11 @@ foreach( testsourcefile ${EXEC_SOURCES} )
     # message( "This is the executable's name " ${testname})
     add_executable( ${testname} ${testsourcefile} )
     # Make sure MARES is linked to each app
-    target_link_libraries( ${testname} MARES)
-    target_link_libraries( ${testname} GSL::gsl)
+    target_link_libraries( ${testname} 
+        libMARES
+        ${LIBCONFIG_PLUSPLUS_LIBRARIES} 
+        GSL::gsl
+    )
 endforeach( testsourcefile ${EXEC_SOURCES} )
 
 # add_executable(MS_single_event MS_single_event.cpp ${sources} ${headers})
