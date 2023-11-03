@@ -25,7 +25,7 @@ int main(int argc, char** argv){
   // List of available units at settings.hh
 
     // Energy per particle
-  double csenergy   = 10  *PeV;    
+  double csenergy   = 10 *PeV;    
   double csxpos     = 0   *m;       
   double csypos     = 0   *m;
   double cszpos     = 0   *m;

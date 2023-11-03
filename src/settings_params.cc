@@ -30,14 +30,14 @@ double _sampling = 50;
 
 
       // Plasma ----------------------------------------------------------------
-double _lifetime = 3 *ns;            // Mean plasma lifetime
+double _lifetime = 10 *ns;            // Mean plasma lifetime
 // double _f_coll= 100 *THz;         // [Hz] Collision frequency estimate
 double _f_coll= 64.733 *THz;         // [Hz] RS collision frequency
 double _memp = 1;                    // Plasma to electron mass ratio
 
       // Ice  ------------------------------------------------------------------
-// double _refindex=1.78;               // refractive index
-double _refindex=1.51;               // refractive index
+double _refindex=1.78;               // refractive index
+// double _refindex=1.51;               // refractive index
 double _att_length=1450 *m;          // Attenuation length
 double _rho_ice = 0.92 *g/pow(cm,3); // Density, from GEANT
 
