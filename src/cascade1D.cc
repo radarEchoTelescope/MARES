@@ -1,9 +1,9 @@
 #include "cascade1D.hh"
 
 Cascade1D::Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs,
-                    const double deltaL, const double deltaR, const double deltaN,
+                    const double deltaL, const double deltaR,
                     const double sampling):
-  Scatter1D(tx, rx, sampling), Cascade(cs), dL(deltaL), dR(deltaR), dN(deltaN){
+  Scatter1D(tx, rx, sampling), Cascade(cs), dL(deltaL), dR(deltaR){
 
 /* First: Set the antennas directions, module and dot product with cs */
   fTX.SetDirection( cs.Pos() );
@@ -39,6 +39,14 @@ Cascade1D::Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs,
 void Cascade1D::SetInDirection(double rand_seed){
   Scatter1D::SetInDirection( Cascade::fPosition, Cascade::fDirection,
                 Cascade::fLtot, rand_seed);
+}
+
+void Cascade1D::SetInMaxReflectivty(){
+  // Compute the reflectivty matrix first.
+  Cascade::Transparency(Cascade::fDensity, Scatter::fTX.Freq(), dR );
+  // Place the segments along the values. 
+  Scatter1D::SetInMax( Cascade::fPosition, Cascade::fDirection,
+                dL, dR, Cascade::fReflectance);
 }
 
 /* Make 2D-array of density profile in the TX frame
@@ -161,7 +169,7 @@ void Cascade1D::SetTCS(){
     fTCS[i] = pow(tmp_tcs,2)*transparency*fDamping * thomson * 1.5 /dR;
 // ------------------------------------------
 
-      std::cout << fTCS[i] << std::endl;
+      // std::cout << fTCS[i] << std::endl;
 
 
     

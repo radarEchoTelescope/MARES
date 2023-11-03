@@ -7,6 +7,7 @@
 #include <fstream>    // C++ only, screen read/write
 #include <stdlib.h>   // exit, EXIT_FAILURE
 #include <string.h>
+#include <array>
 #include <vector>
 #include <iterator>
 #include <algorithm>  // Copy, max, min, etc.
@@ -14,90 +15,9 @@
 #include <assert.h>   // Debug purposes
 #include <random>
 
-// ----- Physical parameters ---------------------------------------------------
+#include <libconfig.h++>
 
-  // --- Units -----------------------------------------------------------------
-
-/* Inspired by the CLHEP global system of units.
-
-  use these to keep your numbers in the global system of units defined above:
-  ns, GHz, mm, nC
-  if you want to write something in terms of MHz, for example, just do
-  freq = 1200*MHz
-  and then freq will have units of GHz, as it should.
-
-      lengths
-  for example, if you wanted to calculate the time it took for a signal
-  to propagate 75 feet, you'd do:
-
-  75*ft/c_light
-
-  and it would return the correct time in nanoseconds.
-*/
-
-// length
-static constexpr double mm = 1;
-static constexpr double cm = 10*mm;
-static constexpr double m = 1000.*mm;
-//static constexpr double mm = .001*m;
-// static constexpr double ft = .3047*m;
-
-//energy
-static constexpr double MeV = 1.;
-static constexpr double EeV = 1e12*MeV;
-static constexpr double PeV = 1e9*MeV;
-static constexpr double GeV = 1000.*MeV;
-static constexpr double KeV = .001*MeV;
-static constexpr double eV = 1e-6*MeV;
-
-  //time
-static constexpr double ns = 1.;
-static constexpr double us = ns*1e3;
-static constexpr double ms = ns*1e6;
-static constexpr double s = ns*1e9;
-
-  //frequency
-static constexpr double GHz = 1./ns;
-static constexpr double THz = 1000.*GHz;
-static constexpr double MHz = .001*GHz;
-static constexpr double kHz = 1e-6*GHz;
-static constexpr double Hz = 1e-9*GHz;
-
-  //mass
-static constexpr double g = 1.;
-static constexpr double kg = 1000.*g;
-
-  //work
-static constexpr double W = 1;
-// static constexpr double W = kg*pow(m,2)*pow(s,-3);
-static constexpr double kW = 1000.*W;
-
-// "Universal" Constants -------------------------------------------------------------
-
-// ----- Math Constants --------------------------------------------------------
-// static constexpr double pi=3.1415926535;            // OLD
-static constexpr double pi = 3.14159265358979323846;     // [RS] radians
-static constexpr double e = 2.71828;                    // Do not mix with electron charge
-static constexpr double deg = pi/180.;     //radians
-// static constexpr double degree=pi/180.;  //radians
-// static constexpr double rad = 180./pi;     //radians
-// static constexpr double twoPi = 2.*pi;   //radians
-// static complex<double> I=sqrt(complex<double>(-1));//imaginary unit, used for complex stuff
-
-// ------ Physics Constants --------------------------------
-  // static constexpr double c_vac=2.998E8;                        // [m/s]
-static constexpr double c_vac=2.9979246E8 *m/s;                    // [mm/ns]
-static constexpr double Z_0=377;                                   // [Ohm]
-// Thompson e- scattering cs
-static constexpr double thomson=6.6524574E-25 *cm*cm;             // [cm^2]
-
-// Not used, available
-// static constexpr double m_e=0.510998;                           // [MeV/c^2]
-// static constexpr double classic_electr_radius = 2.8179403E-15 *m;
-// static constexpr double kelvin=1;                  // [K]
-// static constexpr double z_0=50;                    // [Ohm]
-// static constexpr double kB=8.617343e-11 *MeV/kelvin;  // [MeV/kelvin]
-// static constexpr double kBJoulesKelvin=1.38e-23/kelvin;      // [J/kelvin]
+#include <settings_units_constants.hh>
 
 // Simulation parameters --------------------------------------------    
 // see "settings_params.hh"
@@ -106,10 +26,8 @@ static constexpr double thomson=6.6524574E-25 *cm*cm;             // [cm^2]
 
 extern double _dL; // [cm/bin]
 extern double _dR;
-extern double _dN; // This is also a radial direction.
-
+// extern double _dN; // This is also a radial direction.
 extern double _sampling;
-
 
     // Plasma ----------------------------------------------------------------
 extern double _lifetime;         // Mean plasma lifetime
@@ -121,7 +39,6 @@ extern double _memp;             // Effective plasma mass in electron masses
 extern double _refindex;         // refractive index
 extern double _att_length;       // Attenuation length
 extern double _rho_ice;          // Density
-
 
 // Mass stopping power of ice - energy loss per ionizing particle (@ 1 GeV)
 extern double _r_moliere;        // Moliere Radius in ice
@@ -137,6 +54,15 @@ static double _L_0 = _X_0/_rho_ice;       // Radiation length = 39.22 cm
     // Air / Other constants -----------------------------------
 // extern double rho=1.168e-3;//sea level density
 // extern double x_0=36.7;//radiation length in air
+
+// The total cascade dimensions are given in terms of the 
+// the typical length scale in every dimension. 
+// Total = typical* factor
+// 	The typical length of a cascade is log(12.72 * fEnergy) * X_0;	
+// 	The typical radius of a cascade is the moliere radius;	
+
+static const double Ltot_factor = 3;
+static const double Rtot_factor = 2;
 
 /*"Hiding" the mutable values and accessing through a constant reference
 protects the code against accidental changes in a global variable. */
@@ -226,20 +152,34 @@ private:
 //---- I/O functions -----------------------------------------------------------
 // C++ template to print vector container elements
 template <typename T>
-std::ostream& operator<<(std::ostream& os, const std::vector<T>& v)
-{
+std::ostream& operator<<(std::ostream& os, const std::vector<T>& v){
     os << "[";
     for (int i = 0; i < v.size(); ++i) {
         os << v[i];
-        if (i != v.size() - 1)
-            os << ", ";
+        if (i != v.size() - 1){os << ", ";}
     }
     os << "]\n";
     return os;
 };
 
-void write_1D_array(std::vector<double> array, std::string output_path, const bool trigger);
+// C++ template to print vector container elements
+template <typename T,std::size_t N>
+std::ostream& operator<<(std::ostream& os, const std::array<T,N>& v){
+    os << "[";
+    for (int i = 0; i < N; ++i) {
+        os << v[i];
+        if (i != N - 1) {os << ", ";}
+    }
+    os << "]\n";
+    return os;
+};
 
-void write_2D_array(std::vector<std::vector<double>> array, std::string output_path, const bool trigger);
+void write_1D_array(std::vector<double> array, std::string output_path, const bool trigger = true);
+
+void write_2D_array(std::vector<std::vector<double>> array, std::string output_path, const bool trigger = true);
+
+// Read a libconfig file and return the configuration. 
+// If there is an error, report it and exit early.
+void load_config_file(libconfig::Config& cfg, const char* config_file);
 
 #endif

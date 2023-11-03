@@ -31,6 +31,8 @@ int main(int argc, char** argv){
   double cszpos     = 0   *m;
   double cszenith   = 90  *deg;
   double csazimuth  = 90  *deg;
+    // Energy per particle
+  double csenergy   = 1E7  *GeV;    
     // Number of primaries
   double csnumber   = 1;
 
@@ -40,8 +42,8 @@ int main(int argc, char** argv){
   */
 
   // Now we make the cascade's object
-  Cascade cascade( 0, csenergy, csxpos, csypos, cszpos, 
-                      cszenith, csazimuth, csnumber);
+  Cascade cascade( csxpos, csypos, cszpos, 
+                   cszenith, csazimuth, csenergy, csnumber);
   // And its pointer. 
   Cascade& cs = cascade;
 
@@ -158,13 +160,7 @@ int main(int argc, char** argv){
     /* Some of these will only be enerated on demand. They are not needed for the scatter.*/
 
   // write_2D_array(nu_cascade.Radius(),         identifier_c + "_radial_values.txt", 1);
-  write_2D_array(nu_cascade.Ne(),             identifier_c + "_e_number.txt", 1);
-  write_2D_array(nu_cascade.Density(),        identifier_c + "_density_tx.txt", 1);
-  write_2D_array(nu_cascade.PlasmaFreq(),     identifier_c + "_plasma_freq.txt", 1);
-  // write_2D_array(nu_cascade.Absorption(),     identifier_c + "_absorption.txt", 1);
-  // write_2D_array(nu_cascade.SkinDepth(),      identifier_c + "_skin_depth.txt", 1);
-  // write_2D_array(nu_cascade.Reflectance(),    identifier_c + "_reflectance.txt", 1);
-  // write_2D_array(nu_cascade.Opacity(),        identifier_c + "_opacity.txt", 1);
+ 
 
       // Scatter object products: Positions and propagation 
   // write_2D_array(nu_cascade.Coordinates(),    identifier_c + "_coords.txt", 1);
@@ -176,7 +172,7 @@ int main(int argc, char** argv){
 
       // Scatter products: Time-dependent variables. 
   write_1D_array(nu_cascade.Duration(),       identifier_c + "_duration.txt", 1);
-  write_1D_array(nu_cascade.Waveform(),       identifier_c + "_waveform.txt", 1);
+  write_1D_array(nu_cascade.Voltage(),       identifier_c + "_voltage.txt", 1);
   // write_1D_array(nu_cascade.Power(),          identifier_c + "_power.txt", 1);
   // write_1D_array(nu_cascade.TCS(),            identifier_c + "_TCS.txt", 1);
   // write_1D_array(nu_cascade.RCS(),            identifier_c + "_RCS.txt", 1);

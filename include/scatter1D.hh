@@ -3,8 +3,6 @@
 
 #include "scatter.hh"
 
-// TO-DO: Finish cleanup this class
-
 class Scatter1D: public Scatter {
     friend class Cascade1D;
 public:
@@ -16,15 +14,36 @@ public:
 
 protected:
 
-// TO-DO: This needs to know np somehow
+/*
+Set the points along a direction, starting from a vertex position, 
+equally spaced over a given length.
+
+// To get rid of artifacts in the FFT, the positions can be given a small
+    non-uniform randomisation along the direction of propagation.
+    [Default seed = 42]
+    [No randomisation = 0]
+*/
     void SetInDirection( std::vector<double> vertex,
                 std::vector<double> direction,
                 double length, double rand_seed = 42);
-// [m] distance from the shower head (starting point)
-// Giving a non-uniform position in the cascade gets rid of artifacts in the FFT.
-// RN_uniform rand_line(-0.5, 0.5, 42);          // Same seed for debugging.
-// RN_uniform rand_line(-0.5, 0.5, time(0));  // Different seed for random, independent runs.
 
+
+/* 
+Set the points in the lab frame using a set of coordinates given in the cascade frame
+{l_vals, r_vals}. 
+
+So far, the plane R_TX, L_TX was created to cover the cascade at an angle and
+the values within were rotated to find the values in the cascade frame (density, etc).
+For geometry, a point P with coordinates (r,l) in the TX frame is placed in the
+3D lab frame at:
+
+P = CS_vertex + r*e(R_TX) +l*e(L_TX) (capitals == vector)
+
+The choice of L_TX is the direction normal to R_TX that is consistent with the
+rotation matrix used in SetTX(), which is the clockwise rotation
+of the TX frame with positive angle, or the cascade rotating anti-clockwise from
+the frame with positive delta.
+*/
     void SetInPosition(std::vector<double> vertex,
                     std::vector<double> direction,
                     std::vector<double> & l_vals,

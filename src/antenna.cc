@@ -103,18 +103,14 @@ double  Antenna::Dist()  const {return fDistance;}
 double  Antenna::Dot()   const {return fDot;}
 double  Antenna::Delta() const {return fDelta;}
 
-
-
 // --------------------------------------------
 
 Detector::Detector(){};
 
-// TO-DO: CORRECT SHORTHAND NOTATION FOR BISTATIC AND RET_CR
-
 Detector::Detector(std::string name){
   if(name == "bistatic" || name == "Bistatic"){
-    fTransmitters.push_back( Antenna(0,0,0, 0,0,1, 10, 500*MHz, 2.15) ); // Vertical, 10 W, 500 Hz
-    fReceivers.push_back( Antenna( 0,500*m,0, 0,0,1, 0, 500*MHz, 2.15) );
+    fTransmitters.push_back( Antenna(0,0,-100*m, 0,1,0, 1E3, 50*MHz, 1) ); // Vertical, 10 W, 500 Hz
+    fReceivers.push_back( Antenna( -250*m, 0, 0, 0,1,0, 0, 50*MHz, 1) );
    } else if (name == "T576" || name == "t576"){
     // A BEAM SETUP USES GEANT COORDINATE SYSTEM:
     // THE BEAM MOVES ALONG Z, Y IS VERTICAL. 
@@ -132,26 +128,15 @@ Detector::Detector(std::string name){
     fReceivers.push_back(    Antenna(-6.038*m, 0, 4.536*m,
                                      0, 0, 1,
                                      0, 2.1*GHz, 18) );
-  } else if (name == "RET_CR" || name == "ret_cr"){
-
-    // TO-DO UPDATE RETCR VALUES HERE
-    
-    // fTransmitters.push_back( Antenna(0,0,0, 0,0,1, 50, 200*MHz, 2.15) ); // Vertical, 50 kW, 200 MHz
-    // fReceivers.push_back( Antenna( 200*m,      0, 0) );
-    // fReceivers.push_back( Antenna( 100*m, -100*m, 0) );
-    // fReceivers.push_back( Antenna(-100*m, -100*m, 0) );
-    // fReceivers.push_back( Antenna(-100*m,  100*m, 0) );
-    // fReceivers.push_back( Antenna( 200*m , 200*m, 0) );
-    // fReceivers.push_back( Antenna( 200*m ,-200*m, 0) );
-    // fReceivers.push_back( Antenna(-200*m ,-200*m, 0) );
-    // fReceivers.push_back( Antenna(-200*m , 200*m, 0) );
-  } else if (name == "RNOg"){
-    // Simon's GEANT RNOg model
+  } else if (name == "stargrid" || name == "StarGrid"){
+    // Simon's Grid model used in CORSIKA+GEANT simulations. 
     // GEANT defines vertical direction as y axis, so we need to swap indices.
     // IMPORTANT TO KEEP A RHS rotation frame!
-    for (auto& antenna : RNOgAntennas){
-      // TO-DO Correct transformation.
-      // fReceivers.push_back( Antenna(antenna[1] , antenna[0], antenna[2]) );
+    for (auto& antenna : StarGrid){
+      fReceivers.push_back( Antenna(
+        antenna[0] , antenna[2], antenna[1],
+        0, 0, 1, 
+        0, 100*MHz, 2.15));
     }
   } else {
     std::cout << " There is no compatible detector configurtion with "
@@ -171,4 +156,79 @@ void Detector::add_antenna(Antenna at){
   if (at.fPower) { fTransmitters.push_back(at); }
   else { fReceivers.push_back(at); }
 }
+
+void load_antenna_list(const libconfig::Setting& at_list, Detector& dect){
+  // Antenna placeholder variables.
+  double xpos, ypos, zpos, xpol, ypol, zpol, power, freq, gaindB;
+   for (int i = 0; i < at_list.getLength(); i++){
+    power = NAN;
+    // Grab the next antenna
+    const libconfig::Setting &at = at_list[i];
+
+    // Try to load the values from the antenna
+    if( !(
+          at["position"].lookupValue("x", xpos)     &&
+          at["position"].lookupValue("y", ypos)     &&
+          at["position"].lookupValue("z", zpos)     &&
+          at["polarization"].lookupValue("x", xpol) &&
+          at["polarization"].lookupValue("y", ypol) &&
+          at["polarization"].lookupValue("z", zpol) &&
+          at.lookupValue("power", power)            &&
+          at.lookupValue("frequency", freq)         &&
+          at.lookupValue("gaindB", gaindB)
+        )
+    ){
+      if(power != 0){
+        std::cerr << " Transmitter " << i << " was skipped" << std::endl;
+      } else if (power == 0){
+        std::cerr << " Receiver " << i << " was skipped" << std::endl;
+      } else{
+        std::cerr << " Unknown antenna " << i << " was skipped" << std::endl;
+      } 
+      continue;
+    }
+    dect.add_antenna( Antenna(
+              xpos *m, ypos *m, zpos *m,
+              xpol, ypol, zpol,
+              power *W, freq *Hz, gaindB
+      )
+    );
+  }
+}
+
+
+Detector load_detector_config(libconfig::Config& dect_config){
+  Detector dect;
+  libconfig::Setting &root = dect_config.getRoot();
+
+  try{
+    const libconfig::Setting& tx_list = root["detector"]["transmitter"]; 
+  } catch(const libconfig::SettingNotFoundException &nfex) {
+    std::cerr << "Your config file is missing transmitter group" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  const libconfig::Setting& tx_list = root["detector"]["transmitter"];
+  load_antenna_list(tx_list, dect);
+
+  try{
+    const libconfig::Setting& rx_list = root["detector"]["receiver"]; 
+  } catch(const libconfig::SettingNotFoundException &nfex) {
+    std::cerr << "Your config file is missing receiver group" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  const libconfig::Setting& rx_list = root["detector"]["receiver"]; 
+  load_antenna_list(rx_list, dect);
+
+  return dect;
+
+
+}
+
+Detector load_detector_file(const std::string& dect_config_filepath){
+  libconfig::Config cfg;
+  load_config_file(cfg, dect_config_filepath.c_str());
+  Detector dect = load_detector_config(cfg);
+  return dect;
+}
+
 // -----------------------------------------------------------------------------

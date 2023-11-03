@@ -107,7 +107,7 @@ Careful, because the medium change and refraction means that the relative
     // For particular variable over the full point collection.
 
   // TODO: ADD COORDINATES ACCESOR
-  std::vector<std::vector<double>> Coordinates();
+  std::vector<std::vector<double>> Position();
   std::vector<double> Phase();
   std::vector<double> ArrivalTime();
   std::vector<double> Attenuation();
@@ -118,7 +118,7 @@ Careful, because the medium change and refraction means that the relative
 
   // The time integral results after RunScatter()
   std::vector<double> Duration();
-  std::vector<double> Waveform();
+  std::vector<double> Voltage();
   std::vector<double> Power();
   std::vector<double> RCS();
   std::vector<std::vector<double>> Phase_time();
@@ -126,9 +126,28 @@ Careful, because the medium change and refraction means that the relative
   std::vector<std::vector<double>> RCS_time();
   std::vector<std::vector<double>> E_time();
 
-//  return electric field of a list of events
-// All variables need to be passed through arguments.
-// Written to be used in a parallel computation (cluster) enviroment.
+  void save_output_files(const std::string& output_path, const std::array<bool, 13>& flags = {0});
+  /*In order to save the member functions, you need to 
+  pass an array of flags choosing what members to save:
+
+    True = Save this field
+    False = Don't save this field
+
+  0 = Duration
+  1 = Voltage
+  2 = Power
+  3 = TCS
+  4 = RCS
+  5 = Position / Coordinates
+  6 = Phase
+  7 = Arrival_time 
+  8 = Attenuation
+  9 = Polarization
+  10 = Phase_time
+  11 = RCS_time
+  12 = E/V_time
+  */
+
 protected:
 
   Antenna fTX;
@@ -191,13 +210,13 @@ WARNING: This does not match IRT coordinates???
 
 
   std::vector<double> fDuration; // [ns]
-  std::vector<double> fWaveform; // [V/m]
+  std::vector<double> fVoltage; // [V/m]
   std::vector<double> fPower;    // [W]
   std::vector<double> fRCS;      // [m^2]
 
   std::vector<std::vector<double>> fRCSTime;
   std::vector<std::vector<double>> fPhaseTime;
-  std::vector<std::vector<double>> fWaveformTime;
+  std::vector<std::vector<double>> fVoltageTime;
 };
 
 #endif

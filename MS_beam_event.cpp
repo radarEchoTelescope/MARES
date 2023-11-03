@@ -45,8 +45,8 @@ int main(int argc, char** argv){
   double csnumber   = 1E9;
 
   // Now we make the cascade's object
-  Cascade cascade( 0, csenergy, csxpos, csypos, cszpos, 
-                      cszenith, csazimuth, csnumber);
+  Cascade cascade(csxpos, csypos, cszpos, 
+                  cszenith, csazimuth, csenergy, csnumber);
   // And its pointer. 
   Cascade& cs = cascade;
 
@@ -154,7 +154,7 @@ int main(int argc, char** argv){
 
       // Scatter products: Time-dependent variables. 
   write_1D_array(nu_cascade.Duration(),       identifier_c + "_duration.txt", 1);
-  write_1D_array(nu_cascade.Waveform(),       identifier_c + "_waveform.txt", 1);
+  write_1D_array(nu_cascade.Voltage(),       identifier_c + "_voltage.txt", 1);
   // write_1D_array(nu_cascade.Power(),          identifier_c + "_power.txt", 1);
   write_1D_array(nu_cascade.TCS(),            identifier_c + "_TCS.txt", 1);
   write_1D_array(nu_cascade.RCS(),            identifier_c + "_RCS.txt", 1);

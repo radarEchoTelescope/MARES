@@ -22,7 +22,7 @@
 double _dL = 1 *cm; // [cm/bin]
 double _dR = 1 *mm;
 // Unused in a 1D cascade
-double _dN = 1 *mm; // This is also a radial direction.
+// double _dN = 1 *mm; // This is also a radial direction.
 
 // Temporal resolution, sampling ratio.
 // We found that best results are with a sampling between 10x and 100x freq_obs.
@@ -30,9 +30,15 @@ double _sampling = 50;
 
 
       // Plasma ----------------------------------------------------------------
+<<<<<<< HEAD:src/settings_params.cc
 double _lifetime = 10 *ns;            // Mean plasma lifetime
 // double _f_coll= 100 *THz;         // [Hz] Collision frequency estimate
 double _f_coll= 64.733 *THz;         // [Hz] RS collision frequency
+=======
+double _lifetime = 3 *ns;            // Mean plasma lifetime
+double _f_coll= 100 *THz;         // [Hz] Collision frequency estimate
+// double _f_coll= 64.733 *THz;         // [Hz] RS collision frequency
+>>>>>>> bc61af8e033b1059d1372228b9dee2ff3c8cdbc3:src/settings_defaults.cc
 double _memp = 1;                    // Plasma to electron mass ratio
 
       // Ice  ------------------------------------------------------------------

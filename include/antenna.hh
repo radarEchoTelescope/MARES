@@ -82,21 +82,18 @@ private:
 
 };
 
-// TODO- MAKE SPECIFIC CLASSES TRANSMITTER AND RECEIVER - PROTECT AGAINST MISLABEL. 
-
-
 class Detector{
 
 public:
 
 // Constructors
-  Detector();               // Default, empty?
+  Detector();               // Default, empty
   Detector(std::string name);   // Model-based constructor
   /* Other models:
     - Bistatic
     - T576
-    - RET_CR
-    - RNOg-like star grid (just the RX, the idea is to load the RX and add TX manually)
+    - Star grid: Plane of receivers @-140 m, half-dipoles, 100 MHz
+        You need to add your TX. 
   */
 
   std::vector<Antenna> Transmitters();
@@ -105,6 +102,7 @@ public:
   void add_antenna(Antenna& at);
   void add_antenna(Antenna at);
 
+
 private:
 
   std::vector<Antenna> fTransmitters;
@@ -112,7 +110,14 @@ private:
 
 };
 
-//  Other Detector configurations in unnamed namespace, not accesible from outside
+// Loader
+Detector load_antenna_list(libconfig::Setting& at_list);
+Detector load_detector_config(libconfig::Config& dect_config);
+Detector load_detector_file(const std::string& dect_config_filepath);
+
+//  Detector configurations can go in their own namespace,
+// to not access the wrong one by mistake. 
+
 namespace {
   /* GEANT 4 Array Style, position of the antennas.
 
@@ -123,7 +128,7 @@ namespace {
   e.g. (0, shelfSizeY/2., 0) lies in the middle of the ice shelf surface,
   an Y pos of -20.*m corresponds to 30 m below the surface
   */
-  static const std::vector<std::vector<double>> RNOgAntennas =
+  static const std::vector<std::vector<double>> StarGrid =
   {
     {28.2842712475*m, -140.*m, 28.2842712475*m},
     {-28.2842712475*m, -140.*m, -28.2842712475*m},

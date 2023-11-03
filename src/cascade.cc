@@ -1,19 +1,22 @@
 #include "cascade.hh"
 
-Cascade::Cascade(int event, double cenergy, double xpos, double ypos, double zpos,
-								 double czenith, double cazimuth, int np):
-				 Cascade(event, cenergy, xpos, ypos, zpos, czenith,cazimuth, np,
-								 cenergy, czenith, cazimuth, 1){}
+Cascade::Cascade(double xpos, double ypos, double zpos,
+								 double zenith, double azimuth, double energy, int primaries,
+                 int n_num, int t_num):
+				 Cascade(xpos, ypos, zpos, zenith, azimuth, energy, primaries,
+								 n_num, t_num, 0, 0, 0, 0.0, 1.0){}
 
-Cascade::Cascade(int event, double cenergy, double xpos, double ypos, double zpos,
-								 double czenith, double cazimuth,  int np, 
-                 double nenergy, double nzenith, double nazimuth, double oneweight):
-				 			   fEvent(event),
-								 fEnergy(cenergy),
-                 fNp(np),
+Cascade::Cascade(double xpos, double ypos, double zpos,
+								 double zenith, double azimuth, double energy, int primaries,
+                 int n_num, int t_num, int p_id, int i_type, int channel,
+                 double inelasticity, double oneweight):
+								 fEnergy(energy),
+                 fNp(primaries),
 								 fPosition{xpos, ypos, zpos},
-								 fSphericalAngles{czenith,cazimuth},
-								 fNeutrino{nenergy, nzenith, nazimuth,oneweight} {
+								 fSphericalAngles{zenith,azimuth},
+								 fParent{n_num,t_num,p_id,i_type,channel},
+                 fBy(inelasticity),
+                 fOneweight(oneweight){
 
 	fDirection[0] = sin(fSphericalAngles[0])*cos(fSphericalAngles[1]);
 	fDirection[1] = sin(fSphericalAngles[0])*sin(fSphericalAngles[1]);
@@ -24,11 +27,9 @@ Cascade::Cascade(int event, double cenergy, double xpos, double ypos, double zpo
 		 			= 4*(log(fEnergy/E_c)) * X_0
  */
 
-	// fXtot = 4 * log(12.72 * fEnergy) * X_0;	
- 	fXtot = 3 * log(12.72 * fEnergy) * X_0;			
+ 	fXtot = Ltot_factor * log(12.72 * fEnergy) * X_0;			
 	fLtot = fXtot/rho_ice; 											
-	fRtot = 2*r_moliere;
-	// fRtot = 3*r_moliere;											
+	fRtot = Rtot_factor * r_moliere;								
 
 	/* If you want your cascade to scale with energy in both dimensions,
 	this should work for any energy above 1 PeV / 10^6 GeV/ 10^15 eV.
@@ -132,7 +133,7 @@ void Cascade::Ne( const std::vector<std::vector<double>> &length_vals,
     for (int j = 0; j < fNe[i].size(); j++){
       // Simple check to avoid computing values too far out from the cascade direction
       if ( abs(radius_vals[i][j]) <= fRtot ) {
-        fDensity[i][j] = Ne(rho_ice*length_vals[i][j], radius_vals[i][j], delta_r);
+        fNe[i][j] = Ne(rho_ice*length_vals[i][j], radius_vals[i][j], delta_r);
       }
     }
   }
@@ -160,7 +161,7 @@ void Cascade::PlasmaFreq(const std::vector<std::vector<double>> &density){
 
   for (int i = 0; i < density.size(); i++){
     for (int j = 0; j < density[i].size(); j++){
-      if (density[i][j] != 0) {fPlasmaFrequency[i][j] = PlasmaFreq(density[i][j]);}
+      if (density[i][j] != 0) {fPlasmaFrequency[i][j] = Cascade::PlasmaFreq(density[i][j]);}
     }
   }
 }
@@ -243,7 +244,7 @@ double Cascade::Xtot() const {return fXtot;}
 std::vector<double> Cascade::Pos() const {return fPosition;}
 std::vector<double> Cascade::Dir() const {return fDirection;}
 std::vector<double> Cascade::Sph() const {return fSphericalAngles;};
-double* Cascade::Parent() {return fNeutrino;}
+int* Cascade::Info() {return fParent;}
 
 std::vector<std::vector<double>> Cascade::Ne()  { return fNe; }
 std::vector<std::vector<double>> Cascade::Density()  { return fDensity; }
@@ -283,62 +284,92 @@ std::vector<std::vector<double>> Cascade::Opacity(){
     exit(EXIT_FAILURE);
     } 
   return fOpacity; 
-  }
+}
 std::vector<std::vector<double>> Cascade::Transparency(){
   if (fTransparency.empty()){
     std::cerr << "Transparency has not been set!" << std::endl;
     exit(EXIT_FAILURE);
   }
    return fTransparency; 
-   }
+}
+// ----------------------------------------------------------------------------
+
+void Cascade::save_output_files(const std::string& output_path, const std::array<bool, 8>& flags){
+
+  if(flags[0]){ write_2D_array(Ne(),          output_path + "_e_number.txt");}
+  if(flags[1]){ write_2D_array(Density(),     output_path + "_density_tx.txt");}
+  if(flags[2]){ write_2D_array(PlasmaFreq(),  output_path + "_plasma_freq.txt");}
+  if(flags[3]){ write_2D_array(Absorption(),  output_path + "_absorption.txt");}
+  if(flags[4]){ write_2D_array(SkinDepth(),   output_path + "_skin_depth.txt");}
+  if(flags[5]){ write_2D_array(Reflectance(), output_path + "_reflectance.txt");}
+  if(flags[6]){ write_2D_array(Opacity(),     output_path + "_opacity.txt");}
+  if(flags[7]){ write_2D_array(Transparency(),output_path + "_transparency.txt");}
+}
 
 // -----------------------------------------------------------------------------
-std::vector<Cascade> load_cascade_file(const std::string& cs_filepath){
-  std::ifstream cs_file(cs_filepath);
+std::vector<Cascade> load_cascade_config(libconfig::Config& cs_config, std::ostream& out){
+  libconfig::Setting &root = cs_config.getRoot();
 
-  if (!cs_file.is_open()){ 
-    std::cout << "The input file is not opening" << std::endl;
-    throw 1;
+  try{
+    const libconfig::Setting& cs_list = root["cascade"];
+  } catch(const libconfig::SettingNotFoundException &nfex) {
+    std::cerr << "Your config file is missing the cascade group" << std::endl;
+    exit(EXIT_FAILURE);
   }
 
-  std::string path_out = cs_filepath.substr(0,cs_filepath.find_last_of("."))
-    + "_rejected.out";
+  const libconfig::Setting& cs_list = root["cascade"];
 
-  int eventnr, np;
-  bool rejected = false; 
-  double nzenith,nazimuth,nenergy,czenith,cazimuth,cenergy,xpos,ypos,zpos,oneweight;
   std::vector<Cascade> Cascades;
+  int n_num, t_num, p_id, i_type, channel, primaries;
+  double energy, xpos, ypos,zpos, zenith, azimuth, inelasticity, oneweight;
 
-  while (cs_file  >> eventnr >> nzenith >> nazimuth >> nenergy >> np >> czenith >> cazimuth >>
-  cenergy >> xpos >> ypos >> zpos >> oneweight) {
-  // Read line from file
-
-    if (cenergy < 1E6) {              // Energy check
-       std::cout << "Skipping cascade " << eventnr <<
-       " since it has energy below the 1 PeV threshold" << std::endl;
-       rejected = true;
-    }
-
-/*  This is omitted for testing purposes
-     else if((zpos - 1389) > 0){   // Position check
-      // 1389 = 2778/2, is the middle of the ice shelf [m]
-      cout << "The cascade "<< eventnr <<
-        " has a positive z-position (out-of-ice)" << endl;
-      rejected = true;
-    }
-*/
-
-    if (!rejected){
-        Cascade cs(eventnr, cenergy, xpos,ypos,zpos, czenith, cazimuth,
-          np, nenergy, nzenith, nazimuth, oneweight);
-        Cascades.push_back(cs);
-    } else {
-      std::ofstream log(path_out, std::ios_base::app | std::ios_base::out);
-      log << eventnr << nzenith  << nazimuth  << nenergy << np << czenith << cazimuth
-       << cenergy << xpos << ypos << zpos << oneweight << std::endl;
-    }
+  for (int i = 0; i < cs_list.getLength(); i++){
+    const libconfig::Setting &cs = cs_list[i];
+    
+    if( !(
+          cs.lookupValue("energy", energy)               &&
+          cs["position"].lookupValue("x", xpos)   &&
+          cs["position"].lookupValue("y", ypos)  &&
+          cs["position"].lookupValue("z", zpos)  &&
+          cs["direction"].lookupValue("zenith", zenith)      &&
+          cs["direction"].lookupValue("azimuth", azimuth)      &&
+          cs.lookupValue("primaries", primaries)          
+        )
+    ){
+      out << "Cascade " << i << " was missing a critical parameter and was skipped" << std::endl;
+      continue;
+    } 
+    // None of these are critical, but if available then we store them.
+    cs.lookupValue("nu_num", n_num);
+    cs.lookupValue("track_num", t_num);
+    cs.lookupValue("p_id", p_id);
+    cs.lookupValue("i_type", i_type);
+    cs.lookupValue("channel", channel);
+    cs.lookupValue("inelasticity", inelasticity);
+    cs.lookupValue("oneweight", oneweight);
+    
+    out << "Cascade " << i << " was parsed correctly" << std::endl;
+    
+    // We add the units here!   
+    // Order matters here!
+    Cascades.push_back( 
+      Cascade( 
+        xpos *m, ypos *m, zpos *m,
+        zenith *deg, azimuth *deg,
+        energy * GeV, primaries, 
+        n_num, t_num, p_id, i_type, channel, 
+        inelasticity, oneweight
+      )
+    );
 
   }
+  return Cascades;
+}
+
+std::vector<Cascade> load_cascade_file(const std::string& cs_config_filepath, std::ostream& out){
+  libconfig::Config cfg;
+  load_config_file(cfg, cs_config_filepath.c_str());
+  std::vector<Cascade> Cascades = load_cascade_config(cfg, out);
   return Cascades;
 }
 

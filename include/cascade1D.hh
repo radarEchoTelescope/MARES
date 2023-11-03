@@ -13,11 +13,12 @@
 class Cascade1D: public Scatter1D, public Cascade {
 public:
 
-  Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs,
-        const double deltaL = _dL, const double deltaR = _dR, const double deltaN = _dN,
+    Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs,
+        const double deltaL = _dL, const double deltaR = _dR,
         const double sampling = _sampling);
 
   void SetInDirection(double rand_seed = 42);
+  void SetInMaxReflectivty();
 
   std::vector<double> TCS();
   std::vector<std::vector<double>> Radius();
@@ -38,7 +39,7 @@ private:
 */
 // The resolution in the frame that integrates the cascade values.
 // The free parameter is the step size.
-  double dL, dR, dN;
+  double dL, dR;
   // nbins  = size / step_size.
   int nL, nR;
 
@@ -70,18 +71,3 @@ private:
 
 };
 #endif
-
-// std::vector<Scatter> run_scatter_events(Detector det, std::vector<Cascade> cascade_list){
-//   std::vector<Scatter> event_list;
-//   // For every cascade
-//   for (auto& cs: cascade_list){
-//     // For every transmitter
-//     for (auto& tx : det.get_transmitters()){
-//       // For every RX
-//       for (auto& rx : det.get_receivers()){
-//         // Make the bistatic event.
-//         event_list.push_back(Scatter(tx,rx,cs));
-//       }
-//     }
-//   }
-// }
