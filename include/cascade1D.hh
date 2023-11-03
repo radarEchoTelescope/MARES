@@ -18,6 +18,7 @@ public:
         const double sampling = _sampling);
 
   void SetInDirection(double rand_seed = 42);
+  void SetInMaxReflectivty();
 
   std::vector<double> TCS();
   std::vector<std::vector<double>> Radius();

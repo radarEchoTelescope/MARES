@@ -44,10 +44,10 @@ set( LIB_HEADERS
     ${PROJECT_SOURCE_DIR}/include/antenna.hh
     ${PROJECT_SOURCE_DIR}/include/cascade.hh
     ${PROJECT_SOURCE_DIR}/include/cascade1D.hh
-    ${PROJECT_SOURCE_DIR}/include/global_units_constants.hh
     ${PROJECT_SOURCE_DIR}/include/scatter.hh
     ${PROJECT_SOURCE_DIR}/include/scatter1D.hh
     ${PROJECT_SOURCE_DIR}/include/settings.hh
+    ${PROJECT_SOURCE_DIR}/include/settings_units_constants.hh
 
 )
 

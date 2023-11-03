@@ -17,7 +17,7 @@
 
 #include <libconfig.h++>
 
-#include <global_units_constants.hh>
+#include <settings_units_constants.hh>
 
 // Simulation parameters --------------------------------------------    
 // see "settings_params.hh"
@@ -54,6 +54,15 @@ static double _L_0 = _X_0/_rho_ice;       // Radiation length = 39.22 cm
     // Air / Other constants -----------------------------------
 // extern double rho=1.168e-3;//sea level density
 // extern double x_0=36.7;//radiation length in air
+
+// The total cascade dimensions are given in terms of the 
+// the typical length scale in every dimension. 
+// Total = typical* factor
+// 	The typical length of a cascade is log(12.72 * fEnergy) * X_0;	
+// 	The typical radius of a cascade is the moliere radius;	
+
+static const double Ltot_factor = 3;
+static const double Rtot_factor = 2;
 
 /*"Hiding" the mutable values and accessing through a constant reference
 protects the code against accidental changes in a global variable. */
@@ -169,5 +178,8 @@ void write_1D_array(std::vector<double> array, std::string output_path, const bo
 
 void write_2D_array(std::vector<std::vector<double>> array, std::string output_path, const bool trigger = true);
 
+// Read a libconfig file and return the configuration. 
+// If there is an error, report it and exit early.
+void load_config_file(libconfig::Config& cfg, const char* config_file);
 
 #endif

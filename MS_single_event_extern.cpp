@@ -33,7 +33,7 @@ int main(int argc, char** argv){
   double csnumber   = atof(argv[8]);
 
   // Now we make the cascade's object
-  Cascade cascade( 0, csenergy, csxpos, csypos, cszpos, cszenith, csazimuth, csnumber);
+  Cascade cascade( csxpos, csypos, cszpos, cszenith, csazimuth, csenergy, csnumber);
   // And pointer. 
   Cascade& cs = cascade;
 

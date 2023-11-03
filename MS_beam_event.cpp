@@ -45,8 +45,8 @@ int main(int argc, char** argv){
   double csnumber   = 1E9;
 
   // Now we make the cascade's object
-  Cascade cascade( 0, csenergy, csxpos, csypos, cszpos, 
-                      cszenith, csazimuth, csnumber);
+  Cascade cascade(csxpos, csypos, cszpos, 
+                  cszenith, csazimuth, csenergy, csnumber);
   // And its pointer. 
   Cascade& cs = cascade;
 

@@ -21,3 +21,16 @@ void write_2D_array(std::vector<std::vector<double>> array, std::string output_p
     output_file.close();
   }
 }
+
+void load_config_file(libconfig::Config& cfg, const char* config_file){
+  try{
+    cfg.readFile(config_file);
+  } catch(const libconfig::FileIOException &fioex) {
+      std::cerr << "I/O error while reading file." << std::endl;
+      exit(EXIT_FAILURE);
+  } catch(const libconfig::ParseException &pex) {
+      std::cerr << "Parse error at " << pex.getFile() << ":" << pex.getLine()
+              << " - " << pex.getError() << std::endl;
+      exit(EXIT_FAILURE);
+  }
+}

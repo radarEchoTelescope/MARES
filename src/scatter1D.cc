@@ -14,8 +14,7 @@ void Scatter1D::SetInDirection(std::vector<double> vertex,
                         double length, double rand_seed){
 
   double dSeg = length/nP;
-  // This does not work
-  // if(rand_seed){ RN_uniform rand_line(-0.5, 0.5, rand_seed);}
+  
   RN_uniform rand_line(-0.5, 0.5, rand_seed);
 
   for(int i = 0 ; i < nP; i++){
@@ -38,18 +37,7 @@ void Scatter1D::SetInDirection(std::vector<double> vertex,
 }
 
 
-/* So far, the plane R_TX, L_TX was created to cover the cascade at an angle and
-the values within were rotated to find the values in the cascade frame (density, etc).
-For geometry, a point P with coordinates (r,l) in the TX frame is placed in the
-3D lab frame at:
 
-P = CS_vertex + r*e(R_TX) +l*e(L_TX) (capitals == vector)
-
-The choice of L_TX is the direction normal to R_TX that is consistent with the
-rotation matrix used in SetTX(), which is the clockwise rotation
-of the TX frame with positive angle, or the cascade rotating anti-clockwise from
-the frame with positive delta.
-*/
 void Scatter1D::SetInPosition(std::vector<double> vertex,
                     std::vector<double> direction,
                     std::vector<double> & l_vals,
@@ -90,11 +78,7 @@ void Scatter1D::SetInPosition(std::vector<double> vertex,
     p.Position[2]  = r_vals[i]*R_TX_dir[2]*s + l_vals[i]*L_TX_dir[2];
     p.L = norm(p.Position);
 
-// TO_DO: insert randomisation too.
-
-  // // Giving a non-uniform position in the cascade gets rid of artifacts in the FFT.
-  // RN_uniform rand_line(-0.5, 0.5, 42);          // Same seed for debugging.
-  // // RN_uniform rand_line(-0.5, 0.5, time(0));  // Different seed for random, independent runs.
+    p.StartTime = p.L/c_vac;
 
     // Set Position in lab frame (TX)
     p.Position[0] += vertex[0];

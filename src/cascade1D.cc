@@ -41,6 +41,14 @@ void Cascade1D::SetInDirection(double rand_seed){
                 Cascade::fLtot, rand_seed);
 }
 
+void Cascade1D::SetInMaxReflectivty(){
+  // Compute the reflectivty matrix first.
+  Cascade::Transparency(Cascade::fDensity, Scatter::fTX.Freq(), dR );
+  // Place the segments along the values. 
+  Scatter1D::SetInMax( Cascade::fPosition, Cascade::fDirection,
+                dL, dR, Cascade::fReflectance);
+}
+
 /* Make 2D-array of density profile in the TX frame
 Transmitter frame (a, b) goes from (0 -> A , 0 -> B)
 Cascade frame (L,R) goes to (0 -> L, -r/2 -> r/2)

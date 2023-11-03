@@ -10,12 +10,16 @@ This file defines the cascade class and all its associated functions
 class Cascade {
 public:
 
-  Cascade(int evt, double cenergy, double xpos, double ypos, double zpos,
-          double czenith, double cazimuth, int np = 1);
+  Cascade(double xpos, double ypos, double zpos,
+          double zenith, double azimuth, 
+          double energy, int primaries = 1, 
+          int n_num = 0, int t_num = 0);
 
-  Cascade(int evt, double cenergy, double xpos, double ypos, double zpos,
-          double czenith, double cazimuth, int np, 
-          double nenergy, double nzenith, double nazimuth, double oneweight);
+  Cascade(double xpos, double ypos, double zpos,
+          double zenith, double azimuth, 
+          double energy, int primaries,
+          int n_num, int t_num, int p_id, int i_type, int channel,
+          double inelasticity, double oneweight);
 
 // Basic accessors
 
@@ -27,7 +31,7 @@ public:
   std::vector<double> Dir() const;
   std::vector<double> Pos() const;
   std::vector<double> Sph() const;
-  double* Parent();
+  int* Info();
 
 // Method's storage accesors
 // User should and can only read and store the values after they are made.
@@ -68,6 +72,8 @@ protected:
   int    fEvent;            // Event number.
   int    fNp;               // Number of primaries; 
   double fEnergy;          // Energy of the cascade.
+  double fBy;               // Inelasticity (Bjorken-y)
+  double fOneweight;        // oneweight
   
   // Max cascade depth: X_tot = 4* max depth from Heitler model estimate.
   double fXtot;           // Penetration depth
@@ -85,7 +91,7 @@ protected:
   std::vector<double> fSphericalAngles{0,0};    // {Theta = zenith, phi= azimuth}
 
   // Neutrino parent values: energy, zenith, azimuth, oneweight.
-  double fNeutrino[4];
+  int fParent[5];
 
 // Functions and methods
 
@@ -150,7 +156,10 @@ protected:
 
 };
 
-std::vector<Cascade> load_cascade_file(const std::string& cs_filepath);
+// Load a config or a config file and returns the cascades and 
+// outputs the rejected ones into a ostream (file or terminal). 
+std::vector<Cascade> load_cascade_file(const std::string& cs_config_filepath, std::ostream& out = std::cout);
+std::vector<Cascade> load_cascade_config(libconfig::Config& cs_config, std::ostream& out = std::cout);
 
 // Helper functions, used by other functions only
 namespace NKG{

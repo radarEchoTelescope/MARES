@@ -24,13 +24,13 @@ int main(int argc, char** argv){
   // Always include CLHEP-like global units at first definition. 
   // List of available units at settings.hh
 
-    // Energy per particle
-  double csenergy   = 1E7  *GeV;    
   double csxpos     = 0   *m;       
   double csypos     = 0   *m;
   double cszpos     = 0   *m;
   double cszenith   = 90  *deg;
   double csazimuth  = 90  *deg;
+    // Energy per particle
+  double csenergy   = 1E7  *GeV;    
     // Number of primaries
   double csnumber   = 1;
 
@@ -40,8 +40,8 @@ int main(int argc, char** argv){
   */
 
   // Now we make the cascade's object
-  Cascade cascade( 0, csenergy, csxpos, csypos, cszpos, 
-                      cszenith, csazimuth, csnumber);
+  Cascade cascade( csxpos, csypos, cszpos, 
+                   cszenith, csazimuth, csenergy, csnumber);
   // And its pointer. 
   Cascade& cs = cascade;
 
