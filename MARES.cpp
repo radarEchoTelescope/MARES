@@ -5,22 +5,17 @@ using namespace libconfig;
 
 int main(int argc, char** argv){
 
-// For now, we stick with the variables being defined either as write-in or
-// fed through the command line.
-
   // I/O Setup
 
-  // As default, the result is stored in the same folder as the executable.
-  // std::string path_out = "";
-  // std::string path_out = cs_filepath.substr(0,cs_filepath.find_last_of("."));
-
-  // If no argument with a config file has been passed, expect a "MARES.cfg file". 
+  // If no argument with a specific config file has been passed, 
+  // expect a "MARES_example.cfg file". 
   const char* config_file;
   argc < 2 ? config_file = "MARES_example.cfg": config_file = argv[1];
 
   Config cfg;
   load_config_file(cfg, config_file);
 
+  // By default, the result is stored in the same folder as the executable.
   std::string path_out = "./";
   if(cfg.lookupValue("path_out", path_out)){
     std::cout << "The output will be saved in: " << path_out << std::endl;
@@ -33,28 +28,35 @@ int main(int argc, char** argv){
     std::cout << "Starting run: " << identifier << std::endl;
   }
 
-  Setting &root = cfg.getRoot();
-
+  // Load your detector from your config file.
   Detector lab = load_detector_config(cfg);
-    // std::string path_out = cs_filepath.substr(0,cs_filepath.find_last_of("."))
-  //   + "_rejected.out";
 
+  // Load your cascades from your config file.
   std::vector<Cascade> cascade_list = load_cascade_config(cfg);
 
-// Remeber to check that your cascade list fits your requirements.
-// Position, min energy, etc.
+/* Feel free to sanitize your cascades now, if not done already
+  Do your cascades fit your requirements: Position, min energy, etc?
+  You can always make a file of rejected cascades!
+*/
 
-  // We check now what is the type of run that we want
+// We keep loading stuff from our config file.
+  Setting &root = cfg.getRoot();
+
+  // We check what are the run options
   const Setting& options_list = root["options"];
 
+    // Default position mode
   std::string position = "direction";
   options_list.lookupValue("position",  position);
 
+    // Default propagation mode
   std::string propagation = "const";
-  options_list.lookupValue("propagation",  propagation);
+  options_list.lookupValue("propagation", propagation);
 
-  // We check for the saving flags, aka what properties are going to be stored after the event is run.
+  // We check the saving flags,
+  //  aka what properties are going to be stored after the event is run.
 
+    // Cascade flags
   int total_cascade_flags;
   std::array<bool,8>  cascade_flags{0};
   try{
@@ -73,6 +75,7 @@ int main(int argc, char** argv){
   }
   if( !total_cascade_flags ){ std::cout << "There will be no cascade properties being saved" << std::endl; }
   
+    // Scatter flags
   int total_scatter_flags;
   std::array<bool,13> scatter_flags{0};
   try{
@@ -104,9 +107,42 @@ int main(int argc, char** argv){
   }
   
 
-  // std::cout << scatter_flags << std::endl;
-  // std::cout << cascade_flags << std::endl;
-  // We prepare the event
+  // We also need to check if any of our default parameters should be updated:
+  try{
+    const libconfig::Setting& properties_list = root["properties"];
+
+    if( properties_list["plasma"].lookupValue("lifetime", _lifetime)){ _lifetime *= ns; }
+    if( properties_list["plasma"].lookupValue("collision_freq", _f_coll)){ _f_coll *= THz;}
+    properties_list["plasma"].lookupValue("mass_ratio", _memp);
+    
+    if( properties_list["system"].lookupValue("dL", _dL)){ _dL *= cm;}
+    if( properties_list["system"].lookupValue("dR", _dR)){ _dR *= mm;}
+    properties_list["system"].lookupValue("sampling_ratio", _sampling);
+    
+    if( properties_list["medium"].lookupValue("refractive_index", _refindex)){
+      _c_ice = c_vac/_refindex;
+      _Z_ice = Z_0/_refindex;
+    }
+    if( properties_list["medium"].lookupValue("density", _rho_ice)){ 
+      _rho_ice *= g/pow(cm,3);
+      _L_0 = _X_0/_rho_ice;
+    }
+    if( properties_list["medium"].lookupValue("attenuation_length", _att_length)){ _att_length *= m;}
+    
+    if( properties_list["cascade"].lookupValue("moliere_radius", _r_moliere)){ _r_moliere *= m;}
+    if( properties_list["cascade"].lookupValue("ionization_energy", _E_ionization)){ _E_ionization *= MeV/(g/pow(cm,2));}
+    if( properties_list["cascade"].lookupValue("moliere_radius", _E_deposition)){ _E_deposition *= eV;}
+    if( properties_list["cascade"].lookupValue("critical_energy", _E_c)){ _E_c *= eV;}
+    if( properties_list["cascade"].lookupValue("radiation_columm_density", _X_0)){ 
+      _X_0 *= g/pow(cm,2);
+      _L_0 = _X_0/_rho_ice;
+      }
+
+  } catch(const libconfig::SettingNotFoundException &nfex) {
+    std::cerr << "No user-defined parameters found. Running with the default parameters" << std::endl;
+  }
+
+  // Fianlly, we prepare the and run all the TX-CS-RX events.
 
   Cascade1D* event;
   std::string unique_id;
@@ -121,27 +157,44 @@ int main(int argc, char** argv){
       for (int j = 0; j < rx_number; j++){
         auto rx = lab.Receivers()[j];
         
+        // For every new TX-CS combination, make and position your segments. 
         if(j == 0){
           event = new Cascade1D(tx,rx,cs);
 
           if(position == "direction"){
             event -> SetInDirection();
-            std::cout << "Check" << std::endl;
           } else if (position == "reflectivity"){
-            // event -> Transparency( event -> Density ());
-            // event -> Se
+            event -> SetInMaxReflectivty();
+          } else {
+            std::cerr << "Unknown position mode, stopping the run now" << std::endl;
+            exit(1);
           }
           
-
+        // After the first time, you only need to update the RX.  
         } else {
-          // Update RX,
-          // make sure it updates the direction to the antennas in the appropiate function
-          event -> UpdateRX(rx);
+          event -> Cascade1D::UpdateRX(rx);
         }
-        // If flag 
-        event -> SetInConstIce();
+
+        // Run the segment propagation
+        if(propagation == "const"){
+          event -> SetInConstIce();
+        } else if(propagation == "iceraytracing"){
+          event -> SetWithIRT();
+        } else if(propagation == "beam") {
+          const Setting& plane = options_list["interface"];
+          double n_out = options_list.lookup("n_out");
+          double n_beam = options_list.lookup("n_beam");
+          std::vector<double> interface = {(double) plane[0], plane[1], plane[2], plane[3]};
+          event -> SetInBeam(interface, n_out, n_beam);
+        } else {
+          std::cerr << "Unknown propagation mode, stopping the run now" << std::endl;
+          exit(1);
+        }
+        
+        // Run the scatter proper
         event -> RunScatter(save_time_profiles);
 
+        // write output 
         unique_id = path_out + "Cascade1D_" + identifier +
                   "_TX_" + std::to_string(i) +
                   "_RX_" + std::to_string(j) + 
@@ -159,8 +212,3 @@ int main(int argc, char** argv){
 
 }
 // End
-
-  /* arange() works as in python: Start,stop, steps
-    For a single value, start = stop and step > 0.
-    E.g: 90 = arange<double>(90, 90, 1)
-  */

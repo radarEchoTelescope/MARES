@@ -34,8 +34,8 @@ set( LIB_SOURCES
     ${PROJECT_SOURCE_DIR}/src/scatter_propagation.cc
     ${PROJECT_SOURCE_DIR}/src/scatter1D.cc
     ${PROJECT_SOURCE_DIR}/src/settings_math.cc
-    ${PROJECT_SOURCE_DIR}/src/settings_defaults.cc
     ${PROJECT_SOURCE_DIR}/src/settings.cc
+    ${PROJECT_SOURCE_DIR}/src/settings_defaults.cc
 
 )
 

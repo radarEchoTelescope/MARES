@@ -17,8 +17,14 @@ public:
         const double deltaL = _dL, const double deltaR = _dR,
         const double sampling = _sampling);
 
+  /* The RX re-setter
+  Correctly updates direction and angle w.r.t cascade vertex
+  */
+  void UpdateRX(const Antenna& new_RX);
+
   void SetInDirection(double rand_seed = 42);
   void SetInMaxReflectivty();
+
 
   std::vector<double> TCS();
   std::vector<std::vector<double>> Radius();

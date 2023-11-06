@@ -1,53 +1,89 @@
-#ifndef SETTINGS_PARAMS_cc
-#define SETTINGS_PARAMS_cc
+#ifndef SETTINGS_DEFAULTS_cc
+#define SETTINGS_DEFAULTS_cc
 
 #include "settings.hh"
 
-/* These are the mathematical model's variables.
-    By making these parameters non-const in the code,
- we allow for them to be changed at the beginning of a run.
- (For example, in a macro file). 
-
-    The numbers here act as a "default", when no specific value is needed. 
-    They include CLHEP-like units in their definition. 
-    Natural units: mm, ns, MeV.
+/* MARES default parameters.
+Default parameters are indicated by a "_" (_parameter).
+They include CLHEP-like units in their definition. 
+These values can be updated externally (CAREFUL!),
+BUT they need to be updated in the correct units described here.
+[unit]
 */  
 
-/* Default computational parameters */
-// These work as the default values for the constructors in MARES.
+/* --------- Plasma properties  --------------- */
 
+// Mean plasma lifetime [ns]
+double _lifetime = 10 *ns;            
 
+// Collision frequency estimate [THz]
+double _f_coll = 100 *THz;
+// RS value for collision frequency
+// double _f_coll = 64.733;         
+
+// Effective plasma mass ratio w.r.t electron
+// i.e, effective plasma mass in electron masses
+double _memp = 1;
+
+/* --------- Medium properties  --------------- */
+
+// Refractive index (Ice)
+double _refindex = 1.78;               
+// Refractive index (HDPE)
+// double _refindex = 1.51;
+
+// Density (Ice) [g/cm^3]
+double _rho_ice = 0.92 * g/pow(cm,3); 
+// Density (sea-level air)
+//double _rho = 1.168e-3;
+
+// Attenuation length [m]
+double _att_length = 1450.0 *m;
+        
+/* --------- Cascade properties  --------------- */
+
+// Moliere Radius (in ice) [cm]
+double _r_moliere = 7.0 *cm;
+
+// Electron ionization energy from secondary cascades 
+double _E_ionization = 20.0 *eV;
+// Electron ionization energy (RadioScatter)
+// double _E_ionization = 69 * eV;       
+
+// Electron deposition energy (dE/dX) [MeV/(g/cm^2)]
+// Mass stopping power of ice
+// i.e. energy loss per ionizing particle (@ 1 GeV)
+double _E_deposition = 2.0 *MeV/(g/pow(cm,2));       
+
+// Critical (threshold) energy for electron ionization [MeV]
+double _E_c = 78.6 *MeV;
+
+// Radiation "length" (columm density) in ice [g/pow(cm,2)]
+double _X_0 = 36.08 *g/pow(cm,2);    
+// Radiation length in air
+// double _X_0 = 36.7 *g/pow(cm,2);    
+
+/* --------- Simulation properties  --------------- */
 
 // Spatial resolution, effective scatterer size. 
 double _dL = 1 *cm; // [cm/bin]
 double _dR = 1 *mm;
-// Unused in a 1D cascade
-// double _dN = 1 *mm; // This is also a radial direction.
 
 // Temporal resolution, sampling ratio.
-// We found that best results are with a sampling between 10x and 100x freq_obs.
+// We found that best results are computed with 
+// a sampling ratio between 10x and 100x freq_obs.
 double _sampling = 50;
 
+/* 
+The cascade values are computed in a frame which dimensions
+are determined in terms of the the typical length scale in 
+every dimension. Total size = typical* factor
 
-      // Plasma ----------------------------------------------------------------
-double _lifetime = 3 *ns;            // Mean plasma lifetime
-double _f_coll= 100 *THz;         // [Hz] Collision frequency estimate
-// double _f_coll= 64.733 *THz;         // [Hz] RS collision frequency
-double _memp = 1;                    // Plasma to electron mass ratio
+      The typical length of a cascade is log(12.72 * fEnergy) * X_0;	
+ 	The typical radius of a cascade is the moliere radius;
+*/
 
-      // Ice  ------------------------------------------------------------------
-// double _refindex=1.78;               // refractive index
-double _refindex=1.51;               // refractive index
-double _att_length=1450 *m;          // Attenuation length
-double _rho_ice = 0.92 *g/pow(cm,3); // Density, from GEANT
-
-
-double _r_moliere = 7 *cm;           // Moliere Radius in ice
-// double _E_ionization = 20 *eV;    // e- ionization energy 
-double _E_ionization = 69 *eV;       // e- ionization energy [RS]
-
-double _E_deposition = 2 *MeV/(g/pow(cm,2));       
-double _E_c = 78.6 * MeV;          // Critical cascade energy for ionization
-double _X_0 = 36.08 *g/pow(cm,2);    // Radiation columm density
+double _Ltot_factor = 2.0;
+double _Rtot_factor = 2.0;
 
 #endif

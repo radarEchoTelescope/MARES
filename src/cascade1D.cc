@@ -34,7 +34,13 @@ Cascade1D::Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs,
       AddPoint(p);
   }
 
-  }
+}
+
+void Cascade1D::UpdateRX(const Antenna& new_RX){
+  Scatter::UpdateRX(new_RX);
+  fRX.SetDirection( Cascade::fPosition );
+  fRX.SetAngle( Cascade::fDirection);
+}
 
 void Cascade1D::SetInDirection(double rand_seed){
   Scatter1D::SetInDirection( Cascade::fPosition, Cascade::fDirection,
