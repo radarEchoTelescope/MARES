@@ -25,9 +25,7 @@ void Scatter::AddPoints(const std::vector<ScatterPoint> new_points){
 }
 
 /* Run time loop */
-// Requires set_segments and set_radar_cs();
 void Scatter::RunScatter(const bool save2Dmatrices){
-  // Temporary variables
   int steps;
   double t, t_start, t_end, freq_sampling;
   
@@ -85,8 +83,8 @@ void Scatter::RunScatter(const bool save2Dmatrices){
 
         // The voltage has to also include polarization and attenuation effects. 
         voltage_time[i] =  sqrt_rcs_time[i] * 1.0/(p.RTX*p.RRX) *
-                            // p.PolEff * p.Attenuation;
-                            1;
+                            p.PolEff * p.Attenuation;
+                            // 1;
       }
     }
 

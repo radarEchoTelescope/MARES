@@ -63,7 +63,6 @@ struct ScatterPoint{
 
 /* Simple scatter event with bistatic configuration*/
 class Scatter {
-    // friend class Scatter1D;
 public:
 
   Scatter(Antenna& tx, Antenna& rx, std::vector<ScatterPoint> points,
