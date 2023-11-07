@@ -32,7 +32,7 @@ set( LIB_SOURCES
     ${PROJECT_SOURCE_DIR}/src/cascade1D.cc
     ${PROJECT_SOURCE_DIR}/src/scatter.cc
     ${PROJECT_SOURCE_DIR}/src/scatter_propagation.cc
-    ${PROJECT_SOURCE_DIR}/src/scatter1D.cc
+    # ${PROJECT_SOURCE_DIR}/src/scatter1D.cc
     ${PROJECT_SOURCE_DIR}/src/settings_math.cc
     ${PROJECT_SOURCE_DIR}/src/settings.cc
     ${PROJECT_SOURCE_DIR}/src/settings_defaults.cc
@@ -45,7 +45,7 @@ set( LIB_HEADERS
     ${PROJECT_SOURCE_DIR}/include/cascade.hh
     ${PROJECT_SOURCE_DIR}/include/cascade1D.hh
     ${PROJECT_SOURCE_DIR}/include/scatter.hh
-    ${PROJECT_SOURCE_DIR}/include/scatter1D.hh
+    # ${PROJECT_SOURCE_DIR}/include/scatter1D.hh
     ${PROJECT_SOURCE_DIR}/include/settings.hh
     ${PROJECT_SOURCE_DIR}/include/settings_units_constants.hh
 

@@ -7,10 +7,10 @@
 #define CASCADE1D
 
 #include "cascade.hh"
-#include "scatter1D.hh"
+#include "scatter.hh"
 // #define NDEBUG     // Turn off debug.
 
-class Cascade1D: public Scatter1D, public Cascade {
+class Cascade1D: public Scatter, public Cascade {
 public:
 
     Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs,
