@@ -159,6 +159,7 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
   // Set phase
   // According to uzair,
   // Phase = k_vac*Optical path length = k_vac*propagation time*c_vac
+  // K_vac*RayPath
   // Waiting for confirmation from Krijn 
   
   p.Phase = fTX.Wavenumber()*(p.RTX + p.RRX)

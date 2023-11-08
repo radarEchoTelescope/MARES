@@ -12,9 +12,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED YES)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/lib/IceRayTracing/namespace/woROOT/)
 
-find_package(GSL REQUIRED)
 find_package(PkgConfig)
-pkg_check_modules(LIBCONFIG_PLUSPLUS libconfig++ REQUIRED)
+find_package(GSL REQUIRED)
+pkg_check_modules(LIBCONFIG_PLUSPLUS libconfig++)
+if(NOT LIBCONFIG_PLUSPLUS_FOUND)
+    set(LIBCONFIG_PLUSPLUS ${PROJECT_SOURCE_DIR}/lib/libconfig/lib/libconfig++.so)
+    message( "Using local libconfig at: " ${LIBCONFIG_PLUSPLUS})
+endif()
+
 
 
 #----------------------------------------------------------------------------
