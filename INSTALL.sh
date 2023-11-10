@@ -6,6 +6,7 @@
 
 ERROR_FLAG=0
 
+
 # Handeling the argument passed to the script
 MODE=$1
 if [ -z "$1" ]; then
@@ -15,6 +16,20 @@ fi
 if [ $ERROR_FLAG == 1 ]; then
     exit 1
 fi
+
+initial=$PWD
+
+mkdir -p lib
+
+if [ -d lib/IceRayTracing ] 
+then 
+  cd lib/IceRayTracing && git pull 
+else  
+  cd lib && git clone https://github.com/uzairlatif90/IceRayTracing
+fi 
+
+cd $initial
+
 
 # This forces a complete re-build
 if [ $MODE == 1 ]; then
