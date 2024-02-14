@@ -42,7 +42,6 @@ build/*
 elastic_collision_freq/
 outputs/
 *.txt
-*.cfg
 *.ipynb
-.vscode
+.vscode/
 
