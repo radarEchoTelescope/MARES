@@ -44,3 +44,5 @@ outputs/
 *.txt
 *.cfg
 *.ipynb
+.vscode
+

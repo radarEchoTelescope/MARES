@@ -17,7 +17,7 @@ int main(int argc, char** argv){
   std::string identifier  = argv[1];
  
  // Full identifier (in case you have similar executables). 
-  std::string identifier_c = "Cascade1D_" + identifier;
+  std::string identifier_c = "Cascade1D_single_event_" + identifier;
 
   // 2- Cascade's parameters 
   // [!NOTICE] Units are not assumed in MARES.
@@ -159,8 +159,13 @@ int main(int argc, char** argv){
       // Cascade (cs) products.
     /* Some of these will only be enerated on demand. They are not needed for the scatter.*/
 
-  // write_2D_array(nu_cascade.Radius(),         identifier_c + "_radial_values.txt", 1);
- 
+  // write_2D_array(nu_cascade.Ne(),         identifier_c + "_e_number.txt", 1);
+  // write_2D_array(nu_cascade.Density(),         identifier_c + "_density.txt", 1);
+  // write_2D_array(nu_cascade.Absorption(),         identifier_c + "_absorption.txt", 1);
+  // write_2D_array(nu_cascade.SkinDepth(),         identifier_c + "_skin_depth.txt", 1);
+  // write_2D_array(nu_cascade.Reflectance(),         identifier_c + "_reflectance.txt", 1);
+  // write_2D_array(nu_cascade.Transparency(),         identifier_c + "_transparency.txt", 1);
+  // write_2D_array(nu_cascade.Opacity(),         identifier_c + "_opacity.txt", 1);
 
       // Scatter object products: Positions and propagation 
   // write_2D_array(nu_cascade.Coordinates(),    identifier_c + "_coords.txt", 1);

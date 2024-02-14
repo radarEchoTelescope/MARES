@@ -24,10 +24,66 @@ void Scatter::AddPoints(const std::vector<ScatterPoint> new_points){
   nP = fPoints.size();
 }
 
+
+void Scatter::SetInDirection(std::vector<double> vertex,
+                        std::vector<double> direction,
+                        double length, double rand_seed){
+
+  double dSeg = length/nP;
+  
+  RN_uniform rand_line(-0.5, 0.5, rand_seed);
+
+  for(int i = 0 ; i < nP; i++){
+    ScatterPoint& p = fPoints[i];
+    
+    if(rand_seed){ 
+      p.L = (i + rand_line.get()) * dSeg;
+    } else{ 
+      p.L = i * dSeg; 
+    }
+
+    p.StartTime = p.L/c_vac;
+
+    // Set position
+    p.Position[0] = p.L*direction[0] + vertex[0];
+    p.Position[1] = p.L*direction[1] + vertex[1];
+    p.Position[2] = p.L*direction[2] + vertex[2];
+
+  }
+}
+
+void Scatter::SetInPlane(std::vector<double> vertex,
+                    std::vector<double> l_direction,
+                    std::vector<double> r_direction,
+                    const std::vector<double> & l_vals,
+                    const std::vector<double>& r_vals){
+
+
+  // Segment loop
+  // The length of l_vals and r_vals must be nL (nP), as that is the number of
+  // segments to be placed.
+  ScatterPoint p;
+  for(int i = 0 ; i < l_vals.size(); i++){
+    p = fPoints[i];
+
+    // Set distance from the shower head (starting point)
+    p.Position[0]  = r_vals[i]*r_direction[0] + l_vals[i]*l_direction[0];
+    p.Position[1]  = r_vals[i]*r_direction[1]*s + l_vals[i]*l_direction[1];
+    p.Position[2]  = r_vals[i]*r_direction[2]*s + l_vals[i]*l_direction[2];
+    p.L = norm(p.Position);
+
+    p.StartTime = p.L/c_vac;
+
+    // Set Position in lab frame
+    p.Position[0] += vertex[0];
+    p.Position[1] += vertex[1];
+    p.Position[2] += vertex[2];
+    }
+}
+
+
 /* Run time loop */
-// Requires set_segments and set_radar_cs();
 void Scatter::RunScatter(const bool save2Dmatrices){
-  // Temporary variables
   int steps;
   double t, t_start, t_end, freq_sampling;
   
@@ -68,6 +124,7 @@ void Scatter::RunScatter(const bool save2Dmatrices){
   	std::fill(sqrt_rcs_time.begin(), sqrt_rcs_time.end(), 0.0);
 		std::fill(voltage_time.begin(), voltage_time.end(), 0.0);
 		std::fill(phase_time.begin(), phase_time.end(), 0.0);
+
     for (int i = 0; i < nP; i++){
       ScatterPoint& p = fPoints[i];
 
@@ -85,8 +142,8 @@ void Scatter::RunScatter(const bool save2Dmatrices){
 
         // The voltage has to also include polarization and attenuation effects. 
         voltage_time[i] =  sqrt_rcs_time[i] * 1.0/(p.RTX*p.RRX) *
-                            // p.PolEff * p.Attenuation;
-                            1;
+                            p.PolEff * p.Attenuation;
+                            // 1;
       }
     }
 

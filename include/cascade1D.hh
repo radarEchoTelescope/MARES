@@ -7,18 +7,24 @@
 #define CASCADE1D
 
 #include "cascade.hh"
-#include "scatter1D.hh"
+#include "scatter.hh"
 // #define NDEBUG     // Turn off debug.
 
-class Cascade1D: public Scatter1D, public Cascade {
+class Cascade1D: public Scatter, public Cascade {
 public:
 
     Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs,
         const double deltaL = _dL, const double deltaR = _dR,
         const double sampling = _sampling);
 
+  /* The RX re-setter
+  Correctly updates direction and angle w.r.t cascade vertex
+  */
+  void UpdateRX(const Antenna& new_RX);
+
   void SetInDirection(double rand_seed = 42);
   void SetInMaxReflectivty();
+
 
   std::vector<double> TCS();
   std::vector<std::vector<double>> Radius();
@@ -68,6 +74,29 @@ private:
 
   std::vector<double> fTCS;
   void SetTCS();
+
+    /* 
+So far, the plane R_TX, L_TX was created to cover the cascade at an angle and
+the values within were rotated to find the values in the cascade frame (density, etc).
+For geometry, a point P with coordinates (r,l) in the TX frame is placed in the
+3D lab frame at:
+
+P = CS_vertex + r*e(R_TX) +l*e(L_TX) (capitals == vector)
+
+The choice of L_TX is the direction normal to R_TX that is consistent with the
+rotation matrix used in SetTX(), which is the clockwise rotation
+of the TX frame with positive angle, or the cascade rotating anti-clockwise from
+the frame with positive delta.
+*/
+    void SetInCSPlane(std::vector<double> vertex,
+                    std::vector<double> direction,
+                    std::vector<double> & l_vals,
+                    const std::vector<double>& r_vals);
+
+    void SetInMax(std::vector<double> vertex,
+                    std::vector<double> direction, 
+                    const double& dL, const double& dR,
+                    const std::vector<std::vector<double>> &variable);
 
 };
 #endif

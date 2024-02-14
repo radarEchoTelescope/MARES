@@ -26,8 +26,9 @@
 
 extern double _dL; // [cm/bin]
 extern double _dR;
-// extern double _dN; // This is also a radial direction.
 extern double _sampling;
+extern double _Ltot_factor;
+extern double _Rtot_factor;
 
     // Plasma ----------------------------------------------------------------
 extern double _lifetime;         // Mean plasma lifetime
@@ -61,8 +62,8 @@ static double _L_0 = _X_0/_rho_ice;       // Radiation length = 39.22 cm
 // 	The typical length of a cascade is log(12.72 * fEnergy) * X_0;	
 // 	The typical radius of a cascade is the moliere radius;	
 
-static const double Ltot_factor = 3;
-static const double Rtot_factor = 2;
+static const double Ltot_factor = _Ltot_factor;
+static const double Rtot_factor = _Rtot_factor;
 
 /*"Hiding" the mutable values and accessing through a constant reference
 protects the code against accidental changes in a global variable. */

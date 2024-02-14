@@ -12,9 +12,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED YES)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/lib/IceRayTracing/namespace/woROOT/)
 
-find_package(GSL REQUIRED)
 find_package(PkgConfig)
-pkg_check_modules(LIBCONFIG_PLUSPLUS libconfig++ REQUIRED)
+find_package(GSL REQUIRED)
+pkg_check_modules(LIBCONFIG_PLUSPLUS libconfig++)
+if(NOT LIBCONFIG_PLUSPLUS_FOUND)
+    set(LIBCONFIG_PLUSPLUS ${PROJECT_SOURCE_DIR}/lib/libconfig/lib/libconfig++.so)
+    message( "Using local libconfig at: " ${LIBCONFIG_PLUSPLUS})
+endif()
+
 
 
 #----------------------------------------------------------------------------
@@ -32,10 +37,9 @@ set( LIB_SOURCES
     ${PROJECT_SOURCE_DIR}/src/cascade1D.cc
     ${PROJECT_SOURCE_DIR}/src/scatter.cc
     ${PROJECT_SOURCE_DIR}/src/scatter_propagation.cc
-    ${PROJECT_SOURCE_DIR}/src/scatter1D.cc
     ${PROJECT_SOURCE_DIR}/src/settings_math.cc
-    ${PROJECT_SOURCE_DIR}/src/settings_defaults.cc
     ${PROJECT_SOURCE_DIR}/src/settings.cc
+    ${PROJECT_SOURCE_DIR}/src/settings_defaults.cc
 
 )
 
@@ -45,7 +49,6 @@ set( LIB_HEADERS
     ${PROJECT_SOURCE_DIR}/include/cascade.hh
     ${PROJECT_SOURCE_DIR}/include/cascade1D.hh
     ${PROJECT_SOURCE_DIR}/include/scatter.hh
-    ${PROJECT_SOURCE_DIR}/include/scatter1D.hh
     ${PROJECT_SOURCE_DIR}/include/settings.hh
     ${PROJECT_SOURCE_DIR}/include/settings_units_constants.hh
 
@@ -59,10 +62,10 @@ add_library(libMARES ${LIB_SOURCES} ${LIB_HEADERS})
 # message( "This is the message " ${PROJECT_SOURCE_DIR})
 
 set( EXEC_SOURCES
-    ${PROJECT_SOURCE_DIR}/MS_single_point.cpp
-    ${PROJECT_SOURCE_DIR}/MS_single_event.cpp
-    ${PROJECT_SOURCE_DIR}/MS_beam_event.cpp
-    ${PROJECT_SOURCE_DIR}/MS_single_event_extern.cpp
+    ${PROJECT_SOURCE_DIR}/MARES_single_point.cpp
+    ${PROJECT_SOURCE_DIR}/MARES_single_event.cpp
+    ${PROJECT_SOURCE_DIR}/MARES_beam_event.cpp
+    ${PROJECT_SOURCE_DIR}/MARES_single_event_extern.cpp
     ${PROJECT_SOURCE_DIR}/MARES.cpp
  )
 
@@ -79,13 +82,3 @@ foreach( testsourcefile ${EXEC_SOURCES} )
         GSL::gsl
     )
 endforeach( testsourcefile ${EXEC_SOURCES} )
-
-# add_executable(MS_single_event MS_single_event.cpp ${sources} ${headers})
-# target_link_libraries(MS_single_event)
-
-
-
-#----------------------------------------------------------------------------
-# Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
-#
-# install(TARGETS MS_single_event DESTINATION bin)

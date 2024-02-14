@@ -63,7 +63,6 @@ struct ScatterPoint{
 
 /* Simple scatter event with bistatic configuration*/
 class Scatter {
-    // friend class Scatter1D;
 public:
 
   Scatter(Antenna& tx, Antenna& rx, std::vector<ScatterPoint> points,
@@ -77,8 +76,34 @@ public:
   void AddPoint(const ScatterPoint& p);
   void AddPoints(const std::vector<ScatterPoint> new_points);
 
-/* Then, set your scatterers inside medium with one of the options below.
- The choice of media for propagation affects the effective directions,
+  /* Positioning functions */ 
+
+  void SetInDirection(std::vector<double> vertex,
+                      std::vector<double> direction,
+                      double length, double rand_seed = 42);
+  
+  /* SetInDirection places the ScatterPoints along a direction,
+   starting from a vertex position, equally spaced over a given length.
+
+  To get rid of artifacts in the FFT, the positions can be given a small
+    non-uniform randomisation along the direction of propagation.
+    [Default seed = 42]
+    [No randomisation = 0]
+  */
+
+  void SetInPlane(std::vector<double> vertex,
+                    std::vector<double> l_direction,
+                    std::vector<double> r_direction,
+                    const std::vector<double> & l_vals,
+                    const std::vector<double>& r_vals);
+ /* SetInPlane places the ScatterPoints in the lab frame
+ following an internal frame (the cascade frame usually) given by the 
+ directions of the frame and the positions within the frame {l_vals, r_vals}.
+ */
+
+ /* Propagation functions */ 
+
+/* The choice of media for propagation affects the effective directions,
  distances and times(?) of proapgation of the radio waves.
  The choice of propagation _might_ change the other properties of the ScatterPoint. 
   Spatial phase, Attenuation, Polarization, Directivity
@@ -104,7 +129,7 @@ Careful, because the medium change and refraction means that the relative
   Antenna RX();
   std::vector<ScatterPoint> Points();
 
-    // For particular variable over the full point collection.
+    // For retrieving a particular variable over the full point collection.
 
   // TODO: ADD COORDINATES ACCESOR
   std::vector<std::vector<double>> Position();
@@ -122,7 +147,6 @@ Careful, because the medium change and refraction means that the relative
   std::vector<double> Power();
   std::vector<double> RCS();
   std::vector<std::vector<double>> Phase_time();
-  // std::vector<std::vector<double>> TCS_time();
   std::vector<std::vector<double>> RCS_time();
   std::vector<std::vector<double>> E_time();
 
@@ -157,10 +181,6 @@ protected:
 
   // double tau;
   double sampling_ratio;
-
-  // Always done at construction, no reason to be changed.
-  // void SetAtDirection(Antenna &at);
-  // void SetAtDirCenter(Antenna &at);
 
 
 private:
@@ -209,10 +229,10 @@ WARNING: This does not match IRT coordinates???
 */
 
 
-  std::vector<double> fDuration; // [ns]
-  std::vector<double> fVoltage; // [V/m]
-  std::vector<double> fPower;    // [W]
-  std::vector<double> fRCS;      // [m^2]
+  std::vector<double> fDuration;  // [ns]
+  std::vector<double> fVoltage;   // [V/m]
+  std::vector<double> fPower;     // [W]
+  std::vector<double> fRCS;       // [m^2]
 
   std::vector<std::vector<double>> fRCSTime;
   std::vector<std::vector<double>> fPhaseTime;

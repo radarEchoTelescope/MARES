@@ -3,7 +3,7 @@
 Cascade1D::Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs,
                     const double deltaL, const double deltaR,
                     const double sampling):
-  Scatter1D(tx, rx, sampling), Cascade(cs), dL(deltaL), dR(deltaR){
+  Scatter(tx, rx, sampling), Cascade(cs), dL(deltaL), dR(deltaR){
 
 /* First: Set the antennas directions, module and dot product with cs */
   fTX.SetDirection( cs.Pos() );
@@ -19,7 +19,12 @@ Cascade1D::Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs,
     // Transparency = Transparency(Attenuation(Density), dR);
     // TCS(SRadius, Density, Transparency, damping, ...);
 
+
+// UNCOMMENT HERE AS NEEDED FOR NOW
+    // PlasmaFreq(fDensity);
     // Absorption(fDensity, fTX.Freq());
+    // SkinDepth(fDensity, fTX.Freq());
+    // Transparency(fDensity,fTX.Freq(), dR);
 
 // Third, compute the transparency and the TCS in one go
   SetTCS();
@@ -30,24 +35,22 @@ Cascade1D::Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs,
       p = {};
       p.ID = i;
       p.TCS = fTCS[i];
-      // p.Size = {dL, dR, dN};
       AddPoint(p);
   }
 
-  }
+}
+
+void Cascade1D::UpdateRX(const Antenna& new_RX){
+  Scatter::UpdateRX(new_RX);
+  fRX.SetDirection( Cascade::fPosition );
+  fRX.SetAngle( Cascade::fDirection);
+}
 
 void Cascade1D::SetInDirection(double rand_seed){
-  Scatter1D::SetInDirection( Cascade::fPosition, Cascade::fDirection,
+  Scatter::SetInDirection( Cascade::fPosition, Cascade::fDirection,
                 Cascade::fLtot, rand_seed);
 }
 
-void Cascade1D::SetInMaxReflectivty(){
-  // Compute the reflectivty matrix first.
-  Cascade::Transparency(Cascade::fDensity, Scatter::fTX.Freq(), dR );
-  // Place the segments along the values. 
-  Scatter1D::SetInMax( Cascade::fPosition, Cascade::fDirection,
-                dL, dR, Cascade::fReflectance);
-}
 
 /* Make 2D-array of density profile in the TX frame
 Transmitter frame (a, b) goes from (0 -> A , 0 -> B)
@@ -81,7 +84,7 @@ void Cascade1D::SetTXFrame(){
   std::vector<std::vector<double>> Iwr  = std::vector<std::vector<double>> (nL, std::vector<double> (nR, 0));
 
 // Fill the length and radial values in the transmitter frame. 
-double r, l, l_tmp, r_tmp, norm;
+  double r, l, l_tmp, r_tmp, norm;
   for (int i = 0; i < nL; i++){
     l = i* dL;
     norm = 0.0;
@@ -89,15 +92,17 @@ double r, l, l_tmp, r_tmp, norm;
       r = j * dR;
       l_tmp = (r - R/2)*cD + (l - L/2)*sD + fLtot/2;
       r_tmp = -(r - R/2)*sD + (l - L/2)*cD;
+      fCSLength[i][j] = l_tmp;
+      fCSRadius[i][j] = r_tmp;
+
       // Simple check to avoid computing values too far out from the cascade direction
       if ( abs(r_tmp) <= fRtot ) {
           Iwr[i][j] = NKG::intwiv(abs(r_tmp),dR);
           fNe[i][j] = Iwr[i][j]*Cascade::Ne(rho_ice*l_tmp, Cascade::fEnergy, Cascade::fNp)*dL;
           fDensity[i][j] = fNe[i][j]/ (pi*dL*(pow(dR,2) + 2*abs(r_tmp)*dR));
+          // or,
           // fDensity[i][i] = Cascade::Density(rho_ice*l_tmp, r_tmp, dR, Cascade::fEnergy, Cascade::fNp  );
       }
-      fCSLength[i][j] = l_tmp;
-      fCSRadius[i][j] = r_tmp;
     }
     // Normalisation in R!
     norm = std::accumulate(std::begin(Iwr[i]), std::end(Iwr[i]), 0.0);
@@ -129,18 +134,8 @@ the number of electrons N_e in each shell.
 void Cascade1D::SetTCS(){
 
   double transparency, transmitivity, tmp_tcs;
-  // OLD
-  // This is the damping factor, already squared. 
-  // double fDamping = 1.0 / sqrt( pow(fTX.Freq(), 4) + pow(fTX.Freq()*f_coll,2) );
-
-  // FIXED?
+  // This is the damping factor, \omega^2*W. 
   double fDamping = 1.0 / (1 + pow(f_coll/fTX.AngularFreq(), 2) );
-
-  // std::cout<< f_coll << std::endl;
-  // std::cout<< fTX.Freq() << std::endl;
-  // std::cout<< fDamping2 << std::endl;
-  // std::cout << fDamping << std::endl;
-
   fTCS = std::vector<double> ( fDensity.size(), 0.0 );
   for (int i = 0; i < fDensity.size(); i++){
     transmitivity = 1; transparency = 1, tmp_tcs = 0;
@@ -152,32 +147,82 @@ void Cascade1D::SetTCS(){
       // Reveals is something goes wrong with the density calc.
       assert(transparency > 0 && "Opacity larger than 1!");
       
-      // We sum into one TCS the contributions from the TCS from the 
-      // separate shells.
-
-      // CAREFUL! Sum(n)^2 != Sum(n^2)!!!
-// PREVIOUSLY ------------------------------
-    //   tmp_tcs += pow(fNe[i][j],2) * transparency;
-    // }
-    
-    // fTCS[i] = tmp_tcs*fDamping * thomson * 1.5 /dR;
-// ------------------------------------------
-// NOW --------------------------------------
+      // We sum into one TCS the electrons from the TCS from the separate shells.
       tmp_tcs += fNe[i][j];
     }
     
-    fTCS[i] = pow(tmp_tcs,2)*transparency*fDamping * thomson * 1.5 /dR;
-// ------------------------------------------
-
-      // std::cout << fTCS[i] << std::endl;
-
-
-    
+    fTCS[i] = pow(tmp_tcs,2)*transparency*fDamping * thomson * 1.5 ;
     //1.5 is (the gain of) the Herzian dipole factor
-    // dR is necessary to normaise here the number of steps/iterations that we do in this loop. 
+
   }
 }
 
+
+void Cascade1D::SetInCSPlane(std::vector<double> vertex,
+                    std::vector<double> direction,
+                    std::vector<double> & l_vals,
+                    const std::vector<double>& r_vals){
+
+
+  std::vector<double> R_TX_dir{0,0,0}, L_TX_dir{0,0,0},
+                      seg_pos{0,0,0}, tx_seg{0,0,0}, rx_seg{0,0,0};
+  R_TX_dir = normalize(fTX.Dir()) ;
+
+// This only breaks for R_TX_dir == this->fDirection, exactly, we can guard against it easily
+// A deviation of 10^-20 in the direction is well within numerical errors, and avoids
+// making the cross product exactly zero.
+
+  if( ( R_TX_dir == normalize( direction ) ) ) {
+    R_TX_dir[0] += 1E-20;
+    R_TX_dir[1] += 1E-20;
+    R_TX_dir[2] += 1E-20;
+  }
+
+  L_TX_dir = cross_product( normalize( cross_product(R_TX_dir, normalize(direction) ) ), R_TX_dir);
+  L_TX_dir = normalize(L_TX_dir);
+
+  // To separate between the cascade pointing towards TX and away from TX
+  double s = sgn( projection(R_TX_dir, direction) ); // cos(delta)
+  if(s < 0){  std::reverse( l_vals.begin(), l_vals.end() ); }
+
+  SetInPlane(vertex, L_TX_dir, R_TX_dir*s, l_vals, r_vals);
+
+}
+
+/*  For each segment in the L_TX direction, we can find the coordinates (r_max,l_max)
+  of the point where the reflectivity is the highest (it should correlate with the
+  peak density for the segment, too), and place the segment at that point.
+*/
+void Cascade1D::SetInMax(std::vector<double> vertex, std::vector<double> direction, 
+                          const double& dL, const double& dR,
+                          const std::vector<std::vector<double>> &variable){
+// i lives in L_TX, j lives in R_TX
+// (The integral of variable happens along j)
+    int i, j;
+    double l,r;
+    std::vector<double> fTXMaxLength;
+    std::vector<double> fTXMaxRadius;
+    double nL = variable.size();
+    fTXMaxLength = std::vector<double> (nL);
+    fTXMaxRadius = std::vector<double> (nL);
+  for (i = 0; i < nL; i++){
+    // We want the index, not the value, therefore distance()
+    j = std::distance(variable[i].begin(),
+            max_element(variable[i].begin(), variable[i].end() ) );
+    fTXMaxLength[i] = i*dL;   // This is "b" before the rotation
+    fTXMaxRadius[i] = j*dR;   // This is "a" before the rotation
+  }
+  
+  SetInCSPlane(vertex, direction, fTXMaxLength, fTXMaxRadius);
+}
+
+void Cascade1D::SetInMaxReflectivty(){
+  // Compute the reflectivty matrix first.
+  Cascade::Transparency(Cascade::fDensity, Scatter::fTX.Freq(), dR );
+  // Place the segments along the values. 
+  SetInMax( Cascade::fPosition, Cascade::fDirection,
+                dL, dR, Cascade::fReflectance);
+}
 
 
 // Accesors
