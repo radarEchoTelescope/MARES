@@ -41,3 +41,6 @@ lib/IceRayTracing
 build/*
 elastic_collision_freq/
 outputs/
+.vscode
+*.txt
+

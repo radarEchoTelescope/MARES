@@ -237,6 +237,7 @@ void Cascade::Transparency(const std::vector<std::vector<double>> &density,
 // ----------------------------------------------------------------------------
 // Accesors
 int  Cascade::Evt()	const {return fEvent;}
+int  Cascade::Nprimaries() const {return fNp;}
 double  Cascade::Energy() const {return fEnergy;}
 double Cascade::Ltot() const {return fLtot;}
 double Cascade::Rtot() const {return fRtot;}
@@ -320,8 +321,8 @@ std::vector<Cascade> load_cascade_config(libconfig::Config& cs_config, std::ostr
   const libconfig::Setting& cs_list = root["cascade"];
 
   std::vector<Cascade> Cascades;
-  int n_num, t_num, p_id, i_type, channel, primaries;
-  double energy, xpos, ypos,zpos, zenith, azimuth, inelasticity, oneweight;
+  int n_num, t_num, p_id, i_type, channel;
+  double energy, xpos, ypos,zpos, zenith, azimuth, primaries, inelasticity, oneweight;
 
   for (int i = 0; i < cs_list.getLength(); i++){
     const libconfig::Setting &cs = cs_list[i];
@@ -361,7 +362,6 @@ std::vector<Cascade> load_cascade_config(libconfig::Config& cs_config, std::ostr
         inelasticity, oneweight
       )
     );
-
   }
   return Cascades;
 }

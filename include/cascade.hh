@@ -24,6 +24,7 @@ public:
 // Basic accessors
 
   int    Evt()    const;
+  int    Nprimaries() const;
   double Energy() const;
   double Ltot()   const;
   double Rtot()   const;

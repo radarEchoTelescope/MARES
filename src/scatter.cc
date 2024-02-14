@@ -124,6 +124,7 @@ void Scatter::RunScatter(const bool save2Dmatrices){
   	std::fill(sqrt_rcs_time.begin(), sqrt_rcs_time.end(), 0.0);
 		std::fill(voltage_time.begin(), voltage_time.end(), 0.0);
 		std::fill(phase_time.begin(), phase_time.end(), 0.0);
+
     for (int i = 0; i < nP; i++){
       ScatterPoint& p = fPoints[i];
 

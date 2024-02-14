@@ -83,7 +83,8 @@ every dimension. Total size = typical* factor
  	The typical radius of a cascade is the moliere radius;
 */
 
-double _Ltot_factor = 2.0;
+// Ltot_factor can be 2 safely for speed, but 3 makes prettier plots. 
+double _Ltot_factor = 3.0;
 double _Rtot_factor = 2.0;
 
 #endif

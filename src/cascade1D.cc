@@ -19,7 +19,12 @@ Cascade1D::Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs,
     // Transparency = Transparency(Attenuation(Density), dR);
     // TCS(SRadius, Density, Transparency, damping, ...);
 
+
+// UNCOMMENT HERE AS NEEDED FOR NOW
+    // PlasmaFreq(fDensity);
     // Absorption(fDensity, fTX.Freq());
+    // SkinDepth(fDensity, fTX.Freq());
+    // Transparency(fDensity,fTX.Freq(), dR);
 
 // Third, compute the transparency and the TCS in one go
   SetTCS();
@@ -79,7 +84,7 @@ void Cascade1D::SetTXFrame(){
   std::vector<std::vector<double>> Iwr  = std::vector<std::vector<double>> (nL, std::vector<double> (nR, 0));
 
 // Fill the length and radial values in the transmitter frame. 
-double r, l, l_tmp, r_tmp, norm;
+  double r, l, l_tmp, r_tmp, norm;
   for (int i = 0; i < nL; i++){
     l = i* dL;
     norm = 0.0;
@@ -87,6 +92,9 @@ double r, l, l_tmp, r_tmp, norm;
       r = j * dR;
       l_tmp = (r - R/2)*cD + (l - L/2)*sD + fLtot/2;
       r_tmp = -(r - R/2)*sD + (l - L/2)*cD;
+      fCSLength[i][j] = l_tmp;
+      fCSRadius[i][j] = r_tmp;
+
       // Simple check to avoid computing values too far out from the cascade direction
       if ( abs(r_tmp) <= fRtot ) {
           Iwr[i][j] = NKG::intwiv(abs(r_tmp),dR);
@@ -95,8 +103,6 @@ double r, l, l_tmp, r_tmp, norm;
           // or,
           // fDensity[i][i] = Cascade::Density(rho_ice*l_tmp, r_tmp, dR, Cascade::fEnergy, Cascade::fNp  );
       }
-      fCSLength[i][j] = l_tmp;
-      fCSRadius[i][j] = r_tmp;
     }
     // Normalisation in R!
     norm = std::accumulate(std::begin(Iwr[i]), std::end(Iwr[i]), 0.0);
@@ -128,9 +134,8 @@ the number of electrons N_e in each shell.
 void Cascade1D::SetTCS(){
 
   double transparency, transmitivity, tmp_tcs;
-  // This is the damping factor, \omega*W. 
+  // This is the damping factor, \omega^2*W. 
   double fDamping = 1.0 / (1 + pow(f_coll/fTX.AngularFreq(), 2) );
-
   fTCS = std::vector<double> ( fDensity.size(), 0.0 );
   for (int i = 0; i < fDensity.size(); i++){
     transmitivity = 1; transparency = 1, tmp_tcs = 0;
@@ -146,9 +151,9 @@ void Cascade1D::SetTCS(){
       tmp_tcs += fNe[i][j];
     }
     
-    fTCS[i] = pow(tmp_tcs,2)*transparency*fDamping * thomson * 1.5 /dR;
+    fTCS[i] = pow(tmp_tcs,2)*transparency*fDamping * thomson * 1.5 ;
     //1.5 is (the gain of) the Herzian dipole factor
-    // dR is necessary to normaise here the number of steps/iterations that we do in this loop. 
+
   }
 }
 

@@ -365,6 +365,7 @@ void Scatter::SetInBeam(ScatterPoint& p, const std::vector<double> interface_pla
 
 // Sanity checks time! ------------------------
   //  First, Snell's law must be obeyed
+
   assert(abs(sin(theta_i) - n*sin(theta_r)) < 1e-5 && "Snell's law is not conserved");
   // Second, sine and cosine from both definitions have to match
   assert(abs(s_i - sin(theta_i)) < 1e-5 && "Sine of incoming angle mismatch");
