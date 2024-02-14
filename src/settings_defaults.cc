@@ -80,27 +80,6 @@ are determined in terms of the the typical length scale in
 every dimension. Total size = typical* factor
 */
 
-// Plasma
-double _lifetime = 10 *ns;            // Mean plasma lifetime
-double _f_coll= 100 *THz;         // [Hz] Collision frequency estimate
-//double _f_coll= 64.733 *THz;         // [Hz] RS collision frequency
-double _memp = 1;                    // Plasma to electron mass ratio
-
-      // Ice  ------------------------------------------------------------------
-double _refindex=1.78;               // refractive index
-// double _refindex=1.51;               // refractive index
-double _att_length=1450 *m;          // Attenuation length
-double _rho_ice = 0.92 *g/pow(cm,3); // Density, from GEANT
-
-
-double _r_moliere = 7 *cm;           // Moliere Radius in ice
-// double _E_ionization = 20 *eV;    // e- ionization energy 
-double _E_ionization = 69 *eV;       // e- ionization energy [RS]
-
-double _E_deposition = 2 *MeV/(g/pow(cm,2));       
-double _E_c = 78.6 * MeV;          // Critical cascade energy for ionization
-double _X_0 = 36.08 *g/pow(cm,2);    // Radiation columm density
-
       /*The typical length of a cascade is log(12.72 * fEnergy) * X_0;	
  	The typical radius of a cascade is the moliere radius;
 */

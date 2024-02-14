@@ -62,11 +62,11 @@ add_library(libMARES ${LIB_SOURCES} ${LIB_HEADERS})
 # message( "This is the message " ${PROJECT_SOURCE_DIR})
 
 set( EXEC_SOURCES
-    ${PROJECT_SOURCE_DIR}/MARES_single_point.cpp
-    ${PROJECT_SOURCE_DIR}/MARES_single_event.cpp
-    ${PROJECT_SOURCE_DIR}/MARES_beam_event.cpp
-    ${PROJECT_SOURCE_DIR}/MARES_single_event_extern.cpp
-    ${PROJECT_SOURCE_DIR}/MARES.cpp
+    ${PROJECT_SOURCE_DIR}/executables/MARES_single_point.cpp
+    ${PROJECT_SOURCE_DIR}/executables/MARES_single_event.cpp
+    ${PROJECT_SOURCE_DIR}/executables/MARES_beam_event.cpp
+    ${PROJECT_SOURCE_DIR}/executables/MARES_single_event_extern.cpp
+    ${PROJECT_SOURCE_DIR}/executables/MARES.cpp
  )
 
 

@@ -31,8 +31,6 @@ int main(int argc, char** argv){
   double cszpos     = 0   *m;
   double cszenith   = 90  *deg;
   double csazimuth  = 90  *deg;
-    // Energy per particle
-  double csenergy   = 1E7  *GeV;    
     // Number of primaries
   double csnumber   = 1;
 
