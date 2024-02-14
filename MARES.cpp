@@ -222,10 +222,10 @@ int main(int argc, char** argv){
         event -> Scatter::save_output_files(unique_id, scatter_flags);
 
       }
+      // Housekeeping!
+      delete event;
     }
   }
-  // Housekeeping!
-  // delete event;
 
 }
 // End
