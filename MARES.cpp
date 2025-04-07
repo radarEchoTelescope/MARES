@@ -1,10 +1,11 @@
 /* Radar computation - return electric field of a list of events*/
 
 #include "cascade1D.hh"
+
 using namespace libconfig;
 
 int main(int argc, char** argv){
-
+  
   // I/O Setup
 
   // If no argument with a specific config file has been passed, 
@@ -27,18 +28,6 @@ int main(int argc, char** argv){
   if(cfg.lookupValue("name", identifier)){
     std::cout << "Starting run: " << identifier << std::endl;
   }
-
-  // Load your detector from your config file.
-  Detector lab = load_detector_config(cfg);
-
-  // Load your cascades from your config file.
-  std::vector<Cascade> cascade_list = load_cascade_config(cfg);
-
-/* Feel free to sanitize your cascades now, if not done already
-  Do your cascades fit your requirements: Position, min energy, etc?
-  You can always make a file of rejected cascades!
-*/
-
 // We keep loading stuff from our config file.
   Setting &root = cfg.getRoot();
 
@@ -89,7 +78,7 @@ int main(int argc, char** argv){
     scatter_flag_list.lookupValue("points_phase",         scatter_flags[6]);
     scatter_flag_list.lookupValue("points_arrival_time",  scatter_flags[7]);
     scatter_flag_list.lookupValue("points_attenuation",   scatter_flags[8]);
-    scatter_flag_list.lookupValue("points_polatization",  scatter_flags[9]);
+    scatter_flag_list.lookupValue("points_polarization",  scatter_flags[9]);
     scatter_flag_list.lookupValue("phase_vs_time",        scatter_flags[10]);
     scatter_flag_list.lookupValue("radar_vs_time",        scatter_flags[11]);
     scatter_flag_list.lookupValue("voltage_vs_time",      scatter_flags[12]);
@@ -99,67 +88,95 @@ int main(int argc, char** argv){
     std::cout << "No scatter flags found. There will be no scatter properties being saved" << std::endl;
   }
   if( !total_scatter_flags){ std::cout << "There will be no scatter properties being saved" << std::endl; }
-  const bool save_time_profiles = {scatter_flags[10] && scatter_flags[11] && scatter_flags[12]};
+  const bool save_time_profiles = {scatter_flags[10] || scatter_flags[11] || scatter_flags[12]};
 
   if( !total_cascade_flags && !total_scatter_flags){
     std::cerr << "There will be no output from this event! Please enable at least a saving flag." << std::endl;
     exit(1);
   }
-  
+  // std::cout<< scatter_flags << endl;
 
   // We also need to check if any of our default parameters should be updated:
-  try{
-    const libconfig::Setting& properties_list = root["properties"];
+    try{
+    const libconfig::Setting& resolution_list = root["properties"]["resolution"];
+    if( resolution_list.lookupValue("dL", _dL)){ _dL *= cm;}
+    if( resolution_list.lookupValue("dR", _dR)){ _dR *= mm;}
+    if( resolution_list.lookupValue("sampling_ratio", _sampling));
+    
+  } catch(const libconfig::SettingNotFoundException &nfex) {
+    std::cerr << "No user-defined simulation parameters found. Running with the default resolution" << std::endl;
+  }
 
-    if( properties_list["plasma"].lookupValue("lifetime", _lifetime)){ _lifetime *= ns; }
-    if( properties_list["plasma"].lookupValue("collision_freq", _f_coll)){ _f_coll *= THz;}
-    properties_list["plasma"].lookupValue("mass_ratio", _memp);
+
+  try{
+    const libconfig::Setting& physics_list  = root["properties"];
+    if( physics_list["plasma"].lookupValue("lifetime", _lifetime)){_lifetime *= ns;}
+    if( physics_list["plasma"].lookupValue("collision_freq", _f_coll)){ _f_coll *= THz;}
+    physics_list["plasma"].lookupValue("mass_ratio", _memp);
     
-    if( properties_list["system"].lookupValue("dL", _dL)){ _dL *= cm;}
-    if( properties_list["system"].lookupValue("dR", _dR)){ _dR *= mm;}
-    properties_list["system"].lookupValue("sampling_ratio", _sampling);
+    // if( physics_list["resolution"].lookupValue("deltaL", _dL)){ _dL *= cm;}
+    // if( physics_list["resolution"].lookupValue("dR", _dR)){ _dR *= mm;}
+    // if( physics_list["resolution"].lookupValue("sampling_ratio", _sampling));
     
-    if( properties_list["medium"].lookupValue("refractive_index", _refindex)){
+    if( physics_list["medium"].lookupValue("refractive_index", _refindex)){
       _c_ice = c_vac/_refindex;
       _Z_ice = Z_0/_refindex;
+
     }
-    if( properties_list["medium"].lookupValue("density", _rho_ice)){ 
+    if( physics_list["medium"].lookupValue("density", _rho_ice)){ 
       _rho_ice *= g/pow(cm,3);
       _L_0 = _X_0/_rho_ice;
     }
-    if( properties_list["medium"].lookupValue("attenuation_length", _att_length)){ _att_length *= m;}
-    
-    if( properties_list["cascade"].lookupValue("moliere_radius", _r_moliere)){ _r_moliere *= m;}
-    if( properties_list["cascade"].lookupValue("ionization_energy", _E_ionization)){ _E_ionization *= MeV/(g/pow(cm,2));}
-    if( properties_list["cascade"].lookupValue("moliere_radius", _E_deposition)){ _E_deposition *= eV;}
-    if( properties_list["cascade"].lookupValue("critical_energy", _E_c)){ _E_c *= eV;}
-    if( properties_list["cascade"].lookupValue("radiation_columm_density", _X_0)){ 
-      _X_0 *= g/pow(cm,2);
-      _L_0 = _X_0/_rho_ice;
-      }
+    if( physics_list["medium"].lookupValue("attenuation_length", _att_length)){ _att_length *= m;}
 
   } catch(const libconfig::SettingNotFoundException &nfex) {
-    std::cerr << "No user-defined parameters found. Running with the default parameters" << std::endl;
+    std::cerr << "No user-defined physics constants found. Running with the default physics constants." << std::endl;
   }
 
-  // Fianlly, we prepare the and run all the TX-CS-RX events.
+  try{
+    const libconfig::Setting& physics_list  = root["properties"];
+    if( physics_list["cascade"].lookupValue("ionization_energy", _E_ionization)){ _E_ionization *= eV;}
+    if( physics_list["cascade"].lookupValue("moliere_radius", _r_moliere)){ _r_moliere *= cm;}
+    if( physics_list["cascade"].lookupValue("deposition_energy", _E_deposition)){ _E_deposition *= MeV/(g/pow(cm,2));}
+    if( physics_list["cascade"].lookupValue("critical_energy", _E_c)){ _E_c *= MeV;}
+    if( physics_list["cascade"].lookupValue("radiation_columm_density", _X_0)){_X_0 *= g/pow(cm,2);_L_0 = _X_0/_rho_ice;
+      }    
+  } catch(const libconfig::SettingNotFoundException &nfex) {
+    std::cerr << "No user-defined cascade constants found. Running with the default physics constants." << std::endl;
+  }
+  // Load your detector from your config file.
+  Detector lab = load_detector_config(cfg);
 
+  // Load your cascades from your config file.
+  std::vector<Cascade> cascade_list = load_cascade_config(cfg);
+/* Feel free to sanitize your cascades now, if not done already
+  Do your cascades fit your requirements: Position, min energy, etc?
+  You can always make a file of rejected cascades!
+*/
+
+  // Fianlly, we prepare the and run all the TX-CS-RX events.
   Cascade1D* event;
   std::string unique_id;
   int tx_number = lab.Transmitters().size();
   int rx_number = lab.Receivers().size();
+  std::cout<< "Number of Transmitters: "<<tx_number <<std::endl;
+  std::cout<< "Number of receivers: "<<rx_number <<std::endl;
   int cs_number = cascade_list.size();
-  
   for (int k = 0; k < cs_number; k++){
     Cascade& cs = cascade_list[k];
     for (int i = 0; i < tx_number; i++){
       auto tx = lab.Transmitters()[i];
       for (int j = 0; j < rx_number; j++){
         auto rx = lab.Receivers()[j];
-        
+
         // For every new TX-CS combination, make and position your segments. 
         if(j == 0){
+          // std::cout << _f_coll << std::endl;
+          // std::cout << _E_ionization << std::endl;
           event = new Cascade1D(tx,rx,cs);
+          
+          // Here you need to run all the other cascade functions
+          // event -> Absorption(event -> Density(), event -> TX().Freq());
 
           if(position == "direction"){
             event -> SetInDirection();
@@ -177,14 +194,17 @@ int main(int argc, char** argv){
 
         // Run the segment propagation
         if(propagation == "const"){
-          event -> SetInConstMedium();
+          event -> SetInConstIce();
         } else if(propagation == "iceraytracing"){
           event -> SetWithIRT();
         } else if(propagation == "beam") {
           const Setting& plane = options_list["interface"];
-          double n_out = options_list.lookup("n_out");
-          double n_beam = options_list.lookup("n_beam");
+          double n_out= options_list.lookup("n_out");
+          double n_beam= options_list.lookup("n_beam");
           std::vector<double> interface = {(double) plane[0], plane[1], plane[2], plane[3]};
+          // The first 3 values of the interface are unit vectors of the normal of the plane, 
+          // but the last one should have units!
+          interface[3] *= m;
           event -> SetInBeam(interface, n_out, n_beam);
         } else {
           std::cerr << "Unknown propagation mode, stopping the run now" << std::endl;
@@ -205,10 +225,10 @@ int main(int argc, char** argv){
         event -> Scatter::save_output_files(unique_id, scatter_flags);
 
       }
+      // Housekeeping!
+      delete event;
     }
   }
-  // Housekeeping!
-  // delete event;
 
 }
 // End

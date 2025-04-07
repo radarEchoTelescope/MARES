@@ -33,7 +33,7 @@ struct ScatterPoint{
   double ArrivalTime;
   double Attenuation;
   double Directivity;
-  double GeomEff;
+  double PolEff;
   std::vector<double> Polarization{0,0,0};
   std::vector<double> EFieldAtRX{0,0,0};
 
@@ -113,7 +113,7 @@ Careful, because the medium change and refraction means that the relative
 */ 
 
 // Simplest model, rays are straight lines, constant n.
-  void SetInConstMedium();
+  void SetInConstIce();
 // Uzair's IRT assumes that the air-ice interface is the plane z = 0. ({0,0,1,0})
   void SetWithIRT();
 //The plane should be a vector with coordinates A,B,C,D: Ax+By+Cz+D=0.
@@ -138,7 +138,7 @@ Careful, because the medium change and refraction means that the relative
   std::vector<double> Attenuation();
   // TODO GET RID OF DIRECTIVITY
   std::vector<double> Directivity();
-  std::vector<double> Geometry();
+  std::vector<double> Polarization();
   std::vector<double> TCS();
 
   // The time integral results after RunScatter()
@@ -184,7 +184,7 @@ protected:
 
 
 private:
-  void SetInConstMedium(ScatterPoint& p);
+  void SetInConstIce(ScatterPoint& p);
 // TO-DO Finish adding IRT. 
   void SetWithIRT(ScatterPoint& p);
   // void SetInBoundary(ScatterPoint& p, const std::vector<double> interface_plane,

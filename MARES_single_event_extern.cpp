@@ -96,7 +96,7 @@ int main(int argc, char** argv){
   // 6 - Choose the propagation mode.
 
     // Constant and uniform medium of density n, large-scale attenuation given by att_length. 
-  nu_cascade.SetInConstMedium();
+  nu_cascade.SetInConstIce();
 
     // Use IceRayTracing to propagate through non-constant, realistic ice media. 
   
@@ -142,7 +142,7 @@ int main(int argc, char** argv){
   // write_1D_array(nu_cascade.Attenuation(),    identifier_c + "_attenuation.txt", 1);
   // write_1D_array(nu_cascade.ArrivalTime(),    identifier_c + "_arrival_t.txt", 1);
   // write_1D_array(nu_cascade.Directivity(),    identifier_c + "_directivity.txt", 1);
-  // write_1D_array(nu_cascade.Geometry(),   identifier_c + "_geom_efficiency.txt", 1);
+  // write_1D_array(nu_cascade.Polarization(),   identifier_c + "_polarization.txt", 1);
 
       // Scatter products: Time-dependent variables. 
   write_1D_array(nu_cascade.Duration(),       identifier_c + "_duration.txt", 1);
