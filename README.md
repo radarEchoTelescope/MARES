@@ -1,1 +1,1 @@
-This is the main branch of the project with a stable release. 
+This branch will implement 2D cascades. 
