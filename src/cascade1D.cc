@@ -19,7 +19,12 @@ Cascade1D::Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs,
     // Transparency = Transparency(Attenuation(Density), dR);
     // TCS(SRadius, Density, Transparency, damping, ...);
 
+
+// UNCOMMENT HERE AS NEEDED FOR NOW
+    // PlasmaFreq(fDensity);
     // Absorption(fDensity, fTX.Freq());
+    // SkinDepth(fDensity, fTX.Freq());
+    // Transparency(fDensity,fTX.Freq(), dR);
 
 // Third, compute the transparency and the TCS in one go
   SetTCS();

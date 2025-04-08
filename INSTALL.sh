@@ -16,6 +16,32 @@ if [ $ERROR_FLAG == 1 ]; then
     exit 1
 fi
 
+initial=$PWD
+
+# We grab Iceraytracing
+if [ -d lib/IceRayTracing ]
+then
+  echo "We have IceRayTracing already, checking if up to date"
+  cd lib/IceRayTracing && git pull
+else
+  echo "We don't have IceRayTracing yet, let's grab it"
+  cd lib && git clone https://github.com/uzairlatif90/IceRayTracing
+fi
+
+cd $initial
+
+# We grab libconfig
+#if [ -d lib/libconfig ]
+#then
+ # echo "We have libconfig already, checking if up to date"
+ # cd lib/libconfig && git pull
+#else
+ # echo "We don't have libconfig yet, let's grab it"
+ # cd lib && git clone git@github.com:hyperrealm/libconfig.git
+#fi
+
+#cd $initial
+
 # This forces a complete re-build
 if [ $MODE == 1 ]; then
     rm -r ./build/*
@@ -26,4 +52,4 @@ cd build
 cmake ../
 
 # Now we make
-make
+make 

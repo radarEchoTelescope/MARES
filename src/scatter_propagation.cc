@@ -1,8 +1,8 @@
 #include "scatter.hh"
 
-void Scatter::SetInConstMedium(){ for(auto& p: fPoints) {SetInConstMedium(p);} }
+void Scatter::SetInConstIce(){ for(auto& p: fPoints) {SetInConstIce(p);} }
 
-void Scatter::SetInConstMedium(ScatterPoint& p){
+void Scatter::SetInConstIce(ScatterPoint& p){
 // Set distances
   p.TXDir = direction( fTX.Pos(), p.Position) ;
   p.RTX = norm(p.TXDir);
@@ -22,6 +22,9 @@ void Scatter::SetInConstMedium(ScatterPoint& p){
     // time where the segment starts scattering.
 */
   p.ArrivalTime = p.StartTime + p.RRX/c_ice;
+  // std::cout<<"c_ice in propagation calc: "<<c_ice<<std::endl;
+  // std::cout<<"_c_ice in propagation calc: "<<_c_ice<<std::endl;
+  // std::cout<<"lifetime: "<<_lifetime<<std::endl;
 
   // Set phase
   p.Phase = fTX.Wavenumber()*(p.RTX + p.RRX) - pi/2;
@@ -58,7 +61,7 @@ void Scatter::SetInConstMedium(ScatterPoint& p){
    // 3/2*sin(theta_R)*sin(theta_T)
 
   // Set polarization efficiency
-  p.GeomEff = abs(projection((p.EFieldAtRX), fRX.Pol()));
+  p.PolEff = abs(projection((p.EFieldAtRX), fRX.Pol()));
    // |sin(theta_R)*sin(theta_T)*cos(theta_R)|
   //In the thin-wire theory, only the  component of  the electric- field vector parallel to the wire
   // axis can interact to form a scattered  wave. That is not our case, our layers will scatter as a free charge
@@ -243,7 +246,7 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
   p.EFieldAtRX   = cross_product(normalize(p.RXDir), cross_product(normalize(p.RXDir), p.Polarization) );
 
   // Set polarization efficiency
-  p.GeomEff = abs(projection(p.EFieldAtRX, fRX.Pol()));
+  p.PolEff = abs(projection(p.EFieldAtRX, fRX.Pol()));
   //In the thin-wire theory, only the  component of  the electric- field vector parallel to the wire
   // axis can interact to form a scattered  wave. That is not our case, our layers will scatter as a free charge
   cout<<"test: "<<p.ArrivalTime<<endl;
@@ -344,7 +347,7 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
 //   // The radiation field BEFORE the interface
 //   std::vector<double> E_rad = cross_product( e_ka, cross_product( e_ka, fTX.Pol() ));
 //   // E_rad is contains some polarization efficency term.
-//   p.GeomEff = abs(norm(E_rad)); // == abs( norm(cross_product(e_ka, fTX.Pol())) )
+//   p.PolEff = abs(norm(E_rad)); // == abs( norm(cross_product(e_ka, fTX.Pol())) )
 
 
 //   // The radiation field AFTER the interface
@@ -449,7 +452,7 @@ void Scatter::SetInBeam(ScatterPoint& p, const std::vector<double> interface_pla
   // The radiation field BEFORE the interface
   std::vector<double> E_rad = cross_product( e_k1, cross_product( e_k1, fTX.Pol() ));
   // MARES stores the amplitude of the polarization efficiency (mismatch) separately. 
-  p.GeomEff = abs(norm(E_rad)); // == abs( norm(cross_product(e_k1, fTX.Pol())) )
+  p.PolEff = abs(norm(E_rad)); // == abs( norm(cross_product(e_k1, fTX.Pol())) )
   // = |sin(theta_t)|
 
   // We remove it from the field, so we're not double-counting it. 
@@ -569,7 +572,7 @@ void Scatter::SetInBeam(ScatterPoint& p, const std::vector<double> interface_pla
   E_rad = cross_product( e_k3, cross_product( e_k3, p.Polarization ));
   // We store the second component of the polarization,
   // the radiation field of the Herztian dipole.
-  p.GeomEff *= abs(norm(E_rad)); // == abs( norm(cross_product(e_k3, p.Pol)) )
+  p.PolEff *= abs(norm(E_rad)); // == abs( norm(cross_product(e_k3, p.Pol)) )
   //  = |sin(theta_t)*sin(theta_r)|
 
   // We remove (again) it from the field.
@@ -588,7 +591,7 @@ void Scatter::SetInBeam(ScatterPoint& p, const std::vector<double> interface_pla
   p.EFieldAtRX = normalize(E_p + E_s);
 
   // Third component of the polarization efficiency
-  p.GeomEff *= abs(projection(p.EFieldAtRX, fRX.Pol()));
+  p.PolEff *= abs(projection(p.EFieldAtRX, fRX.Pol()));
   // |sin(theta_t)*sin(theta_r)*cos(theta_r)|
   
   // Set ArrivalTime

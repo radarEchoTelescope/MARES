@@ -141,7 +141,8 @@ void Scatter::RunScatter(const bool save2Dmatrices){
 
         // The voltage has to also include polarization and attenuation effects. 
         voltage_time[i] =  sqrt_rcs_time[i] * 1.0/(p.RTX*p.RRX) *
-                            p.GeomEff * p.Attenuation;
+                            p.PolEff * p.Attenuation;
+                            // 1;
       }
     }
 
@@ -215,10 +216,10 @@ std::vector<double> Scatter::Directivity(){
   return directivity;
  }
 
-std::vector<double> Scatter::Geometry(){
+std::vector<double> Scatter::Polarization(){
   std::vector<double> polarization (fPoints.size(), 0);
   std::transform(fPoints.begin(), fPoints.end(), polarization.begin(),
-                  [](ScatterPoint p){return p.GeomEff;});
+                  [](ScatterPoint p){return p.PolEff;});
   return polarization;
 }
 
@@ -243,7 +244,7 @@ std::vector<std::vector<double>> Scatter::E_time(){ return fVoltageTime; }
 void Scatter::save_output_files(const std::string& output_path, const std::array<bool, 13>& flags){
 
   if(flags[0]){ write_1D_array(Duration(),    output_path + "_duration.txt");}
-  if(flags[1]){ write_1D_array(Voltage(),     output_path + "_voltage.txt");}
+  if(flags[1]){ write_1D_array(Voltage(),    output_path + "_voltage.txt");}
   if(flags[2]){ write_1D_array(Power(),       output_path + "_power.txt");}
   if(flags[3]){ write_1D_array(TCS(),         output_path + "_TCS.txt");}
   if(flags[4]){ write_1D_array(RCS(),         output_path + "_RCS.txt");}
@@ -252,7 +253,7 @@ void Scatter::save_output_files(const std::string& output_path, const std::array
   if(flags[6]){ write_1D_array(Phase(),       output_path + "_phase.txt");}
   if(flags[7]){ write_1D_array(ArrivalTime(), output_path + "_arrival_t.txt");}
   if(flags[8]){ write_1D_array(Attenuation(), output_path + "_attenuation.txt");}
-  if(flags[9]){ write_1D_array(Geometry(),    output_path + "_geom_efficiency.txt");}
+  if(flags[9]){ write_1D_array(Polarization(),output_path + "_polarization.txt");}
 
   if(flags[10]){ write_2D_array(Phase_time(),  output_path + "_phase_time.txt");}
   if(flags[11]){ write_2D_array(RCS_time(),    output_path + "_RCS_time.txt");}

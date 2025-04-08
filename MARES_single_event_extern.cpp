@@ -98,7 +98,7 @@ int main(int argc, char** argv){
   // 6 - Choose the propagation mode.
 
     // Constant and uniform medium of density n, large-scale attenuation given by att_length. 
-  nu_cascade.SetInConstMedium();
+  nu_cascade.SetInConstIce();
 
     // Use IceRayTracing to propagate through non-constant, realistic ice media. 
   

@@ -49,9 +49,10 @@ extern double _E_deposition;
 extern double _E_c;              // Critical cascade energy for ionization
 extern double _X_0;              // Radiation columm density
 
-static double _c_ice = c_vac/_refindex;  // [m/s] speed of light in ice
-static double _Z_ice = Z_0/_refindex;            // Impedance of ice
-static double _L_0 = _X_0/_rho_ice;       // Radiation length = 39.22 cm
+
+extern double _c_ice;  // [m/s] speed of light in ice
+extern double _Z_ice;  // Impedance of ice
+extern double _L_0;  // Radiation length = 39.22 cm
 
     // Air / Other constants -----------------------------------
 // extern double rho=1.168e-3;//sea level density

@@ -361,7 +361,6 @@ std::vector<Cascade> load_cascade_config(libconfig::Config& cs_config, std::ostr
         inelasticity, oneweight
       )
     );
-
   }
   return Cascades;
 }
