@@ -1,7 +1,2 @@
-<<<<<<< HEAD
-# MARES
-Macroscopic Approximation to the Radar Echo Scatter
-=======
-# development
-development version of the radar code
->>>>>>> 9d90a6b7e451ca7cc55475d2f09126e1414dc2cd
+This branch will implement some new output types for MARES. We aim to have an output file with peak voltage and the correponding peak time; a file with positions of the segments;
+phase coherence measure and possibily more.  
