@@ -1,7 +1,1 @@
-<<<<<<< HEAD
-# MARES
-Macroscopic Approximation to the Radar Echo Scatter
-=======
-# development
-development version of the radar code
->>>>>>> 9d90a6b7e451ca7cc55475d2f09126e1414dc2cd
+This branch will track the implementation of sparse matrices in MARES. This is usefull when saving a lot of 2D output files that have often a lot of redundant zeros in them. 
