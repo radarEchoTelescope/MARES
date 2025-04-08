@@ -13,8 +13,9 @@ BUT they need to be updated in the correct units described here.
 
 /* --------- Plasma properties  --------------- */
 
-// Mean plasma lifetime [ns]
-double _lifetime = 10 *ns;            
+// Mean plasma lifetime [ns] **** can have us, ms, s also
+double _lifetime = 10 *ns;      
+//double _lifetime = 50 *ns;         
 
 // Collision frequency estimate [THz]
 double _f_coll = 100 *THz;
@@ -28,7 +29,8 @@ double _memp = 1;
 /* --------- Medium properties  --------------- */
 
 // Refractive index (Ice)
-double _refindex = 1.78;               
+// double _refindex = 1.78;      //1.78         
+double _refindex = 1.78;      //1.78      
 // Refractive index (HDPE)
 // double _refindex = 1.51;
 
@@ -66,15 +68,20 @@ double _X_0 = 36.08 *g/pow(cm,2);
 /* --------- Simulation properties  --------------- */
 
 // Spatial resolution, effective scatterer size. 
-double _dL = 1 *cm; // [cm/bin]
-double _dR = 1 *mm;
+double _dL = 1.0 *cm; // [cm/bin]                                 // default = 1.0*cm   modified test, 0.5cm, 0.5mm
+double _dR = 1.0 *mm;                                             // default = 1.0*mm
+
+
+// default dL dR (resolution and effective scatter)
+// double _dL = 1 * cm;
+// double _dR = 1 * mm;
 
 // Temporal resolution, sampling ratio.
 // We found that best results are computed with 
 // a sampling ratio between 10x and 100x freq_obs.
-double _sampling = 50;
+double _sampling = 100;                                            // default = 50
 
-/* 
+/*  
 The cascade values are computed in a frame which dimensions
 are determined in terms of the the typical length scale in 
 every dimension. Total size = typical* factor
@@ -83,7 +90,7 @@ every dimension. Total size = typical* factor
  	The typical radius of a cascade is the moliere radius;
 */
 
-double _Ltot_factor = 2.0;
-double _Rtot_factor = 2.0;
+double _Ltot_factor = 2.0;          //double _Ltot_factor = 2.0;
+double _Rtot_factor = 2.0;          //double _Rtot_factor = 2.0;
 
 #endif

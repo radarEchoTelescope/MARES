@@ -116,7 +116,7 @@ void Scatter::RunScatter(const bool save2Dmatrices){
                         fTX.Power() * fTX.Gain() *
                         fRX.Load() * fRX.Gain() ) ;
 
-  // Time Loop!
+  // Time Loop!   
   for (int ts = 0; ts < steps; ts++){
     t = ts/freq_sampling + t_start;
     fDuration[ts] = t;
@@ -135,7 +135,7 @@ void Scatter::RunScatter(const bool save2Dmatrices){
 
         phase_time[i] = cos(p.Phase - fTX.AngularFreq()*t);
   
-        sqrt_rcs_time[i] = sqrt(p.TCS) * // TCS =  Th * transparency * damping *N_e^2
+        sqrt_rcs_time[i] = sqrt(p.TCS) * // TCS =  Th * transparency * damping * N_e^2
                         pow(e,-(t-p.ArrivalTime)/tau) *  // Lifetime decay
                         phase_time[i];
 
@@ -175,7 +175,7 @@ void Scatter::RunScatter(const bool save2Dmatrices){
 /*  --------------------------------------------------------------------------*/
 
 
-// Accesors
+// Accessors
 Antenna Scatter::TX(){return fTX;}
 Antenna Scatter::RX(){return fRX;}
 std::vector<ScatterPoint> Scatter::Points(){ return fPoints; }

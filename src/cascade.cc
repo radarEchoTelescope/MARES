@@ -235,7 +235,7 @@ void Cascade::Transparency(const std::vector<std::vector<double>> &density,
 
 
 // ----------------------------------------------------------------------------
-// Accesors
+// Accessors
 int  Cascade::Evt()	const {return fEvent;}
 double  Cascade::Energy() const {return fEnergy;}
 double Cascade::Ltot() const {return fLtot;}

@@ -24,13 +24,20 @@ int main(int argc, char** argv){
   // Always include CLHEP-like global units at first definition. 
   // List of available units at settings.hh
 
-  double csenergy   = atof(argv[2]) *GeV;
-  double csxpos     = atof(argv[3]) *m;
-  double csypos     = atof(argv[4]) *m;
-  double cszpos     = atof(argv[5]) *m;
-  double cszenith   = atof(argv[6]) *deg;
-  double csazimuth  = atof(argv[7]) *deg;
-  double csnumber   = atof(argv[8]);
+  double csxpos     = atof(argv[2]) *m;
+  double csypos     = atof(argv[3]) *m;
+  double rxxpos     = atof(argv[4])  *m;
+  double rxypos     = atof(argv[5])  *m;
+  double csenergy   = atof(argv[6]) *PeV;
+  double cszenith   = atof(argv[7]) *deg;
+  double csazimuth  = atof(argv[8]) *deg;
+  double txfreq     = atof(argv[9]) *GHz;
+  double txgaindB   = atof(argv[10]);
+  double txzpos     = atof(argv[11])  *m;
+  double rxzpos     = atof(argv[12])  *m;
+
+  double cszpos     = atof(argv[13]) *m;
+  double csnumber   = atof(argv[14]);
 
   // Now we make the cascade's object
   Cascade cascade( csxpos, csypos, cszpos, cszenith, csazimuth, csenergy, csnumber);
@@ -42,36 +49,31 @@ int main(int argc, char** argv){
   // We assume that you want to make the antennas too 
   
     // Transmitter, TX
-  double txxpos   = atof(argv[9])   *m;
-  double txypos   = atof(argv[10])  *m;
-  double txzpos   = atof(argv[11])  *m;
-  double txxpol   = atof(argv[12]);
-  double txypol   = atof(argv[13]);
-  double txzpol   = atof(argv[14]);
-  double txpower  = atof(argv[15]);
-  double txfreq   = atof(argv[16]) *Hz;
-  double txgaindB = atof(argv[17]);
+  double txxpos   = atof(argv[15])   *m;
+  double txypos   = atof(argv[16])   *m;
+  double txxpol   = atof(argv[17]);
+  double txypol   = atof(argv[18]);
+  double txzpol   = atof(argv[19]);
+  double txpower  = atof(argv[20]);
 
   Antenna transmitter(txxpos, txypos, txzpos,
                       txxpol, txypol, txzpol,
                       txpower, txfreq, txgaindB);
   Antenna& tx = transmitter;
-  
 
-  double rxxpos   = atof(argv[18])  *m;
-  double rxypos   = atof(argv[19])  *m;
-  double rxzpos   = atof(argv[20])  *m;
   double rxxpol   = atof(argv[21]);
   double rxypol   = atof(argv[22]);
   double rxzpol   = atof(argv[23]);
   // The frequency is used in the receiverto determine the antenna's effective area
   // So far, we have taken rx and tx to operate at the same freq.
-  double rxfreq   = atof(argv[24])   *Hz;
-  double rxgaindB = atof(argv[25]);
+  // double rxfreq   = atof(argv[24])   *GHz;
+  double rxfreq = txfreq;
+  // double rxgaindB = atof(argv[25]);
+  double rxgaindB = txgaindB;
 
   Antenna receiver(   rxxpos, rxypos, rxzpos,
                       rxxpol, rxypol, rxzpol,
-                      0 , txfreq, rxgaindB);
+                      0 , txfreq, rxgaindB);    // tx frequency not rx frequency
   Antenna& rx = receiver;
 
   // 4 - With TX, RX and CS, we make a Cascade1D object.
@@ -114,7 +116,8 @@ int main(int argc, char** argv){
   // 7 - Run the scatter proper. 
 
     // If you want to save the individual traces for every time step in the simulation. 
-  const bool save_time_profiles = false;
+  const bool save_time_profiles = false;      //default MARES
+  // const bool save_time_profiles = true;
 
   nu_cascade.RunScatter(save_time_profiles);
 
@@ -128,27 +131,33 @@ int main(int argc, char** argv){
       // Cascade (cs) products.
     /* Some of these will only be enerated on demand. They are not needed for the scatter.*/
 
-  // write_2D_array(nu_cascade.Radius(),         identifier_c + "_radial_values.txt", 1);
-  // write_2D_array(nu_cascade.Density(),        identifier_c + "_density_tx.txt", 1);
-  // write_2D_array(nu_cascade.PlasmaFreq(),     identifier_c + "_plasma_freq.txt", 1);
-  // write_2D_array(nu_cascade.Absorption(),     identifier_c + "_absorption.txt", 1);
-  // write_2D_array(nu_cascade.SkinDepth(),      identifier_c + "_skin_depth.txt", 1);
-  // write_2D_array(nu_cascade.Reflectance(),    identifier_c + "_reflectance.txt", 1);
-  // write_2D_array(nu_cascade.Opacity(),        identifier_c + "_opacity.txt", 1);
+  // write_2D_array(nu_cascade.Ne(),             identifier_c + "_e_number.txt", 1); //****      // cascade
+
+  //write_2D_array(nu_cascade.Radius(),         identifier_c + "_radial_values.txt", 1);        // cascade1D  ?
+  // CSlength?
+  //write_2D_array(nu_cascade.Density(),        identifier_c + "_density_tx.txt", 1);           // cascade
+  // write_2D_array(nu_cascade.PlasmaFreq(),     identifier_c + "_plasma_freq.txt", 1);         // cascade
+  // write_2D_array(nu_cascade.Absorption(),     identifier_c + "_absorption.txt", 1);          // cascade
+  // write_2D_array(nu_cascade.SkinDepth(),      identifier_c + "_skin_depth.txt", 1);          // cascade
+  // write_2D_array(nu_cascade.Reflectance(),    identifier_c + "_reflectance.txt", 1);         // cascade
+  // write_2D_array(nu_cascade.Opacity(),        identifier_c + "_opacity.txt", 1);             // cascade
+  // transparency?                                                                              // cascade
 
       // Scatter object products: Positions and propagation 
+  // write_2D_array(nu_cascade.Position(),          identifier_c + "_position.txt",1);  //**** 
+
   // write_2D_array(nu_cascade.Coordinates(),    identifier_c + "_coords.txt", 1);
   // write_1D_array(nu_cascade.Phase(),          identifier_c + "_phase.txt", 1);
   // write_1D_array(nu_cascade.Attenuation(),    identifier_c + "_attenuation.txt", 1);
   // write_1D_array(nu_cascade.ArrivalTime(),    identifier_c + "_arrival_t.txt", 1);
   // write_1D_array(nu_cascade.Directivity(),    identifier_c + "_directivity.txt", 1);
-  // write_1D_array(nu_cascade.Geometry(),   identifier_c + "_geom_efficiency.txt", 1);
+  // write_1D_array(nu_cascade.Geometry(),       identifier_c + "_geom_efficiency.txt", 1);
 
       // Scatter products: Time-dependent variables. 
   write_1D_array(nu_cascade.Duration(),       identifier_c + "_duration.txt", 1);
   write_1D_array(nu_cascade.Voltage(),       identifier_c + "_voltage.txt", 1);
   // write_1D_array(nu_cascade.Power(),          identifier_c + "_power.txt", 1);
-  // write_1D_array(nu_cascade.TCS(),            identifier_c + "_TCS.txt", 1);
+  // write_1D_array(nu_cascade.TCS(),            identifier_c + "_TCS.txt", 1);               // cascade1D
   // write_1D_array(nu_cascade.RCS(),            identifier_c + "_RCS.txt", 1);
 
       // These are the time_profiles. 

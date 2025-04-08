@@ -107,7 +107,7 @@ double r, l, l_tmp, r_tmp, norm;
 }
 
 /* Compute the TCS of the cascade from the slices.
-For every cylindircal shell of thickness dR, we consider scattering over an area:
+For every cylindrical shell of thickness dR, we consider scattering over an area:
 
  Shell area = 2pi*base * height_segment = 2*pi* dL * dN;
 

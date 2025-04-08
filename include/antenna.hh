@@ -18,7 +18,7 @@ public:
 // 1.76 dBi ~= 1.5, ideal small dipole
 // 2.15 dBi = 1.64, half-wavelength dipole
 // 3  dBi = 2
-// 5  dBi = 7
+// 5  dBi = 7   *** wrong way round i think - 7 dBi = 5x
 // 10 dBi = 10
 
   void SetDirection(std::vector<double> coords);

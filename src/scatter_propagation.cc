@@ -40,9 +40,9 @@ void Scatter::SetInConstMedium(ScatterPoint& p){
   /* Attenuation model example
   // Parametrized attenuation length for the Ross Ice Shelf, South Pole.
   double att(double freq_obs){
-    double a1=469;                  // [m] Attanuation length parameter
-    double a2=-0.205;               // Attanuation length parameter
-    double a3=4.87E-5;              // Attanuation length parameter
+    double a1=469;                  // [m] Attenuation length parameter
+    double a2=-0.205;               // Attenuation length parameter
+    double a3=4.87E-5;              // Attenuation length parameter
     return a1+a2*freq_obs/1E6+a3*pow(freq_obs/1E6,2);
   }
   */
@@ -53,7 +53,7 @@ void Scatter::SetInConstMedium(ScatterPoint& p){
   // Direction of electric field at the receiver.
   p.EFieldAtRX   = cross_product(normalize(p.RXDir), cross_product(normalize(p.RXDir), p.Polarization) );
   
-  // Directivty is hardcoded as a small Herztian dipole.
+  // Directivity is hardcoded as a small Herztian dipole.
   p.Directivity = 1.5*norm(p.EFieldAtRX);
    // 3/2*sin(theta_R)*sin(theta_T)
 
@@ -84,14 +84,26 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
   // double x0=0;/////always has to be zero
   // double x1=sqrt(pow(TxCor[0]-RxCor[0],2)+pow(TxCor[1]-RxCor[1],2));
   // x1 is the distance in the xy plane. 
-  double x1=distance(fTX.Pos()[0], fTX.Pos()[1], p.Position[0], p.Position[1]);
-  double z0=fTX.Pos()[2];
-  double z1=p.Position[2];
+
+  //**  IRT expects distances in m (angles in deg) - needs conversion from MARES [mm] units
+  double x1=distance(fTX.Pos()[0], fTX.Pos()[1], p.Position[0], p.Position[1])/m;
+  double z0=fTX.Pos()[2]/m;
+  double z1=p.Position[2]/m;
+
+  // cout<<"dL, TCS "<<p.L<<" "<<p.TCS<<endl;
+  // cout<<"CScoords "<<p.Position[0]/m<<" "<<p.Position[1]/m<<" "<<p.Position[2]/m<<endl;
+  // cout<<"TXcoords "<<fTX.Pos()[0]/m<<" "<<fTX.Pos()[1]/m<<" "<<fTX.Pos()[2]/m<<endl;
+  // cout<<"RXcoords "<<fRX.Pos()[0]/m<<" "<<fRX.Pos()[1]/m<<" "<<fRX.Pos()[2]/m<<endl;
+
+  // cout<<"TX-CS IRT input, z0: "<<z0<<"  x1: "<<x1<<"  z1: "<<z1<<endl;
   
   // This returns the two optimal solutions: Any of the direct, the reflected or two refracted rays. 
-  // It will return the shortest ray fist, and a second ray if it can find it. 
+  // It will return the shortest ray first, and a second ray if it can find it. 
   IceRayTracing::GetRayTracingSolutions(z1, x1, z0, RayTime, RayPath, 
           LaunchAngle, RecieveAngle, IgnoreCh, IncidenceAngleInIce, A0, frequency, AttRay);
+
+   // void IceRayTracing::GetRayTracingSolutions(double RxDepth, double Distance, double TxDepth, double TimeRay[2], double PathRay[2], 
+   // double LaunchAngle[2], double RecieveAngle[2], int IgnoreCh[2], double IncidenceAngleInIce[2], double A0, double frequency, double AttRay[2]){
 
   // Ignore channel, 0 = direct ray, 1 is refracted ray.
   if(IgnoreCh[0] != 0){
@@ -101,6 +113,13 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
     p.TXRayEndAngle[0]    = RecieveAngle[0];
     p.TXRayAttenuation[0] = AttRay[0];
   } else {
+
+    cout<<"CScoords "<<p.Position[0]/m<<" "<<p.Position[1]/m<<" "<<p.Position[2]/m<<endl;
+    cout<<"TXcoords "<<fTX.Pos()[0]/m<<" "<<fTX.Pos()[1]/m<<" "<<fTX.Pos()[2]/m<<endl;
+    cout<<"MARES IRT input [m] "<<z0<<" "<<x1<<" "<<z1<<endl;
+    cout<<"IRTout: "<<RayTime[0]*s<<" "<<RayPath[0]<<" "<<LaunchAngle[0]<<" "<<RecieveAngle[0]<<" "<<AttRay[0]<<endl;
+    cout<<"ignoreCh[1]: "<<IgnoreCh[1]<<endl;
+
     std::cerr << "IceRayTracing could not find a ray for TX" << std::endl;
     exit(EXIT_FAILURE); 
   }
@@ -114,6 +133,9 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
     p.TXRayEndAngle[1]    = RecieveAngle[1];
     p.TXRayAttenuation[1] = AttRay[1];
   }
+
+  // cout<<"IRT TXraytime: "<<p.TXRayTime[0]<<"  RTX: "<<p.TXRayDistance[0]<<"  TXangle0: "<<p.TXRayStartAngle[0]<<endl;
+  // cout<<"TXangle1: "<<p.TXRayEndAngle[0]<<"  TXatten: "<<p.TXRayAttenuation[0]<<endl;
     
 // And now, we do the same for the RX
 
@@ -126,9 +148,15 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
   std::fill(IncidenceAngleInIce, IncidenceAngleInIce+1, -1E3);
   std::fill(AttRay, AttRay+1, -1E3);
   
-  x1 = distance(p.Position[0], p.Position[1], fRX.Pos()[0], fRX.Pos()[1]);
-  z0 = p.Position[2];
-  z1 = fRX.Pos()[2];
+  x1 = distance(p.Position[0], p.Position[1], fRX.Pos()[0], fRX.Pos()[1])/m;
+  z0 = p.Position[2]/m;
+  z1 = fRX.Pos()[2]/m;
+
+  // cout<<"CScoords "<<p.Position[0]<<" "<<p.Position[1]<<" "<<p.Position[2]<<endl;
+  // // cout<<"TXcoords "<<fTX.Pos()[0]<<" "<<fTX.Pos()[1]<<" "<<fTX.Pos()[2]<<endl;
+  // cout<<"RXcoords "<<fRX.Pos()[0]<<" "<<fRX.Pos()[1]<<" "<<fRX.Pos()[2]<<endl;
+
+  // cout<<"CS-RX IRT input, z0: "<<z0<<"  x1: "<<x1<<"  z1: "<<z1<<endl;
   
   IceRayTracing::GetRayTracingSolutions(z1, x1, z0, RayTime, RayPath, 
           LaunchAngle, RecieveAngle, IgnoreCh, IncidenceAngleInIce, A0, frequency, AttRay);
@@ -140,6 +168,12 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
     p.RXRayEndAngle[0]    = RecieveAngle[0];
     p.RXRayAttenuation[0] = AttRay[0];
   } else {
+    cout<<"CScoords "<<p.Position[0]/m<<" "<<p.Position[1]/m<<" "<<p.Position[2]/m<<endl;
+    cout<<"RXcoords "<<fRX.Pos()[0]/m<<" "<<fRX.Pos()[1]/m<<" "<<fRX.Pos()[2]/m<<endl;
+    // cout<<"MARES IRT input [m] "<<z0<<" "<<x1<<" "<<z1<<endl;
+
+    cout<<"IRTout: "<<RayTime[0]<<" "<<RayPath[0]<<" "<<LaunchAngle[0]<<" "<<RecieveAngle[0]<<" "<<AttRay[0]<<endl;
+
     std::cerr << "IceRayTracing could not find a ray for RX" << std::endl;
     exit(EXIT_FAILURE); 
   }
@@ -153,7 +187,29 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
     p.RXRayAttenuation[1] = AttRay[1];
   }
 
+  // cout<<"IRT RXraytime: "<<p.RXRayTime[0]<<"  RRX: "<<p.RXRayDistance[0]<<"  RXangle0: "<<p.RXRayStartAngle[0]<<endl;
+  // cout<<"RXangle1: "<<p.RXRayEndAngle[0]<<"  RXatten: "<<p.RXRayAttenuation[0]<<endl;
+
   // TRIPLE CHECK IRT UNITS, IT SHOULD BE METERS AND DEGREES. 
+
+  p.TXDir = direction( fTX.Pos(), p.Position) ;
+  p.RTX = norm(p.TXDir);
+  // p.RTX = p.TXRayDistance[0]*m;
+
+  p.RXDir = direction(p.Position, fRX.Pos());
+  p.RRX = norm(p.RXDir);
+  // p.RRX = p.RXRayDistance[0]*m;
+
+  p.ArrivalTime = p.RXRayTime[0]*s;
+  // p.ArrivalTime = p.StartTime + p.RRX/c_ice;
+
+  cout<<"RTX: "<<p.RTX<<"  RRX: "<<p.RRX<<endl;
+  // // TXDir: TX -> CS (x1 - x0), (y1 - y0), (z1 - z0)
+  cout<<"TXDir: "<<p.TXDir<<endl;
+  cout<<"RXDir: "<<p.RXDir<<endl;
+  cout<<"TXDir n: "<<normalize(p.TXDir)<<endl;
+  cout<<"RXDir n: "<<normalize(p.RXDir)<<endl;
+  // cout<<"IRT RX arrival time: "<<p.ArrivalTime<<endl;
 
   // TODO TRIPLE CHECK THAT THIS IS STILL VALID
   // Set phase
@@ -162,8 +218,10 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
   // K_vac*RayPath
   // Waiting for confirmation from Krijn 
   
-  p.Phase = fTX.Wavenumber()*(p.RTX + p.RRX)
-                + atan2( f_coll, - fTX.Freq() );
+  // p.Phase = fTX.Wavenumber()*(p.RTX + p.RRX)
+  //               + atan2( f_coll, - fTX.Freq() );
+
+  p.Phase = fTX.Wavenumber()*(p.RTX + p.RRX) - pi/2;
   // tan^-1(f_coll/f_TX) is the phase shift in the oscillation caused by collisions.
   // in our regime, it could be almost fixed to -Pi/2.
 
@@ -173,8 +231,10 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
   // E field attenuation at reciever from position dependant factors:
   // e^-r/Latt from medium attenuation
   // p.Attenuation =  pow(e, -(p.RTX + p.RRX)/(2*att_length) ) ;
-  p.Attenuation = p.TXRayAttenuation[0]*p.RXRayAttenuation[0];
+  // cout<<"IRT atten: "<<p.Attenuation<<endl;
 
+  p.Attenuation = p.TXRayAttenuation[0]*p.RXRayAttenuation[0];
+  // cout<<"IRT atten: "<<p.Attenuation<<endl;
 
   // Segment's polarization direction == E field at segment.
   p.Polarization = cross_product(normalize(p.TXDir), cross_product(normalize(p.TXDir), fTX.Pol() ) );
@@ -186,8 +246,10 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
   p.GeomEff = abs(projection(p.EFieldAtRX, fRX.Pol()));
   //In the thin-wire theory, only the  component of  the electric- field vector parallel to the wire
   // axis can interact to form a scattered  wave. That is not our case, our layers will scatter as a free charge
+  cout<<"test: "<<p.ArrivalTime<<endl;
 
-  // Directivty is hardcoded as a small Herztian dipole.
+
+  // Directivity is hardcoded as a small Herztian dipole.
   // p.Directivity = 1.5*norm(p.EFieldAtRX);
    // 3/2*sin(theta_R)*sin(theta_T)
 }
@@ -298,7 +360,7 @@ void Scatter::SetInBeam( const std::vector<double> plane, const double& na, cons
  }
 
 
-// This SetInBeam sets first all TX parameters and then all RX paraneters. 
+// This SetInBeam sets first all TX parameters and then all RX parameters. 
 void Scatter::SetInBeam(ScatterPoint& p, const std::vector<double> interface_plane,
                         const double& na, const double& nb){
   double n  = nb/na;

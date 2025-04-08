@@ -11,14 +11,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED YES)
 # Setup include directory for this project
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/lib/IceRayTracing/namespace/woROOT/)
+include_directories(${PROJECT_SOURCE_DIR}/lib/libconfig/lib/) 
 
 find_package(PkgConfig)
 find_package(GSL REQUIRED)
-pkg_check_modules(LIBCONFIG_PLUSPLUS libconfig++)
-if(NOT LIBCONFIG_PLUSPLUS_FOUND)
-    set(LIBCONFIG_PLUSPLUS ${PROJECT_SOURCE_DIR}/lib/libconfig/lib/libconfig++.so)
-    message( "Using local libconfig at: " ${LIBCONFIG_PLUSPLUS})
-endif()
+#pkg_check_modules(LIBCONFIG_PLUSPLUS libconfig++)
+# if(NOT LIBCONFIG_PLUSPLUS_FOUND)
+set(LIBCONFIG_PLUSPLUS ${PROJECT_SOURCE_DIR}/lib/libconfig/lib/libconfig++.so)
+message( "Using local libconfig at: " ${LIBCONFIG_PLUSPLUS})
+# endif()
 
 
 
@@ -78,7 +79,7 @@ foreach( testsourcefile ${EXEC_SOURCES} )
     # Make sure MARES is linked to each app
     target_link_libraries( ${testname} 
         libMARES
-        ${LIBCONFIG_PLUSPLUS_LIBRARIES} 
+        ${LIBCONFIG_PLUSPLUS} 
         GSL::gsl
     )
 endforeach( testsourcefile ${EXEC_SOURCES} )

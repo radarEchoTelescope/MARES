@@ -24,11 +24,11 @@ int main(int argc, char** argv){
   // Always include CLHEP-like global units at first definition. 
   // List of available units at settings.hh
 
-  double csxpos     = 0   *m;       
-  double csypos     = 0   *m;
+  double csxpos     = 15   *m;       
+  double csypos     = 15   *m;
   double cszpos     = 0   *m;
-  double cszenith   = 90  *deg;
-  double csazimuth  = 90  *deg;
+  double cszenith   = 180  *deg;
+  double csazimuth  = 0  *deg;
     // Energy per particle
   double csenergy   = 1E7  *GeV;    
     // Number of primaries
@@ -58,13 +58,13 @@ int main(int argc, char** argv){
     // Transmitter, TX
   double txxpos   = 0   *m;
   double txypos   = 0   *m;
-  double txzpos   = -100  *m;
+  double txzpos   = -10  *m;
   double txxpol   = 0;
-  double txypol   = 1;
-  double txzpol   = 0;
-  double txpower  = 1E3;
-  double txfreq   = 50 *MHz;
-  double txgaindB = 0;
+  double txypol   = 0;
+  double txzpol   = 1;
+  double txpower  = 50;
+  double txfreq   = 260 *MHz;
+  double txgaindB = 10;
   // Half-dipole gaindB = 2.15 dBi
 
   Antenna transmitter(txxpos, txypos, txzpos,
@@ -72,18 +72,18 @@ int main(int argc, char** argv){
                       txpower, txfreq, txgaindB);
   Antenna& tx = transmitter;
 
-  double rxxpos   = -250  *m;
+  double rxxpos   = 30  *m;
   double rxypos   = 0  *m;
-  double rxzpos   = 0  *m;
+  double rxzpos   = -10  *m;
   double rxxpol   = 0;
-  double rxypol   = 1;
-  double rxzpol   = 0;
+  double rxypol   = 0;
+  double rxzpol   = 1;
 
   // The frequency is used to determine the antenna's effective area
   // So far, we have taken rx and tx to operate at the same freq.
   
   double rxfreq = txfreq;
-  double rxgaindB = 0;
+  double rxgaindB = 10;
 
   Antenna receiver(   rxxpos, rxypos, rxzpos,
                       rxxpol, rxypol, rxzpol,
@@ -181,4 +181,4 @@ int main(int argc, char** argv){
   // write_2D_array(nu_cascade.E_time(),         identifier_c + "_E_time.txt", 1);
 
 }
-// End
+// End 20_n13.0-n0.0-1

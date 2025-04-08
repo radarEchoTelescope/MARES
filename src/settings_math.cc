@@ -25,7 +25,7 @@ double norm(std::vector<double> vec_a){
 
 std::vector<double> direction(std::vector<double> a, std::vector<double> b){
   std::vector<double> out;
-  std::transform(a.begin(), a.end(),  //input1
+  std::transform(a.begin(), a.end(),      //input1
                  b.begin(),               //input2
                  std::back_inserter(out),                //output
                  [](double x, double y){ return y-x; });

@@ -27,46 +27,45 @@ int main(int argc, char** argv){
   // There are pre-defined detector configurations available in antenna.hh and antenna.cc
   // You can use a detector configuration and pick a TX and a RX. 
 
-  Detector dect("bistatic");
-  Antenna tx = dect.Transmitters()[0];
-  Antenna rx = dect.Receivers()[0];
+  // Detector dect("bistatic");
+  // Antenna tx = dect.Transmitters()[0];
+  // Antenna rx = dect.Receivers()[0];
   
   // Or define your own antennas manually:
-  
     // Transmitter, TX
-  // double txxpos   = 0   *m;
-  // double txypos   = 0   *m;
-  // double txzpos   = -100  *m;
-  // double txxpol   = 0;
-  // double txypol   = 1;
-  // double txzpol   = 0;
-  // double txpower  = 1E3;
-  // double txfreq   = 50 *Hz;
-  // double txgaindB = 0;
+  double txxpos   = 0   *m;
+  double txypos   = 0   *m;
+  double txzpos   = -10 *m;
+  double txxpol   = 0;
+  double txypol   = 0;
+  double txzpol   = 1;
+  double txpower  = 1E3;
+  double txfreq   = 250 *MHz;
+  double txgaindB = 2;
   // // Half-dipole gaindB = 2.15 dBi
 
-  // Antenna transmitter(txxpos, txypos, txzpos,
-  //                     txxpol, txypol, txzpol,
-  //                     txpower, txfreq, txgaindB);
-  // Antenna& tx = transmitter;
+  Antenna transmitter(txxpos, txypos, txzpos,
+                      txxpol, txypol, txzpol,
+                      txpower, txfreq, txgaindB);
+  Antenna& tx = transmitter;
 
-  // double rxxpos   = -250  *m;
-  // double rxypos   = 0  *m;
-  // double rxzpos   = 0  *m;
-  // double rxxpol   = 0;
-  // double rxypol   = 1;
-  // double rxzpol   = 0;
+  double rxxpos   = 30  *m;
+  double rxypos   = 0   *m;
+  double rxzpos   = -10 *m;
+  double rxxpol   = 0;
+  double rxypol   = 0;
+  double rxzpol   = 1;
 
   // // The frequency is used to determine the antenna's effective area
   // // So far, we have taken rx and tx to operate at the same freq.
   
-  // double rxfreq = txfreq;
-  // double rxgaindB = 0;
+  double rxfreq = txfreq;
+  double rxgaindB = 2;
 
-  // Antenna receiver(   rxxpos, rxypos, rxzpos,
-  //                     rxxpol, rxypol, rxzpol,
-  //                     0 , txfreq, rxgaindB);
-  // Antenna& rx = receiver;
+  Antenna receiver(   rxxpos, rxypos, rxzpos,
+                      rxxpol, rxypol, rxzpol,
+                      0 , txfreq, rxgaindB);
+  Antenna& rx = receiver;
 
   // ------------------------------------------------------------
   // 3 - We create a generic scatter object devoid of scattering points. 
@@ -79,17 +78,17 @@ int main(int argc, char** argv){
     Scatter will run the event. 
   */
 
-  Scatter test_points(tx,rx);
+  // Scatter test_points(tx,rx);
   
   // We can specify here the sampling ratio for the time-dependent part
   // of the simulation (generating the voltage waveform). 
-  // It represents how much higer is the sampling frequency w.r.t TX's freq.
+  // It represents how much higher the sampling frequency is w.r.t TX's freq.
   // The sampling ratio should be between 10 and 100.
 
   // The defaults for the model variables in the file "src/settings_params.hh"
 
-  // const double sampling = 100;
-  // Scatter test_points(tx,rx,sampling);
+  const double sampling = 100;
+  Scatter test_points(tx,rx,sampling);
 
   // Let's create an example point now. 
   // The information about the scattering element is stored in the ScatterPoint struct. 
@@ -97,7 +96,8 @@ int main(int argc, char** argv){
   ScatterPoint p;
 
     // Add position
-  p.Position = {250,0,-250*m};
+  // p.Position = {15*m,20*m,-2*m};
+  p.Position = {15*m,20*m,-5*m};
     // Physical dimensions. 
   p.L = 1*cm;
     // Cross section 0.5 m^2
@@ -109,7 +109,7 @@ int main(int argc, char** argv){
   // 4 - Choose the propagation mode.
 
     // Constant and uniform medium of density n, large-scale attenuation given by att_length. 
-  test_points.SetInConstMedium();
+  // test_points.SetInConstMedium();
 
 // OR
     // Use IceRayTracing to propagate through non-constant, realistic ice media. 
@@ -120,7 +120,7 @@ int main(int argc, char** argv){
       Use at your own risk and apply appropiate sanity checks.
    */
 
-  // test_points.SetWithIRT();
+  test_points.SetWithIRT();
 
 // OR
     // Propagate with an interface. See MS_single_event_beam.cpp.  
@@ -150,8 +150,8 @@ int main(int argc, char** argv){
   // write_1D_array(test_points.Geometry(),   identifier_c + "_geom_efficiency.txt", 1);
 
       // Scatter products: Time-dependent variables. 
-  write_1D_array(test_points.Duration(),       identifier_c + "_duration.txt", 1);
-  write_1D_array(test_points.Voltage(),       identifier_c + "_voltage.txt", 1);
+  write_1D_array(test_points.Duration(),       identifier_c + "_duration.txt", 0);
+  write_1D_array(test_points.Voltage(),       identifier_c + "_voltage.txt", 0);
   // write_1D_array(test_points.Power(),          identifier_c + "_power.txt", 1);
   // write_1D_array(test_points.TCS(),            identifier_c + "_TCS.txt", 1);
   // write_1D_array(test_points.RCS(),            identifier_c + "_RCS.txt", 1);

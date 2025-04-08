@@ -34,3 +34,6 @@
 lib/*
 build/*
 .vscode
+
+Cascade1D*
+.DS_Store
