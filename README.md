@@ -1,7 +1,1 @@
-<<<<<<< HEAD
-# MARES
-Macroscopic Approximation to the Radar Echo Scatter
-=======
-# development
-development version of the radar code
->>>>>>> 9d90a6b7e451ca7cc55475d2f09126e1414dc2cd
+This branch implements the gain patterns and response of the antennas for more realistic antenna simulations.
