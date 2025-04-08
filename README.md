@@ -1,7 +1,2 @@
-<<<<<<< HEAD
-# MARES
-Macroscopic Approximation to the Radar Echo Scatter
-=======
-# development
-development version of the radar code
->>>>>>> 9d90a6b7e451ca7cc55475d2f09126e1414dc2cd
+This branch will implement some improvements on importing libraries such as IceRayTracing using cmake (at the moment Iceraytracing is grabbed when compiling, so in the INSTALL.sh file)
+
