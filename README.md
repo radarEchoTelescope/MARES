@@ -1,2 +1,2 @@
-This branch will implement the hadronic falvour parametrisation for the three neutrino flavours. The parametrisations that will be used can be found in the arXiv paper:
-https://arxiv.org/abs/astro-ph/9906347v1
+This branch will be used to implement IceRayTracing into MARES bugfree. IceRayTracing is already an option in the current main version of MARES but it is not bug free yet.
+ 
