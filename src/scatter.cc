@@ -85,8 +85,8 @@ void Scatter::SetInPlane(std::vector<double> vertex,
 /* Run time loop */
 void Scatter::RunScatter(const bool save2Dmatrices){
   int steps;
-  double t, t_start, t_end, freq_sampling;
-  
+  double t, t_start, t_end, freq_sampling, C_Efield_conversion;
+  std::vector<double> Efield_vector_time (3,0.0);
 	std::vector<double> phase_time    (nP, 0.0);
 	std::vector<double> sqrt_rcs_time (nP, 0.0);
 	std::vector<double> voltage_time  (nP, 0.0);
@@ -108,6 +108,9 @@ void Scatter::RunScatter(const bool save2Dmatrices){
     fPhaseTime    = std::vector<std::vector<double>>(steps, std::vector<double> (nP, 0));
     fRCSTime      = std::vector<std::vector<double>>(steps, std::vector<double> (nP, 0));
     fVoltageTime = std::vector<std::vector<double>>(steps, std::vector<double> (nP, 0));
+    fEfieldTime= std::vector<std::vector<double>>(steps, std::vector<double> (3, 0));
+    C_Efield_conversion=pow(fTX.Wavelength()*sqrt((fRX.Load()*fRX.Gain())/(pi*Z_0/refindex)),-1);
+    //std::cout<<C_Efield_conversion<<std::endl;
   }
 
   // Radar scatter constants
@@ -124,9 +127,9 @@ void Scatter::RunScatter(const bool save2Dmatrices){
   	std::fill(sqrt_rcs_time.begin(), sqrt_rcs_time.end(), 0.0);
 		std::fill(voltage_time.begin(), voltage_time.end(), 0.0);
 		std::fill(phase_time.begin(), phase_time.end(), 0.0);
+    std::fill(Efield_vector_time.begin(), Efield_vector_time.end(), 0.0);
     for (int i = 0; i < nP; i++){
       ScatterPoint& p = fPoints[i];
-
       // If active, add its contribution.
       // if(t > p.ArrivalTime){
     
@@ -143,7 +146,13 @@ void Scatter::RunScatter(const bool save2Dmatrices){
         voltage_time[i] =  sqrt_rcs_time[i] * 1.0/(p.RTX*p.RRX) *
                             p.PolEff * p.Attenuation;
                             // 1;
+        // here we calculate the total Efield vector at the receiver. 
+        Efield_vector_time[0] += p.EFieldAtRX[0];
+        Efield_vector_time[1] += p.EFieldAtRX[1];
+        Efield_vector_time[2] += p.EFieldAtRX[2];
       }
+      // std::cout<<"New point"<<std::endl;
+      // std::cout<<Efield_vector_time<<std::endl;
     }
 
     // The final RCS, E field value for a given timestep is the sum of the effects of all segments.
@@ -157,6 +166,16 @@ void Scatter::RunScatter(const bool save2Dmatrices){
       fPhaseTime[ts] = phase_time;
       fRCSTime[ts] = sqrt_rcs_time;
       fVoltageTime[ts] = V0*voltage_time;
+      // std::cout<<Efield_vector_time<<std::endl;
+      Efield_vector_time = normalize(Efield_vector_time);
+      // std::cout<<Efield_vector_time<<std::endl;
+      Efield_vector_time[0] = Efield_vector_time[0]*C_Efield_conversion*fVoltage[ts];
+      // std::cout<<Efield_vector_time<<std::endl;
+      Efield_vector_time[1] = Efield_vector_time[1]*C_Efield_conversion*fVoltage[ts];
+      Efield_vector_time[2] = Efield_vector_time[2]*C_Efield_conversion*fVoltage[ts];
+      // std::cout<<Efield_vector_time<<std::endl;
+      fEfieldTime[ts] = Efield_vector_time;
+      // std::cout<<fEfieldTime[ts]<<std::endl;
     }
   }
 }
@@ -240,8 +259,9 @@ std::vector<double> Scatter::RCS(){return fRCS;}
 std::vector<std::vector<double>> Scatter::RCS_time(){ return fRCSTime; }
 std::vector<std::vector<double>> Scatter::Phase_time(){ return fPhaseTime; }
 std::vector<std::vector<double>> Scatter::E_time(){ return fVoltageTime; }
+std::vector<std::vector<double>> Scatter::E_field_time(){ return fEfieldTime; }
 
-void Scatter::save_output_files(const std::string& output_path, const std::array<bool, 13>& flags){
+void Scatter::save_output_files(const std::string& output_path, const std::array<bool, 14>& flags){
 
   if(flags[0]){ write_1D_array(Duration(),    output_path + "_duration.txt");}
   if(flags[1]){ write_1D_array(Voltage(),    output_path + "_voltage.txt");}
@@ -257,6 +277,6 @@ void Scatter::save_output_files(const std::string& output_path, const std::array
 
   if(flags[10]){ write_2D_array(Phase_time(),  output_path + "_phase_time.txt");}
   if(flags[11]){ write_2D_array(RCS_time(),    output_path + "_RCS_time.txt");}
-  if(flags[12]){ write_2D_array(E_time(),      output_path + "_E_time.txt");}
-  
+  if(flags[12]){ write_2D_array(E_time(),      output_path + "_voltage_time.txt");}
+  if(flags[13]){ write_2D_array(E_field_time(),output_path + "_E_field_time.txt");}
 }
