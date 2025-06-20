@@ -134,6 +134,7 @@ double shortest_distance(std::vector<double> plane, std::vector<double> point);
 std::vector<double> normalize(std::vector<double> a);
 std::vector<double> cross_product(double a1, double a2, double a3, double b1, double b2, double b3);
 std::vector<double> cross_product(std::vector<double> a, std::vector<double> b);
+double dot_product(std::vector<double> a, std::vector<double> b);
 std::vector<double> rotate(std::vector<double> vector_in, std::vector<double> rotAxis, double angle);
 std::vector<double> find_perpendicular(std::vector<double> vector_in);
 std::vector<std::vector<double>> transpose(std::vector<std::vector<double>> matrix);

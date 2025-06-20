@@ -150,6 +150,8 @@ Careful, because the medium change and refraction means that the relative
   std::vector<std::vector<double>> RCS_time();
   std::vector<std::vector<double>> E_time();
   std::vector<std::vector<double>> E_field_time();
+  std::vector<std::vector<double>> E_field_time_with_pol();
+
 
 
   void save_output_files(const std::string& output_path, const std::array<bool, 14>& flags = {0});
@@ -240,6 +242,7 @@ WARNING: This does not match IRT coordinates???
   std::vector<std::vector<double>> fPhaseTime;
   std::vector<std::vector<double>> fVoltageTime;
   std::vector<std::vector<double>> fEfieldTime;
+  std::vector<std::vector<double>> fEfieldTime_with_pol;
 };
 
 #endif
