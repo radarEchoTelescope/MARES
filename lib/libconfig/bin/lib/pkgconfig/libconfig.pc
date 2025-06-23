@@ -1,4 +1,4 @@
-prefix=/user/jloonen/PhD/MARES/lib/libconfig/bin
+prefix=/user/iloudon/MARES-remote/MARES/lib/libconfig/bin
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include
