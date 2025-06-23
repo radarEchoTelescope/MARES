@@ -32,7 +32,8 @@
 *.app
 
 
-lib/IceRayTracing/*
+CMakeLists.txt
+lib/*
 build/*
 .vscode
 

@@ -48,6 +48,7 @@ if [ $MODE == 1 ]; then
 fi
 
 # Now we run cmake
+mkdir -p build 
 cd build
 cmake ../
 
