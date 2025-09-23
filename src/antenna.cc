@@ -22,7 +22,7 @@ Antenna::Antenna(double xpos, double ypos, double zpos,
 
   fLeff = 1./factor;
 
-  assert(modDuration > 0.0 && "The total duration of the modulation should be non-zero. If running in the CW mode, the modBandwidth should be set to zero and this parameter to a random non-zero value.");
+  assert(modDuration != 0.0 && "The total duration of the modulation should be non-zero. If running in the CW mode, the modBandwidth should be set to zero and this parameter to a random non-zero value.");
 
 }
 
@@ -108,11 +108,11 @@ double slopeMod= fModBandwidth/(fModDuration/2);
 double tmp_freq;
 if(time<fModDuration/2)
 {
-double tmp_freq= fFrequency + slopeMod * time;
+tmp_freq= fFrequency + (slopeMod * time);
   
 }
 else {
-  double tmp_freq= fFrequency- slopeMod *time;
+tmp_freq= fFrequency- (slopeMod *time);
 }
 return tmp_freq; 
 }
@@ -198,7 +198,7 @@ void Detector::add_antenna(Antenna at){
 
 void load_antenna_list(const libconfig::Setting& at_list, Detector& dect){
   // Antenna placeholder variables.
-  double xpos, ypos, zpos, xpol, ypol, zpol, power, freq, gaindB;
+  double xpos, ypos, zpos, xpol, ypol, zpol, power, freq, gaindB,modBandwidth,modDuration;
    for (int i = 0; i < at_list.getLength(); i++){
     power = NAN;
     // Grab the next antenna
@@ -214,7 +214,10 @@ void load_antenna_list(const libconfig::Setting& at_list, Detector& dect){
           at["polarization"].lookupValue("z", zpol) &&
           at.lookupValue("power", power)            &&
           at.lookupValue("frequency", freq)         &&
-          at.lookupValue("gaindB", gaindB)
+          at.lookupValue("gaindB", gaindB)          &&
+          at.lookupValue("modBandwidth",modBandwidth)&&
+          at.lookupValue("modDuration",modDuration)
+
         )
     ){
       if(power != 0){
@@ -229,7 +232,7 @@ void load_antenna_list(const libconfig::Setting& at_list, Detector& dect){
     dect.add_antenna( Antenna(
               xpos *m, ypos *m, zpos *m,
               xpol, ypol, zpol,
-              power *W, freq *Hz, gaindB
+              power *W, freq *Hz, gaindB, modDuration*us, modBandwidth *Hz
       )
     );
   }
