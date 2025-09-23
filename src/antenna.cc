@@ -2,7 +2,7 @@
 
 Antenna::Antenna(double xpos, double ypos, double zpos,
                  double xpol, double ypol, double zpol,
-                 double power, double frequency, double gaindB):
+                 double power, double frequency, double gaindB,double modDuration, double modBandwidth ):
                 fPower(power),
                 fFrequency(frequency),
                 fWavelength(c_ice/frequency),
@@ -10,7 +10,9 @@ Antenna::Antenna(double xpos, double ypos, double zpos,
                 fWavenumber(2 * pi * frequency / c_ice),
                 fGain( pow(10., gaindB/10.) ),
                 fPosition{xpos, ypos, zpos},
-                fPolarization{xpol, ypol, zpol}{
+                fPolarization{xpol, ypol, zpol},
+                fModDuration(modDuration),
+                fModBandwidth(modBandwidth){
 
 // Antenna factor as sqrt(effective area)
   double factor = (c_ice/frequency)*sqrt(fGain/(4.*pi));
@@ -19,6 +21,8 @@ Antenna::Antenna(double xpos, double ypos, double zpos,
   // double factor = sqrt(rx_gain*lambda/(4.*pi));
 
   fLeff = 1./factor;
+
+  assert(modDuration > 0.0 && "The total duration of the modulation should be non-zero. If running in the CW mode, the modBandwidth should be set to zero and this parameter to a random non-zero value.");
 
 }
 
@@ -93,6 +97,41 @@ double  Antenna::Freq()       const {return fFrequency;}
 double  Antenna::Wavelength() const {return fWavelength;}
 double  Antenna::Wavenumber() const {return fWavenumber;}
 double  Antenna::AngularFreq()const {return fAngularFreq;}
+
+double Antenna::ModBandwidth() const {return fModBandwidth;} 
+double Antenna::ModDuration() const {return fModDuration;}
+
+double Antenna::Freq(double time) const // this function returns the frequency at a specific time given a triangular modulation
+{
+double freqTime; 
+double slopeMod= fModBandwidth/(fModDuration/2);
+double tmp_freq;
+if(time<fModDuration/2)
+{
+double tmp_freq= fFrequency + slopeMod * time;
+  
+}
+else {
+  double tmp_freq= fFrequency- slopeMod *time;
+}
+return tmp_freq; 
+}
+
+double Antenna::AngularFreq(double time) const // angular frequency for a triangular modulation. 
+{
+  return 2* pi * Freq(time); 
+}
+
+double Antenna::Wavelength(double time) const // wavelength for a triangular modulation. 
+{
+  return c_ice/Freq(time); 
+}
+
+double Antenna::Wavenumber(double time) const // wavenumber for a triangular modulation. 
+{
+  return 2* pi* Freq(time)/c_ice; 
+}
+
 
 std::vector<double> Antenna::Pos() const {return fPosition;}
 std::vector<double> Antenna::Dir() const {return fDirection;}

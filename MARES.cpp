@@ -212,7 +212,7 @@ int main(int argc, char** argv){
         }
         
         // Run the scatter proper
-        event -> RunScatter(save_time_profiles);
+        event -> RunEvent(save_time_profiles);
 
         // write output 
         unique_id = path_out + "Cascade1D_" + identifier +

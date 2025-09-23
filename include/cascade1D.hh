@@ -30,6 +30,10 @@ public:
   std::vector<std::vector<double>> Radius();
   std::vector<std::vector<double>> Length();
 
+  void UpdateTCS(double time);
+  void RunEvent(const bool save2Dmatrices = false);
+  void RunScatterFMCW(const bool save2Dmatrices=false);
+
 private:
 
 // Dimensions of the TX frame axis.
@@ -74,6 +78,7 @@ private:
 
   std::vector<double> fTCS;
   void SetTCS();
+
 
     /* 
 So far, the plane R_TX, L_TX was created to cover the cascade at an angle and

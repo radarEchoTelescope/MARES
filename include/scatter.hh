@@ -10,6 +10,8 @@
 // #include "cascade.hh"
 #include "antenna.hh"
 #include "IceRayTracing.hh"
+#include "cascade.hh"
+// #include "cascade1D.hh"
 // #define NDEBUG     // Turn off debug.
 
 struct ScatterPoint{
@@ -63,7 +65,10 @@ struct ScatterPoint{
 
 /* Simple scatter event with bistatic configuration*/
 class Scatter {
+friend class Cascade1D;
 public:
+
+  void UpdateTCS(double time);
 
   Scatter(Antenna& tx, Antenna& rx, std::vector<ScatterPoint> points,
           const double& sampling = _sampling);

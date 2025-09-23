@@ -82,7 +82,6 @@ void Scatter::SetInPlane(std::vector<double> vertex,
 }
 
 
-/* Run time loop */
 void Scatter::RunScatter(const bool save2Dmatrices){
   int steps;
   double t, t_start, t_end, freq_sampling;
@@ -111,7 +110,7 @@ void Scatter::RunScatter(const bool save2Dmatrices){
   }
 
   // Radar scatter constants
-  double V0 = fTX.Wavelength()/ pow(4*pi,1.5) *
+  double V0 = fTX.Wavelength()/ pow(2*pi,1.5) *
                         sqrt( 
                         fTX.Power() * fTX.Gain() *
                         fRX.Load() * fRX.Gain() ) ;

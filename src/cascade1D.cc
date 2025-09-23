@@ -157,6 +157,137 @@ void Cascade1D::SetTCS(){
   }
 }
 
+void Cascade1D::UpdateTCS(double time)
+{
+   double transparency, transmitivity, tmp_tcs;
+  // This is the damping factor, \omega*W. 
+  double fDamping = 1.0 / (1 + pow(f_coll/fTX.AngularFreq(time), 2) );
+
+  std::vector<double> tmp_TCS = std::vector<double> ( fDensity.size(), 0.0 );
+    for (int i = 0; i < fDensity.size(); i++){
+      transmitivity = 1; transparency = 1, tmp_tcs = 0;
+      for (int j = 0; j < fDensity[i].size(); j++){
+        if(fDensity[i][j] == 0){continue;}
+        transmitivity = exp(-1.0 * dR * Absorption( fDensity[i][j],fTX.Freq(time) ) );
+        transparency *= transmitivity;
+        // Very important sanity check
+        // Reveals is something goes wrong with the density calc.
+        assert(transparency > 0 && "Opacity larger than 1!");
+        
+        // We sum into one TCS the electrons from the TCS from the separate shells.
+        tmp_tcs += fNe[i][j];
+      }
+      
+      tmp_TCS[i] = pow(tmp_tcs,2)*transparency*fDamping * thomson * 1.5 /dR;
+
+      // The line below updates the TCS value of the points in the 1D cascade
+      fPoints[i].TCS=tmp_TCS[i]; 
+    }
+
+};
+
+void Cascade1D::RunScatterFMCW(const bool save2Dmatrices)
+{
+  int steps;
+  double t, t_start, t_end, freq_sampling;
+  
+	std::vector<double> phase_time    (nP, 0.0);
+	std::vector<double> sqrt_rcs_time (nP, 0.0);
+	std::vector<double> voltage_time  (nP, 0.0);
+
+  std::vector<double> fArrivalTime = ArrivalTime();
+  t_start  = *std::min_element(fArrivalTime.begin(), fArrivalTime.end()) - 5*ns ;
+  t_end    = *std::max_element(fArrivalTime.begin(), fArrivalTime.end()) + 5*tau + 5*ns;
+
+  freq_sampling = fTX.Freq()*sampling_ratio;
+  steps = (t_end - t_start)*freq_sampling;
+
+  // Memory allocation
+  fDuration     = std::vector<double>(steps, 0);    // The time
+  fRCS          = std::vector<double>(steps, 0);    // The RCS
+  fVoltage     = std::vector<double>(steps, 0);    // The electric field
+  fPower        = std::vector<double>(steps, 0);    // The power
+
+  if (save2Dmatrices){
+    fPhaseTime    = std::vector<std::vector<double>>(steps, std::vector<double> (nP, 0));
+    fRCSTime      = std::vector<std::vector<double>>(steps, std::vector<double> (nP, 0));
+    fVoltageTime = std::vector<std::vector<double>>(steps, std::vector<double> (nP, 0));
+  }
+
+  // Radar scatter constants
+  
+
+  // Time Loop!   
+  for (int ts = 0; ts < steps; ts++){
+    t = ts/freq_sampling + t_start;
+    fDuration[ts] = t;
+    double V0 = fTX.Wavelength(t)/ pow(2*pi,1.5) *
+                        sqrt( 
+                        fTX.Power() * fTX.Gain() *
+                        fRX.Load() * fRX.Gain() ) ;
+
+  	std::fill(sqrt_rcs_time.begin(), sqrt_rcs_time.end(), 0.0);
+		std::fill(voltage_time.begin(), voltage_time.end(), 0.0);
+		std::fill(phase_time.begin(), phase_time.end(), 0.0);
+
+    UpdateTCS(t);
+    for (int i = 0; i < nP; i++){
+      ScatterPoint& p = fPoints[i];
+
+      // If active, add its contribution.
+      // if(t > p.ArrivalTime){
+    
+      // You can also add an arbitrary cutoff (no smaller than 5*tau)
+      if(t>p.ArrivalTime && t<=(p.ArrivalTime + 5*tau)){
+        // the wavenumber also changes over time. Hence, p.Phase is not a constant anymore. I make a tmp variable that keeps track of its change.
+        // p.Phase remains the cte value when running in CW mode. 
+
+        double tmp_phase_p= fTX.Wavenumber(t)*(p.RTX + p.RRX) - pi/2; 
+
+        // phase_time[i] = cos(p.Phase - fTX.AngularFreq(t)*t); 
+        phase_time[i] = cos(tmp_phase_p - fTX.AngularFreq(t)*t); 
+
+        // The TCS variable also becomes time depend in  the FMCW mode as it depends on frequency and its derivatives. Hence we need to update it. 
+        // I wrote a function UpdateTCS to do this. 
+        sqrt_rcs_time[i] = sqrt(p.TCS) * // TCS =  Th * transparency * damping * N_e^2
+                        pow(e,-(t-p.ArrivalTime)/tau) *  // Lifetime decay
+                        phase_time[i];
+
+        // The voltage has to also include polarization and attenuation effects. 
+        voltage_time[i] =  sqrt_rcs_time[i] * 1.0/(p.RTX*p.RRX) *
+                            p.PolEff * p.Attenuation;
+                            // 1;
+      }
+    }
+
+    // The final RCS, E field value for a given timestep is the sum of the effects of all segments.
+    fRCS[ts] = std::accumulate(std::begin(sqrt_rcs_time), std::end(sqrt_rcs_time), 0.0);
+    fRCS[ts] = pow(fRCS[ts],2);
+
+    fVoltage[ts] = V0* std::accumulate(std::begin(voltage_time), std::end(voltage_time), 0.0);
+    fPower[ts] = pow(fVoltage[ts],2)/fRX.Load();
+
+    if(save2Dmatrices) {
+      fPhaseTime[ts] = phase_time;
+      fRCSTime[ts] = sqrt_rcs_time;
+      fVoltageTime[ts] = V0*voltage_time;
+    }
+  }
+
+}
+
+void Cascade1D::RunEvent(const bool save2Dmatrices)
+{
+  if(fTX.ModBandwidth()==0.0)
+  {
+    RunScatter(save2Dmatrices);
+  }
+  else
+  {
+   RunScatterFMCW(save2Dmatrices); 
+  }
+}
+
 
 void Cascade1D::SetInCSPlane(std::vector<double> vertex,
                     std::vector<double> direction,

@@ -15,7 +15,7 @@ include_directories(${PROJECT_SOURCE_DIR}/lib/libconfig/bin/include/)
 
 find_package(PkgConfig)
 find_package(GSL REQUIRED)
-pkg_check_modules(LIBCONFIG_PLUSPLUS libconfig++)
+pkg_check_modules(LIBCONFIG_PLUSPLUS IMPORTED_TARGET libconfig++)
 if(NOT LIBCONFIG_PLUSPLUS_FOUND)
     set(LIBCONFIG_PLUSPLUS ${PROJECT_SOURCE_DIR}/lib/libconfig/bin/lib/libconfig++.so)
     message( "Using local libconfig at: " ${LIBCONFIG_PLUSPLUS})
@@ -52,7 +52,7 @@ set( LIB_HEADERS
     ${PROJECT_SOURCE_DIR}/include/scatter.hh
     ${PROJECT_SOURCE_DIR}/include/settings.hh
     ${PROJECT_SOURCE_DIR}/include/settings_units_constants.hh
-    ${PROJECT_SOURCE_DIR}/lib/libconfig/bin/include/libconfig.h++
+    # ${PROJECT_SOURCE_DIR}/lib/libconfig/bin/include/libconfig.h++
 
 )
 
@@ -81,7 +81,8 @@ foreach( testsourcefile ${EXEC_SOURCES} )
     target_link_libraries( ${testname} 
         libMARES
        # ${LIBCONFIG_PLUSPLUS_LIBRARIES}
-        ${LIBCONFIG_PLUSPLUS} 
+       # ${LIBCONFIG_PLUSPLUS}
+      	PkgConfig::LIBCONFIG_PLUSPLUS 
         GSL::gsl
     )
 endforeach( testsourcefile ${EXEC_SOURCES} )
