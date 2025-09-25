@@ -229,8 +229,7 @@ void Cascade1D::RunScatterFMCW(const bool save2Dmatrices)
   	std::fill(sqrt_rcs_time.begin(), sqrt_rcs_time.end(), 0.0);
 		std::fill(voltage_time.begin(), voltage_time.end(), 0.0);
 		std::fill(phase_time.begin(), phase_time.end(), 0.0);
-
-    UpdateTCS(t);
+    // UpdateTCS(t);
     for (int i = 0; i < nP; i++){
       ScatterPoint& p = fPoints[i];
 
@@ -254,7 +253,7 @@ void Cascade1D::RunScatterFMCW(const bool save2Dmatrices)
                         phase_time[i];
 
         // The voltage has to also include polarization and attenuation effects. 
-        voltage_time[i] =  sqrt_rcs_time[i] * 1.0/(p.RTX*p.RRX) *
+        voltage_time[i] =  V0 * sqrt_rcs_time[i] * 1.0/(p.RTX*p.RRX) *
                             p.PolEff * p.Attenuation;
                             // 1;
       }
@@ -264,13 +263,13 @@ void Cascade1D::RunScatterFMCW(const bool save2Dmatrices)
     fRCS[ts] = std::accumulate(std::begin(sqrt_rcs_time), std::end(sqrt_rcs_time), 0.0);
     fRCS[ts] = pow(fRCS[ts],2);
 
-    fVoltage[ts] = V0* std::accumulate(std::begin(voltage_time), std::end(voltage_time), 0.0);
+    fVoltage[ts] = std::accumulate(std::begin(voltage_time), std::end(voltage_time), 0.0);
     fPower[ts] = pow(fVoltage[ts],2)/fRX.Load();
 
     if(save2Dmatrices) {
       fPhaseTime[ts] = phase_time;
       fRCSTime[ts] = sqrt_rcs_time;
-      fVoltageTime[ts] = V0*voltage_time;
+      fVoltageTime[ts] = voltage_time;
     }
   }
 
