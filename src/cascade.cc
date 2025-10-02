@@ -1,4 +1,6 @@
 #include "cascade.hh"
+#include <functional>
+#include "cascade1D.cc"
 
 Cascade::Cascade(double xpos, double ypos, double zpos,
 								 double zenith, double azimuth, double energy, int primaries,
@@ -28,7 +30,7 @@ Cascade::Cascade(double xpos, double ypos, double zpos,
  */
 
  	fXtot = Ltot_factor * log(12.72 * fEnergy) * X_0;			
-	fLtot = fXtot/rho_ice; 											
+	fLtot = fXtot/rho_ice(0.0); 											
 	fRtot = Rtot_factor * r_moliere;								
 
 	/* If you want your cascade to scale with energy in both dimensions,
@@ -48,30 +50,24 @@ Cascade::Cascade(double xpos, double ypos, double zpos,
 
 /* Ne, number of ionized electrons per unit length */
   // Usual N(e), 1 particle of energy Ep.
-double Cascade::Ne(double X){
-	return Ne(X, fEnergy, fNp);
+double Cascade::Ne(double z, double X){
+	return Ne(z, X, fEnergy, fNp);
 }
 
   // N(e)/mm, applies to a cascade of Np particles with energy Ep per particle. 
-double Cascade::Ne(double X, double Ep, double Np){
+double Cascade::Ne(double z, double X, double Ep, double Np){
 	return Np* NKG::N(X,Ep)*         
           // Number of ionizing primaries
-          E_deposition/E_ionization * rho_ice;
+          E_deposition/E_ionization * rho_ice(z);
           // # e/mm per ionising primary
 }
 
-  // Usual density function, 1 particle of energy Ep.
-double Cascade::Density(double X, double r, double delta_r){
-	 return Density(X, r, delta_r, fEnergy, 1.);
-             // Weight for the fraction inside the r+dr ring.
- }
-
  // Density for beam containing N particles of energy E (per particle).
-double Cascade::Density(double X, double r, double delta_r, double E, double Np){
+double Cascade::Density(double z, double X, double r, double delta_r, double E, double Np){
 	double dens;
   if(r<0.0){r = -r;}
 	// s = ShowerAge(X,fEnergy);*step
-  dens = Ne(X, E, Np)*
+  dens = Ne(z, X, E, Np)*
         NKG::intwiv(r,delta_r) 
         / (pi*(pow(delta_r,2) + 2*r*delta_r));
 	// Equivalent to:
@@ -79,6 +75,14 @@ double Cascade::Density(double X, double r, double delta_r, double E, double Np)
 	assert(dens >= 0 && "Negative density value"); // Sanity check
 	return dens;
 }
+
+  // Usual density function, 1 particle of energy Ep.
+double Cascade::Density(double z, double X, double r, double delta_r){
+	 return Density(z, X, r, delta_r, fEnergy, 1.);
+             // Weight for the fraction inside the r+dr ring.
+ }
+
+
 
 // This formula only works if the electron density is in cm^3!!
 // Also, this formula returns frequency in Hz.
@@ -128,12 +132,14 @@ void Cascade::Ne( const std::vector<std::vector<double>> &length_vals,
 										   const double delta_r){
   fNe = std::vector<std::vector<double>> (length_vals.size(),
               std::vector<double> (length_vals[0].size(), 0));
-
+  double z;
   for (int i = 0; i < fNe.size(); i++){
     for (int j = 0; j < fNe[i].size(); j++){
       // Simple check to avoid computing values too far out from the cascade direction
       if ( abs(radius_vals[i][j]) <= fRtot ) {
-        fNe[i][j] = Ne(rho_ice*length_vals[i][j], radius_vals[i][j], delta_r);
+        //auto X = [length_vals[i][j], rho_ice](double z){ return length_vals[i][j]*rho_ice(z); };
+        z = length_vals[i][j]*cos(fSphericalAngles[0]);
+        fNe[i][j] = Ne(z, rho_ice(z)*length_vals[i][j], radius_vals[i][j], delta_r);
       }
     }
   }
@@ -144,12 +150,13 @@ void Cascade::Density( const std::vector<std::vector<double>> &length_vals,
 										   const double delta_r){
   fDensity = std::vector<std::vector<double>> (length_vals.size(),
               std::vector<double> (length_vals[0].size(), 0));
-
+  double z;
   for (int i = 0; i < fDensity.size(); i++){
     for (int j = 0; j < fDensity[i].size(); j++){
       // Simple check to avoid computing values too far out from the cascade direction
+      z = length_vals[i][j] * cos(fSphericalAngles[0]);
       if ( abs(radius_vals[i][j]) <= fRtot ) {
-        fDensity[i][j] = Density(rho_ice*length_vals[i][j], radius_vals[i][j], delta_r);
+        fDensity[i][j] = Density(z, rho_ice(z)*length_vals[i][j], radius_vals[i][j], delta_r);
       }
     }
   }
@@ -336,12 +343,16 @@ std::vector<Cascade> load_cascade_config(libconfig::Config& cs_config, std::ostr
           cs.lookupValue("primaries", primaries)          
         )
     ){
+      out << cs.lookupValue("energy", energy) << cs["position"].lookupValue("x", xpos) << 
+             cs["position"].lookupValue("y", ypos) << cs["position"].lookupValue("z", zpos) << 
+             cs["direction"].lookupValue("zenith", zenith) << cs["direction"].lookupValue("azimuth", azimuth) << 
+             cs.lookupValue("primaries", primaries) << std::endl;
       out << "Cascade " << i << " was missing a critical parameter and was skipped" << std::endl;
       continue;
     } 
     // None of these are critical, but if available then we store them.
     cs.lookupValue("nu_num", n_num);
-    cs.lookupValue("track_num", t_num);
+    cs.lookupValue("track_num", t_num); 
     cs.lookupValue("p_id", p_id);
     cs.lookupValue("i_type", i_type);
     cs.lookupValue("channel", channel);

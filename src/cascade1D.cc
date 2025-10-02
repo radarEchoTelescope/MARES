@@ -1,5 +1,15 @@
 #include "cascade1D.hh"
 
+double rho_ice(double z){ 
+    return ice_density - (ice_density - surface_density)*exp(-1.9/(t_firn)*abs(z));
+}          // Density
+
+/*
+double rho_ice(double z){
+  return 0.92 * g/pow(cm, 3);
+}
+*/
+
 Cascade1D::Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs,
                     const double deltaL, const double deltaR,
                     const double sampling):
@@ -84,7 +94,7 @@ void Cascade1D::SetTXFrame(){
   std::vector<std::vector<double>> Iwr  = std::vector<std::vector<double>> (nL, std::vector<double> (nR, 0));
 
 // Fill the length and radial values in the transmitter frame. 
-double r, l, l_tmp, r_tmp, norm;
+double r, l, l_tmp, r_tmp, z, norm;
   for (int i = 0; i < nL; i++){
     l = i* dL;
     norm = 0.0;
@@ -92,10 +102,11 @@ double r, l, l_tmp, r_tmp, norm;
       r = j * dR;
       l_tmp = (r - R/2)*cD + (l - L/2)*sD + fLtot/2;
       r_tmp = -(r - R/2)*sD + (l - L/2)*cD;
+      z = l_tmp * cD;
       // Simple check to avoid computing values too far out from the cascade direction
       if ( abs(r_tmp) <= fRtot ) {
           Iwr[i][j] = NKG::intwiv(abs(r_tmp),dR);
-          fNe[i][j] = Iwr[i][j]*Cascade::Ne(rho_ice*l_tmp, Cascade::fEnergy, Cascade::fNp)*dL;
+          fNe[i][j] = Iwr[i][j]*Cascade::Ne(z,rho_ice(z)*l_tmp, Cascade::fEnergy, Cascade::fNp)*dL;
           fDensity[i][j] = fNe[i][j]/ (pi*dL*(pow(dR,2) + 2*abs(r_tmp)*dR));
           // or,
           // fDensity[i][i] = Cascade::Density(rho_ice*l_tmp, r_tmp, dR, Cascade::fEnergy, Cascade::fNp  );

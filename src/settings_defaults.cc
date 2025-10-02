@@ -35,7 +35,12 @@ double _refindex = 1.78;      //1.78
 // double _refindex = 1.51;
 
 // Density (Ice) [g/cm^3]
-double _rho_ice = 0.92 * g/pow(cm,3); 
+/*
+double _rho_ice (double z) {
+    return 0.92 * g/pow(cm,3);
+}
+*/
+//double _rho_ice = 0.92 * g/pow(cm,3); 
 // Density (sea-level air)
 //double _rho = 1.168e-3;
 
@@ -83,8 +88,8 @@ double _sampling = 100;                                            // default = 
 
 double _c_ice = c_vac/_refindex;  // [m/s] speed of light in ice
 double _Z_ice = Z_0/_refindex;            // Impedance of ice
-double _L_0 = _X_0/_rho_ice;       // Radiation length = 39.22 cm
-
+//double _L_0 = _X_0/_rho_ice(0.0);       // Radiation length = 39.22 cm
+//double _L_0 (double z) { return _X_0/_rho_ice(z); }
 // Ltot_factor can be 2 safely for speed, but 3 makes prettier plots. 
 double _Ltot_factor = 3.0;
 double _Rtot_factor = 2.0;

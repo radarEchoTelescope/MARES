@@ -18,7 +18,7 @@
 #include <libconfig.h++>
 //#include </vol/astro7/lofar/iloudon/MARES/lib/libconfig/lib/libconfig.h++>
 
-#include <settings_units_constants.hh>
+#include "settings_units_constants.hh"
 
 // Simulation parameters --------------------------------------------    
 // see "settings_params.hh"
@@ -40,7 +40,10 @@ extern double _memp;             // Effective plasma mass in electron masses
     // Ice  ------------------------------------------------------------------
 extern double _refindex;         // refractive index
 extern double _att_length;       // Attenuation length
-extern double _rho_ice;          // Density
+// extern double _rho_ice;         // Density of ice
+const double ice_density = 0.92*g/pow(cm,3); // [g/cm^3]
+const double surface_density = 0.36*g/pow(cm,3); // [g/cm^3]
+const double t_firn = 100*m; // [m] length of firn 
 
 // Mass stopping power of ice - energy loss per ionizing particle (@ 1 GeV)
 extern double _r_moliere;        // Moliere Radius in ice
@@ -52,8 +55,9 @@ extern double _X_0;              // Radiation columm density
 
 extern double _c_ice;  // [m/s] speed of light in ice
 extern double _Z_ice;  // Impedance of ice
-extern double _L_0;  // Radiation length = 39.22 cm
-
+//extern double _L_0;  // Radiation length = 39.22 cm
+//double L_0(double z){ return _X_0/rho_ice(z); }  // Radiation length = 39.22 cm
+//extern double _L_0;
     // Air / Other constants -----------------------------------
 // extern double rho=1.168e-3;//sea level density
 // extern double x_0=36.7;//radiation length in air
@@ -74,7 +78,7 @@ static const double& f_coll = _f_coll;
 static const double& memp = _memp;
 static const double& refindex = _refindex; 
 static const double& att_length = _att_length; 
-static const double& rho_ice = _rho_ice;
+//static const double& rho_ice = _rho_ice;
 static const double& r_moliere = _r_moliere; 
 static const double& E_ionization = _E_ionization; 
 static const double& E_deposition = _E_deposition;       
@@ -82,7 +86,7 @@ static const double& E_c = _E_c;
 static const double& X_0 = _X_0;
 static const double& c_ice = _c_ice;
 static const double& Z_ice = _Z_ice;
-static const double& L_0 = _L_0;
+//static const double& L_0 = _L_0;
 
 // Math tools ------------------------------------------------------------------
 

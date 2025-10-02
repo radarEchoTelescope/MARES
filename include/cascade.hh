@@ -5,6 +5,7 @@ This file defines the cascade class and all its associated functions
 #define CASCADE_hh
 
 #include "settings.hh"
+#include <functional>
 
 // -----------------------------------------------------------------------------
 class Cascade {
@@ -101,22 +102,22 @@ protected:
 /* (Classical) Particle (electron) number for penetration length X.
   [g/mm^2] */
   // Uses 1 particle with fEnergy.
-  double Ne(double X);           // [#e-/mm]
+  double Ne(double z, double X);           // [#e-/mm]
 
   /* Particle (electron) density for penetration length X.
   [g/mm^2, MeV] */
   // In that case each particle carries E energy, the mean energy per primary.
-  double Ne(double X, double Ep, double Np);           // [#e-/cm]
+  double Ne(double z, double X, double Ep, double Np);           // [#e-/cm]
 
   // (Classical) density, in case the cascade was orginated from 1 particle.
   // Uses 1 particle with fEnergy.
-  double Density(double X, double r, double delta_r);      // [#e-/ mm^3]
+  double Density(double z, double X, double r, double delta_r);      // [#e-/ mm^3]
 
  /* Particle (electron) density for penetration length X and radius r.
   [g/cm^2, cm, GeV] */
   // Density in case the cascade was orginated from Np particles
   // In that case each particle carries E energy, the mean energy per primary.
-  double Density(double X, double r, double delta_r, double Ep, double Np); 
+  double Density(double z, double X, double r, double delta_r, double Ep, double Np); 
 
   // TO-DO: 2 species absorption! 
 
