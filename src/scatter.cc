@@ -143,6 +143,21 @@ void Scatter::RunScatter(const bool save2Dmatrices){
         voltage_time[i] =  sqrt_rcs_time[i] * 1.0/(p.RTX*p.RRX) *
                             p.PolEff * p.Attenuation;
                             // 1;
+
+        // Temporary checks for IRT debugging
+        // If disabled, MARES + IRT may produce waveforms with missing values.
+        if (p.ArrivalTime!=p.ArrivalTime){ // Arrival time nan check
+          cout<<"Arrival time nan, stopping"<<endl;
+          cout<<p.Position[2]/m<<endl; // Depth of the point producing the nan [m]
+          exit(EXIT_FAILURE); 
+        }
+
+        if (voltage_time[i]!=voltage_time[i]){ // Voltage time nan check
+          cout<<"Voltage time nan, stopping"<<endl;
+          cout<<p.Position[2]/m<<endl; // Depth of the point producing the nan [m]
+          exit(EXIT_FAILURE); 
+        }
+
       }
     }
 
