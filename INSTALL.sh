@@ -18,15 +18,16 @@ fi
 
 initial=$PWD
 
+###### Temporarily disabled this option for debugging purposes -  to avoid overwriting any temporary changes made in the IceRayTracing code.
 # We grab Iceraytracing
-if [ -d lib/IceRayTracing ]
-then
-  echo "We have IceRayTracing already, checking if up to date"
-  cd lib/IceRayTracing && git pull
-else
-  echo "We don't have IceRayTracing yet, let's grab it"
-  cd lib && git clone https://github.com/uzairlatif90/IceRayTracing
-fi
+# if [ -d lib/IceRayTracing ]
+# then
+#   echo "We have IceRayTracing already, checking if up to date"
+#   cd lib/IceRayTracing && git pull
+# else
+#   echo "We don't have IceRayTracing yet, let's grab it"
+#   cd lib && git clone https://github.com/uzairlatif90/IceRayTracing
+# fi
 
 cd $initial
 
