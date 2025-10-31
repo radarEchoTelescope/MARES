@@ -132,17 +132,17 @@ the number of electrons N_e in each shell.
 */
 void Cascade1D::SetTCS(){
 
-  double transparency, transmitivity, tmp_tcs;
+  double transparency, transmissivity, tmp_tcs;
   // This is the damping factor, \omega*W. 
   double fDamping = 1.0 / (1 + pow(f_coll/fTX.AngularFreq(), 2) );
 
   fTCS = std::vector<double> ( fDensity.size(), 0.0 );
   for (int i = 0; i < fDensity.size(); i++){
-    transmitivity = 1; transparency = 1, tmp_tcs = 0;
+    transmissivity = 1; transparency = 1, tmp_tcs = 0;
     for (int j = 0; j < fDensity[i].size(); j++){
       if(fDensity[i][j] == 0){continue;}
-      transmitivity = exp(-1.0 * dR * Absorption( fDensity[i][j],fTX.Freq() ) );
-      transparency *= transmitivity;
+      transmissivity = exp(-1.0 * dR * Absorption( fDensity[i][j],fTX.Freq() ) );
+      transparency *= transmissivity;
       // Very important sanity check
       // Reveals is something goes wrong with the density calc.
       assert(transparency > 0 && "Opacity larger than 1!");
@@ -216,7 +216,7 @@ void Cascade1D::SetInMax(std::vector<double> vertex, std::vector<double> directi
   SetInCSPlane(vertex, direction, fTXMaxLength, fTXMaxRadius);
 }
 
-void Cascade1D::SetInMaxReflectivty(){
+void Cascade1D::SetInMaxReflectivity(){
   // Compute the reflectivty matrix first.
   Cascade::Transparency(Cascade::fDensity, Scatter::fTX.Freq(), dR );
   // Place the segments along the values. 

@@ -18,9 +18,9 @@ double _lifetime = 10 *ns;
 //double _lifetime = 50 *ns;         
 
 // Collision frequency estimate [THz]
-double _f_coll = 100 *THz;
+// double _f_coll = 100 *THz;
 // RS value for collision frequency
-// double _f_coll = 64.733;         
+double _f_coll = 64.733 * THz;         
 
 // Effective plasma mass ratio w.r.t electron
 // i.e, effective plasma mass in electron masses
