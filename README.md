@@ -1,1 +1,1 @@
-This branch implements the gain patterns and response of the antennas for more realistic antenna simulations.
+This is the main branch of the project with a stable release. 
