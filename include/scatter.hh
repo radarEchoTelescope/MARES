@@ -36,7 +36,12 @@ struct ScatterPoint{
   double PolEff;
   std::vector<double> Polarization{0,0,0};
   std::vector<double> EFieldAtRX{0,0,0};
+// These are needed for gain implementation
 
+  double ThetaAnglesGain[3]; // {theta_TX,theta_CS,theta_RX}
+  double PhiAnglesGain[3]; // {phi_TX,phi_CS,phi_RX}, these are not used if using dipole gain patterns. 
+  double GainFactorTX=1; 
+  double GainFactorRX=1;
 // These are needed for raytracing purposes (IceRayTracing)
   double TXRayTime[2];
   double TXRayDistance[2];
@@ -124,6 +129,7 @@ Careful, because the medium change and refraction means that the relative
 /* Computes the time integral of the interference of the points at the RX*/
   void RunScatter(const bool save2Dmatrices = false);
 
+  void CalcDirectionalAngles(ScatterPoint& p); 
   // Accessors
   Antenna TX();
   Antenna RX();

@@ -49,6 +49,7 @@ void Scatter::SetInDirection(std::vector<double> vertex,
     p.Position[1] = p.L*direction[1] + vertex[1];
     p.Position[2] = p.L*direction[2] + vertex[2];
 
+
   }
 }
 
@@ -113,8 +114,8 @@ void Scatter::RunScatter(const bool save2Dmatrices){
   // Radar scatter constants
   double V0 = fTX.Wavelength()/ pow(2*pi,1.5) *
                         sqrt( 
-                        fTX.Power() * fTX.Gain() *
-                        fRX.Load() * fRX.Gain() ) ;
+                        fTX.Power() *
+                        fRX.Load() ) ;
 
   // Time Loop!   
   for (int ts = 0; ts < steps; ts++){
@@ -136,13 +137,15 @@ void Scatter::RunScatter(const bool save2Dmatrices){
         phase_time[i] = cos(p.Phase - fTX.AngularFreq()*t);
   
         sqrt_rcs_time[i] = sqrt(p.TCS) * // TCS =  Th * transparency * damping * N_e^2
+                        sqrt(1.5)*sin(p.ThetaAnglesGain[1])* // sqrt(3/2 sin^2(theta_CS))
                         pow(e,-(t-p.ArrivalTime)/tau) *  // Lifetime decay
                         phase_time[i];
 
         // The voltage has to also include polarization and attenuation effects. 
         voltage_time[i] =  sqrt_rcs_time[i] * 1.0/(p.RTX*p.RRX) *
-                            p.PolEff * p.Attenuation;
+                            p.PolEff * p.Attenuation * sqrt(p.GainFactorTX*p.GainFactorRX);
                             // 1;
+                          
       }
     }
 
@@ -160,6 +163,23 @@ void Scatter::RunScatter(const bool save2Dmatrices){
     }
   }
 }
+
+
+
+  void Scatter::CalcDirectionalAngles(ScatterPoint& p){
+    // Calculating the zenith angles
+    std::vector<double> RxCsDirection=direction(fRX.Pos(),p.Position);
+    p.ThetaAnglesGain[0]=acos(projection(fTX.Pol(),p.TXDir));
+    p.ThetaAnglesGain[1]=acos(projection(p.Polarization,p.RXDir)); 
+    p.ThetaAnglesGain[2]=acos(projection(fRX.Pol(),RxCsDirection)); // note that we need the angle here between the polarisation vector of the RX and the RX-CS vector
+    
+    // Calculating the azimuth angles, here we assume it is defined w.r.t the positve x-axis
+    p.PhiAnglesGain[0]=atan2(p.TXDir[1],p.TXDir[0]);
+    p.PhiAnglesGain[1]=atan2(p.RXDir[1],p.RXDir[0]); // As the electron is always an oscillating dipole, this angle is redundant for the gain pattern. Hence, we set it to zero. 
+    p.PhiAnglesGain[2]=atan2(RxCsDirection[1],RxCsDirection[0]);
+  }
+
+
 
 // void Scatter::SetAtDirection(Antenna &at){ at.SetDirection( cs.Pos() ); }
 

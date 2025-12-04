@@ -151,7 +151,7 @@ void Cascade1D::SetTCS(){
       tmp_tcs += fNe[i][j];
     }
     
-    fTCS[i] = pow(tmp_tcs,2)*transparency*fDamping * thomson * 1.5 /dR;
+    fTCS[i] = pow(tmp_tcs,2)*transparency*fDamping * thomson  /dR;
     //1.5 is (the gain of) the Herzian dipole factor
     // dR is necessary to normaise here the number of steps/iterations that we do in this loop. 
   }

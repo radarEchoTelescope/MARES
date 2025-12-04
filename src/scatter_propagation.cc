@@ -66,6 +66,11 @@ void Scatter::SetInConstIce(ScatterPoint& p){
   //In the thin-wire theory, only the  component of  the electric- field vector parallel to the wire
   // axis can interact to form a scattered  wave. That is not our case, our layers will scatter as a free charge
 
+  // Here we calculate the spherical angles needed for taking into account the gain. These are the last directional dependencies of the radar scatter. 
+  CalcDirectionalAngles(p);
+  p.GainFactorTX=fTX.GainDipole(p.ThetaAnglesGain[0]); // fGain*sin(theta_TX)^2.6, where fgain is set in the configfile and the 2.6 power is a modified dipole
+  p.GainFactorRX=fRX.GainDipole(p.ThetaAnglesGain[1]); // fGain*sin(theta_RX)^2.6, where fgain is set in the configfile and the 2.6 power is a modified dipole
+  
 }
 
 void Scatter::SetWithIRT(){ for(auto& p: fPoints) {SetWithIRT(p);} }
