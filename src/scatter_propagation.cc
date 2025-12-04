@@ -68,7 +68,7 @@ void Scatter::SetInConstIce(ScatterPoint& p){
 
   // Here we calculate the spherical angles needed for taking into account the gain. These are the last directional dependencies of the radar scatter. 
   CalcDirectionalAngles(p);
-  p.GainFactorRX=fRX.GainDipole(p.ThetaAngles[1]); // fGain*sin(theta_RX)^2.6, where fgain is set in the configfile and the 2.6 power is a modified dipole
+  p.GainFactorRX=fRX.GainDipole(p.ThetaAngles[2]); // fGain*sin(theta_RX)^2.6, where fgain is set in the configfile and the 2.6 power is a modified dipole
   
 }
 
