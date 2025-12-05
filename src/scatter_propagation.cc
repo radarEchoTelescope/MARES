@@ -62,7 +62,7 @@ void Scatter::SetInConstIce(ScatterPoint& p){
 
   // Set polarization efficiency
   p.PolEff = abs(projection_pol((p.EFieldAtRX), fRX.Pol()));
-   // |sin(theta_R)*sin(theta_T)*cos(theta_R)|
+   // |sin(theta_CS)*sin(theta_T)*cos(theta_R)|
   //In the thin-wire theory, only the  component of  the electric- field vector parallel to the wire
   // axis can interact to form a scattered  wave. That is not our case, our layers will scatter as a free charge
 
