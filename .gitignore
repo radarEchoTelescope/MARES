@@ -38,3 +38,4 @@ build/*
 
 Cascade1D*
 .DS_Store
+.ipynb_checkpoints
