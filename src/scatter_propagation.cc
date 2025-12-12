@@ -38,7 +38,7 @@ void Scatter::SetInConstIce(ScatterPoint& p){
 
   // E field attenuation at reciever from position dependant factors:
   // e^-r/Latt from medium attenuation
-  p.Attenuation =  pow(e, -(p.RTX + p.RRX)/(2*att_length) ) ;
+  p.Attenuation =  pow(e, -(p.RTX + p.RRX)/(att_length) ) ;
 
   /* Attenuation model example
   // Parametrized attenuation length for the Ross Ice Shelf, South Pole.
@@ -61,7 +61,7 @@ void Scatter::SetInConstIce(ScatterPoint& p){
    // 3/2*sin(theta_R)*sin(theta_T)
 
   // Set polarization efficiency
-  p.PolEff = abs(projection((p.EFieldAtRX), fRX.Pol()));
+  p.PolEff = abs(projection_pol((p.EFieldAtRX), fRX.Pol()));
    // |sin(theta_R)*sin(theta_T)*cos(theta_R)|
   //In the thin-wire theory, only the  component of  the electric- field vector parallel to the wire
   // axis can interact to form a scattered  wave. That is not our case, our layers will scatter as a free charge

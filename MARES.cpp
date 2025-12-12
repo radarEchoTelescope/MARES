@@ -74,7 +74,7 @@ int main(int argc, char** argv){
     scatter_flag_list.lookupValue("power",                scatter_flags[2]);
     scatter_flag_list.lookupValue("target_cs",            scatter_flags[3]);
     scatter_flag_list.lookupValue("radar_cs",             scatter_flags[4]);
-    scatter_flag_list.lookupValue("point_position",       scatter_flags[5]);
+    scatter_flag_list.lookupValue("points_position",      scatter_flags[5]);
     scatter_flag_list.lookupValue("points_phase",         scatter_flags[6]);
     scatter_flag_list.lookupValue("points_arrival_time",  scatter_flags[7]);
     scatter_flag_list.lookupValue("points_attenuation",   scatter_flags[8]);
@@ -94,14 +94,15 @@ int main(int argc, char** argv){
     std::cerr << "There will be no output from this event! Please enable at least a saving flag." << std::endl;
     exit(1);
   }
-  // std::cout<< scatter_flags << endl;
 
   // We also need to check if any of our default parameters should be updated:
     try{
     const libconfig::Setting& resolution_list = root["properties"]["resolution"];
     if( resolution_list.lookupValue("dL", _dL)){ _dL *= cm;}
     if( resolution_list.lookupValue("dR", _dR)){ _dR *= mm;}
-    if( resolution_list.lookupValue("sampling_ratio", _sampling));
+    resolution_list.lookupValue("sampling_ratio", _sampling);
+    resolution_list.lookupValue("Ltot_factor", _Ltot_factor);
+    resolution_list.lookupValue("Rtot_factor", _Rtot_factor);
     
   } catch(const libconfig::SettingNotFoundException &nfex) {
     std::cerr << "No user-defined simulation parameters found. Running with the default resolution" << std::endl;
@@ -114,9 +115,6 @@ int main(int argc, char** argv){
     if( physics_list["plasma"].lookupValue("collision_freq", _f_coll)){ _f_coll *= THz;}
     physics_list["plasma"].lookupValue("mass_ratio", _memp);
     
-    // if( physics_list["resolution"].lookupValue("deltaL", _dL)){ _dL *= cm;}
-    // if( physics_list["resolution"].lookupValue("dR", _dR)){ _dR *= mm;}
-    // if( physics_list["resolution"].lookupValue("sampling_ratio", _sampling));
     
     if( physics_list["medium"].lookupValue("refractive_index", _refindex)){
       _c_ice = c_vac/_refindex;
@@ -139,7 +137,7 @@ int main(int argc, char** argv){
     if( physics_list["cascade"].lookupValue("moliere_radius", _r_moliere)){ _r_moliere *= cm;}
     if( physics_list["cascade"].lookupValue("deposition_energy", _E_deposition)){ _E_deposition *= MeV/(g/pow(cm,2));}
     if( physics_list["cascade"].lookupValue("critical_energy", _E_c)){ _E_c *= MeV;}
-    if( physics_list["cascade"].lookupValue("radiation_columm_density", _X_0)){_X_0 *= g/pow(cm,2);_L_0 = _X_0/_rho_ice;
+    if( physics_list["cascade"].lookupValue("radiation_column_density", _X_0)){_X_0 *= g/pow(cm,2);_L_0 = _X_0/_rho_ice;
       }    
   } catch(const libconfig::SettingNotFoundException &nfex) {
     std::cerr << "No user-defined cascade constants found. Running with the default physics constants." << std::endl;
@@ -181,7 +179,7 @@ int main(int argc, char** argv){
           if(position == "direction"){
             event -> SetInDirection();
           } else if (position == "reflectivity"){
-            event -> SetInMaxReflectivty();
+            event -> SetInMaxReflectivity();
           } else {
             std::cerr << "Unknown position mode, stopping the run now" << std::endl;
             exit(1);

@@ -18,8 +18,7 @@ fi
 
 initial=$PWD
 
-###### Temporarily disabled this option for debugging purposes -  to avoid overwriting any temporary changes made in the IceRayTracing code.
-# We grab Iceraytracing
+# # We grab Iceraytracing
 # if [ -d lib/IceRayTracing ]
 # then
 #   echo "We have IceRayTracing already, checking if up to date"
@@ -45,10 +44,11 @@ cd $initial
 
 # This forces a complete re-build
 if [ $MODE == 1 ]; then
-    rm -r ./build/*
+    rm -rf ./build/*
 fi
 
 # Now we run cmake
+mkdir -p build
 cd build
 cmake ../
 
