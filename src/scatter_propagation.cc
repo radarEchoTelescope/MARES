@@ -93,8 +93,20 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
   
   // This returns the two optimal solutions: Any of the direct, the reflected or two refracted rays. 
   // It will return the shortest ray first, and a second ray if it can find it. 
+  //  cout<<" Running IRT TX -> CS:"<<endl;
   IceRayTracing::GetRayTracingSolutions(z1, x1, z0, RayTime, RayPath, 
           LaunchAngle, RecieveAngle, IgnoreCh, IncidenceAngleInIce, A0, frequency, AttRay);
+
+  // Nan check, in case IRT runs into problems. Can be disabled, but may introduce errors into final output.
+  for(int i=0;i<2;i++){
+    if((std::isnan(RayTime[i])==true)      || (std::isnan(RayPath[i])==true) || (std::isnan(LaunchAngle[i])==true) ||
+       (std::isnan(RecieveAngle[i])==true) || (std::isnan(AttRay[i] )==true)){
+      cout<<"Nan found in TX -> CS IRT solutions, for Ch "<<i<<endl;
+      cout<<"IRTinput [m], z0: "<<z0<<"   x1: "<<x1<<"  z1: "<<z1<<endl;
+      cout<<"IRToutput, time: "<<RayTime[i]*s<<"  path: "<<RayPath[i]<<"   Langle:"<<LaunchAngle[i]<<"   Rangle: "<<RecieveAngle[i]<<"   Attenuation: "<<AttRay[i]<<endl;
+      exit(EXIT_FAILURE);
+    }
+  }
 
    // void IceRayTracing::GetRayTracingSolutions(double RxDepth, double Distance, double TxDepth, double TimeRay[2], double PathRay[2], 
    // double LaunchAngle[2], double RecieveAngle[2], int IgnoreCh[2], double IncidenceAngleInIce[2], double A0, double frequency, double AttRay[2]){
@@ -107,15 +119,16 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
     p.TXRayEndAngle[0]    = RecieveAngle[0]*deg;
     p.TXRayAttenuation[0] = AttRay[0];
   } else {
-    // If no direct solution is found, print the IRT input/output
-    cout<<"CS coords [m] "<<p.Position[0]/m<<" "<<p.Position[1]/m<<" "<<p.Position[2]/m<<endl;
-    cout<<"TX coords [m] "<<fTX.Pos()[0]/m<<" "<<fTX.Pos()[1]/m<<" "<<fTX.Pos()[2]/m<<endl;
-    cout<<"MARES IRT input [m] "<<z0<<" "<<x1<<" "<<z1<<endl;
-    cout<<"IRTout: "<<RayTime[0]*s<<" "<<RayPath[0]<<" "<<LaunchAngle[0]<<" "<<RecieveAngle[0]<<" "<<AttRay[0]<<endl;
-    cout<<"ignoreCh[1]: "<<IgnoreCh[1]<<endl;
+    // std::cerr << "IceRayTracing could not find a ray for TX" << std::endl;
+    // exit(EXIT_FAILURE); 
 
-    std::cerr << "IceRayTracing could not find a ray for TX" << std::endl;
-    exit(EXIT_FAILURE); 
+    // (temporary) fix for segments with no solution - we use a the -1E3 value as a flag for 'no solutions found'
+    // Note - we no longer stop the simulation if this occurs. 
+    p.TXRayTime[0]        = -1E3;
+    p.TXRayDistance[0]    = -1E3;
+    p.TXRayStartAngle[0]  = -1E3;
+    p.TXRayEndAngle[0]    = -1E3;
+    p.TXRayAttenuation[0] = -1E3;
   }
 // The exit condition can be safely removed if necessary (Multi-RX setups). 
 
@@ -126,25 +139,43 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
     p.TXRayStartAngle[1]  = LaunchAngle[1]*deg;
     p.TXRayEndAngle[1]    = RecieveAngle[1]*deg;
     p.TXRayAttenuation[1] = AttRay[1];
+  } else {// no secondary solution 
+    // (temporary) fix for segments with no solution - we use a the -1E3 value as a flag for 'no solutions found'
+    p.TXRayTime[1]        = -1E3;
+    p.TXRayDistance[1]    = -1E3;
+    p.TXRayStartAngle[1]  = -1E3;
+    p.TXRayEndAngle[1]    = -1E3;
+    p.TXRayAttenuation[1] = -1E3;
   }
-
     
 // Second IRT call, for CS -> RX
 // Reset the default values
-  std::fill(IgnoreCh, IgnoreCh+1, 0);
-  std::fill(RayTime, RayTime+1, -1E3);
-  std::fill(RayPath, RayPath+1, -1E3);
-  std::fill(LaunchAngle, LaunchAngle+1, -1E3);
-  std::fill(RecieveAngle, RecieveAngle+1, -1E3);
-  std::fill(IncidenceAngleInIce, IncidenceAngleInIce+1, -1E3);
-  std::fill(AttRay, AttRay+1, -1E3);
+  std::fill(IgnoreCh, IgnoreCh+2, 0);
+  std::fill(RayTime, RayTime+2, -1E3);
+  std::fill(RayPath, RayPath+2, -1E3);
+  std::fill(LaunchAngle, LaunchAngle+2, -1E3);
+  std::fill(RecieveAngle, RecieveAngle+2, -1E3);
+  std::fill(IncidenceAngleInIce, IncidenceAngleInIce+2, -1E3);
+  std::fill(AttRay, AttRay+2, -1E3);
   
   x1 = distance(p.Position[0], p.Position[1], fRX.Pos()[0], fRX.Pos()[1])/m;
   z0 = p.Position[2]/m;
   z1 = fRX.Pos()[2]/m;
   
+  //  cout<<" Running IRT CS -> RX:"<<endl;
   IceRayTracing::GetRayTracingSolutions(z1, x1, z0, RayTime, RayPath, 
           LaunchAngle, RecieveAngle, IgnoreCh, IncidenceAngleInIce, A0, frequency, AttRay);
+
+  // Nan check, in case IRT runs into problems. Can be disabled, but may introduce errors into final output.
+  for(int i=0;i<2;i++){
+    if((std::isnan(RayTime[i])==true) || (std::isnan(RayPath[i])==true) || (std::isnan(LaunchAngle[i])==true) ||
+        (std::isnan(RecieveAngle[i])==true) || (std::isnan(AttRay[i])==true)){
+      cout<<"Nan found in CS -> RX IRT solutions, for Ch "<<i<<endl;
+      cout<<"IRTinput [m], z0: "<<z0<<"   x1: "<<x1<<"  z1: "<<z1<<endl;
+      cout<<"IRToutput, time: "<<RayTime[i]*s<<"  path: "<<RayPath[i]<<"   Langle:"<<LaunchAngle[i]<<"   Rangle: "<<RecieveAngle[i]<<"   Attenuation: "<<AttRay[i]<<endl;
+      exit(EXIT_FAILURE);
+    }
+  }
 
   if(IgnoreCh[0] != 0){
     p.RXRayTime[0]        = RayTime[0]*s;
@@ -153,33 +184,56 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
     p.RXRayEndAngle[0]    = RecieveAngle[0]*deg;
     p.RXRayAttenuation[0] = AttRay[0];
   } else {
-    // If no direct solution is found, print the IRT input/output
-    cout<<"CS coords [m] "<<p.Position[0]/m<<" "<<p.Position[1]/m<<" "<<p.Position[2]/m<<endl;   //debug cout
-    cout<<"RX coords [m]"<<fRX.Pos()[0]/m<<" "<<fRX.Pos()[1]/m<<" "<<fRX.Pos()[2]/m<<endl;    //debug cout
-    cout<<"MARES IRT input [m] "<<z0<<" "<<x1<<" "<<z1<<endl;  //debug cout
-    cout<<"IRTout: "<<RayTime[0]<<" "<<RayPath[0]<<" "<<LaunchAngle[0]<<" "<<RecieveAngle[0]<<" "<<AttRay[0]<<endl;  //debug cout
-    cout<<"ignoreCh[1]: "<<IgnoreCh[1]<<endl;
+    // No direct solution found (no solutions at all.) In this case, we want to 'turn off' the cascade segment. 
+    // std::cerr << "IceRayTracing could not find a ray for RX" << std::endl;
+    // exit(EXIT_FAILURE); 
 
-    std::cerr << "IceRayTracing could not find a ray for RX" << std::endl;
-    exit(EXIT_FAILURE); 
+    // (temporary) fix for segments with no solution - we use a the -1E3 value as a flag for 'no solutions found'
+    // Note - we no longer stop the simulation if this occurs. 
+    p.RXRayTime[0]        = -1E3;
+    p.RXRayDistance[0]    = -1E3;
+    p.RXRayStartAngle[0]  = -1E3;
+    p.RXRayEndAngle[0]    = -1E3;
+    p.RXRayAttenuation[0] = -1E3;
   }
 // The exit condition can be safely removed if necessary (Multi-RX setups). 
 
-  if(IgnoreCh[1] != 0) {
+  if(IgnoreCh[1] != 0) { // fill in the secondary solution (reflected/refracted)
     p.RXRayTime[1]        = RayTime[1]*s;
     p.RXRayDistance[1]    = RayPath[1]*m;
     p.RXRayStartAngle[1]  = LaunchAngle[1]*deg;
     p.RXRayEndAngle[1]    = RecieveAngle[1]*deg;
     p.RXRayAttenuation[1] = AttRay[1];
+  } else {  // no secondary solution 
+    // (temporary) fix for segments with no solution - we use a the -1E3 value as a flag for 'no solutions found'
+    p.RXRayTime[1]        = -1E3; 
+    p.RXRayDistance[1]    = -1E3;
+    p.RXRayStartAngle[1]  = -1E3;
+    p.RXRayEndAngle[1]    = -1E3;
+    p.RXRayAttenuation[1] = -1E3;
   }
 
-  int DoR = 0; // Choose whether to use the direct (=0) or reflected/refracted (=1) rays (if any)
+  if (p.TXRayTime[0] < 0.0 || p.RXRayTime[0] < 0.0){ // turn off segment if no IRT solution found (Ray times are -ve, from -1E3 flag)
+    // In this case, we keep the ArrivalTime of the segment as -1E3, to signal to the voltage calculation in scatter.cc to ignore that segment, and set all other variables to 0.0
+    p.ArrivalTime = -1E3;
+    p.RTX         = 0.0;
+    p.RRX         = 0.0;
+    p.Phase       = 0.0;
+    p.Attenuation = 0.0;
+    p.PolEff      = 0.0;
+
+  } else{ // If not the case, we can go ahead and run the scatter propagation calculations.
+  
+  // Choose whether to use the first (=0) or second (=1) solution:
+  int DoR = 0; // 0 may be either a direct or refracted solution, and 1 is normally the reflected solution.
+  
 
   p.TXDir = direction( fTX.Pos(), p.Position) ;   // Straight line direction vector between TX and CS
   p.RTX = p.TXRayDistance[DoR];                   // IRT distance of the TX -> CS ray path 
 
   p.RXDir = direction(p.Position, fRX.Pos());     // Straight line direction vector between CS and RX
   p.RRX = p.RXRayDistance[DoR];                   // IRT distance of the CS -> RX ray path 
+
 
   // TODO TRIPLE CHECK THAT THIS IS STILL VALID
   // Set phase
@@ -188,26 +242,24 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
   // K_vac*RayPath
   // Waiting for confirmation from Krijn 
   
-  // p.Phase = fTX.Wavenumber()*(p.RTX + p.RRX)
-  //               + atan2( f_coll, - fTX.Freq() );
+  // p.Phase = fTX.Wavenumber()*(p.RTX + p.RRX)+ atan2( f_coll, - fTX.Freq() );
 
   p.Phase = fTX.Wavenumber()*(p.RTX + p.RRX) - pi/2;  // Set the point phase
   // tan^-1(f_coll/f_TX) is the phase shift in the oscillation caused by collisions.
   // in our regime, it could be almost fixed to -Pi/2.
 
   // DOUBLE CHECK MINUS SIGN
-
 // DOES IRT INCLUDE ICE ATTENUATION?
   // E field attenuation at reciever from position dependant factors:
   // e^-r/Latt from medium attenuation
   // p.Attenuation =  pow(e, -(p.RTX + p.RRX)/(2*att_length) ) ;
-  // cout<<"IRT atten: "<<p.Attenuation<<endl;     //debug cout
 
   p.Attenuation = p.TXRayAttenuation[DoR]*p.RXRayAttenuation[DoR];  // Point attenuation calculated from IRT output
   p.ArrivalTime = p.StartTime + p.RXRayTime[DoR];                   // Point arrival time, with starttime calculated as p.L/c_vac
 
   ///////  Ray bending implementation: 
-  // This is effectively four rotations applied to the ray as it travels from TX -> CS -> RX, required in order for the polarisation factors to be calculated for IRT launch/receive angles.
+  // This is effectively four rotations applied to the ray as it travels from TX -> CS -> RX.
+  // It is required in order for the polarisation factors to be correctly calculated with the IRT launch/receive angles.
 
   // Find the rotation axis needed for the launch angle direction vector (cross product between z axis and the straight line TXDir)
   p.TXRotAxis   = cross_product( p.zDir , normalize(p.TXDir) ) ;
@@ -239,11 +291,58 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
   p.EFieldAtRX = rotate( p.EFieldatCS, normalize(p.CSRotAxis), abs(RotAngleCS)  );
 
   // Get the final RX polarisation efficiency! (=cos(theta_RX)*sin(theta_TX)*sin(theta_CS))
-  p.PolEff    = abs(projection(p.EFieldAtRX, fRX.Pol()));
+  p.PolEff    = abs(projection_pol(p.EFieldAtRX, fRX.Pol()));
 
   // Directivity is hardcoded as a small Herztian dipole.
   p.Directivity = 1.5*norm(p.EFieldAtRX);
   //  3/2*sin(theta_R)*sin(theta_T)
+
+  }
+  //////// IRT Debugging statements, uncomment as needed (will be removed in future, but useful for now).
+  // // TX -> CS Ray path:
+  // cout<<"TX Launch Angle: "<<p.TXRayStartAngle[DoR]/deg<<endl;
+  // cout<<"TX Recieve Angle: "<<p.TXRayEndAngle[DoR]/deg<<endl;
+  // cout<<"TX straight line angle: "<< std::acos(projection(normalize(p.TXDir),p.zDir))/deg <<endl;
+  // cout<<"TXRotAxis: "<<normalize(p.TXRotAxis);  //debug cout
+  // cout<<"TXDir_l: "<<p.TXDir_l;  //debug cout
+  // cout<<"TXDir straight line: "<<normalize(p.TXDir);
+  // cout<<"RotAngleTX: "<<RotAngleTX/deg << endl;
+  // cout<<"PolarizationAtTX: "<<p.PolarizationAtTX;
+  // cout<<"PolarizationCS: "<<p.Polarization;
+  // cout<<"Polarization at TX length check: "<<norm(p.PolarizationAtTX)<<endl;
+  // cout<<"Polarization at CS length check: "<<norm(p.Polarization)<<endl;
+  // //
+  // // CS -> RX Ray path:
+  // cout<<"RX Launch Angle: "<<p.RXRayStartAngle[DoR]/deg<<endl;
+  // cout<<"RX Recieve Angle: "<<p.RXRayEndAngle[DoR]/deg<<endl;
+  // cout<<"RX straight line angle: "<< std::acos(projection(p.zDir,normalize(p.RXDir)))/deg <<endl;
+  // cout<<"CSRotAxis: "<<normalize(p.CSRotAxis);  //debug cout
+  // cout<<"CSDir_l: "<<p.CSDir_l;  //debug cout
+  // cout<<"RXDir straight line: "<<normalize(p.RXDir); //debug cout
+  // cout<<"RotAngleCS: "<< RotAngleCS/deg << endl;
+  // cout<<"EFieldAtCS: "<<p.EFieldatCS;
+  // cout<<"EFieldAtRX: "<<p.EFieldAtRX;
+  // cout<<"EField at CS length check: "<<norm(p.EFieldatCS)<<endl;
+  // cout<<"EField at RX length check: "<<norm(p.EFieldAtRX)<<endl;
+  // cout<<"PolEff: "<<p.PolEff<<endl;
+  // //
+  // // Final output values:
+  // cout<<"IRT attenuation: "<<p.Attenuation<<endl;
+  // cout<<"IRT RTX: "<<p.RTX<<endl;
+  // cout<<"IRT RRX: "<<p.RRX<<endl;
+  // cout<<"IRT arrival time: "<<p.ArrivalTime<<endl;
+  // cout<<"IRT phase: "<<p.Phase<<endl;
+  
+  // Final nan checks (should not be triggered, but just in case):
+  if(std::isnan(p.PolEff)==true) { 
+    cout<<"PolEff nan flag, at depth "<<p.Position[2]/m<<endl;}
+  if(std::isnan(p.RRX)==true) {
+    cout<<"RRX nan flag, at depth  "<<p.Position[2]/m<<endl;}
+  if(std::isnan(p.RTX)==true) {
+    cout<<"RTX nan flag, at depth  "<<p.Position[2]/m<<endl;}
+  if(std::isnan(p.ArrivalTime)==true) {
+      cout<<"Arrival time nan flag, at depth  "<<p.Position[2]/m<<endl;}
+  //////////////////
 }
 
 // void Scatter::SetInBoundary( const std::vector<double> plane, const double& na, const double& nb){

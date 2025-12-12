@@ -92,6 +92,22 @@ void Scatter::RunScatter(const bool save2Dmatrices){
 	std::vector<double> voltage_time  (nP, 0.0);
 
   std::vector<double> fArrivalTime = ArrivalTime();
+
+  /* Temporary timing fix for IRT segments with no ray solution. 
+  We remove all -ve elements from the arrival time array here (where -ve time indicates that no solution was found)
+  so that the total duration array (t_start -> t_end) is not made considering these -ve times.
+  Then later in the scatter for loop, only positive times are used, so that the -ve segments are ignored. */
+
+  int timeN = fArrivalTime.size();
+  int timeP = 0;
+
+  for (int i = 0; i < timeN; i ++){
+    if (fArrivalTime[i] >= 0.0){ 
+      fArrivalTime[timeP] = fArrivalTime[i];
+      timeP++;
+    }
+  }
+  
   t_start  = *std::min_element(fArrivalTime.begin(), fArrivalTime.end()) - 5*ns ;
   t_end    = *std::max_element(fArrivalTime.begin(), fArrivalTime.end()) + 5*tau + 5*ns;
 
@@ -101,7 +117,7 @@ void Scatter::RunScatter(const bool save2Dmatrices){
   // Memory allocation
   fDuration     = std::vector<double>(steps, 0);    // The time
   fRCS          = std::vector<double>(steps, 0);    // The RCS
-  fVoltage     = std::vector<double>(steps, 0);    // The electric field
+  fVoltage      = std::vector<double>(steps, 0);    // The electric field
   fPower        = std::vector<double>(steps, 0);    // The power
 
   if (save2Dmatrices){
@@ -128,10 +144,12 @@ void Scatter::RunScatter(const bool save2Dmatrices){
       ScatterPoint& p = fPoints[i];
 
       // If active, add its contribution.
-      // if(t > p.ArrivalTime){
+      // if(p.ArrivalTime < 0.0){
     
       // You can also add an arbitrary cutoff (no smaller than 5*tau)
-      if(t>p.ArrivalTime && t<=(p.ArrivalTime + 5*tau)){
+      if(p.ArrivalTime > 0.0 && t>p.ArrivalTime && t<=(p.ArrivalTime + 5*tau)){
+
+        // cout<<p.PolEff<<endl;
 
         phase_time[i] = cos(p.Phase - fTX.AngularFreq()*t);
   
@@ -143,21 +161,6 @@ void Scatter::RunScatter(const bool save2Dmatrices){
         voltage_time[i] =  sqrt_rcs_time[i] * 1.0/(p.RTX*p.RRX) *
                             p.PolEff * p.Attenuation;
                             // 1;
-
-        // Temporary checks for IRT debugging
-        // If disabled, MARES + IRT may produce waveforms with missing values.
-        if (p.ArrivalTime!=p.ArrivalTime){ // Arrival time nan check
-          cout<<"Arrival time nan, stopping"<<endl;
-          cout<<p.Position[2]/m<<endl; // Depth of the point producing the nan [m]
-          exit(EXIT_FAILURE); 
-        }
-
-        if (voltage_time[i]!=voltage_time[i]){ // Voltage time nan check
-          cout<<"Voltage time nan, stopping"<<endl;
-          cout<<p.Position[2]/m<<endl; // Depth of the point producing the nan [m]
-          exit(EXIT_FAILURE); 
-        }
-
       }
     }
 
