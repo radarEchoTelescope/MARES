@@ -126,6 +126,7 @@ double distance(std::vector<double> u, std::vector<double> v);
 double distance(double x1, double y1, double x2, double y2);
 double distance(double x1, double y1, double z1, double x2, double y2, double z2);
 double projection(std::vector<double> a, std::vector<double> b);
+double projection_pol(std::vector<double> a, std::vector<double> b);
 
 double shortest_distance(std::vector<double> plane, std::vector<double> point);
 
