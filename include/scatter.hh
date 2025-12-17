@@ -23,7 +23,7 @@ struct ScatterPoint{
   double L;                                // Distance to the interaction vertex
   std::vector<double> Position{0,0,0};
 
-  // These values are set later, according to the mode of propatation of light. 
+  // These values are set later, according to the mode of propagation of light. 
   std::vector<double> TXDir{0, 0, 0};      // Vector direction to cs point.
   std::vector<double> RXDir{0, 0, 0};      // Vector direction to cs point.
   double RTX;                              // Module of distance to cs point.
@@ -54,6 +54,15 @@ struct ScatterPoint{
   double RXRayStartAngle[2];
   double RXRayEndAngle[2];
   double RXRayAttenuation[2];
+
+  // Added in order to account for ray bending through the ice in the final polarisation efficiency factor
+  std::vector<double> TXRotAxis{0, 0, 0};           // Vector rotation axis from TX -> CS
+  std::vector<double> CSRotAxis{0, 0, 0};           // Vector rotation axis from CS -> RX 
+  std::vector<double> TXDir_l{0, 0, 0};             // Rotated vector direction to cs point.
+  std::vector<double> PolarizationAtTX{0, 0, 0};    // Storage vector for the polarisation efficiency at the tx
+  std::vector<double> CSDir_l{0, 0, 0};             // Rotated vector direction to rx point.
+  std::vector<double> EFieldatCS{0, 0, 0};          // Storage vector for the polarisation efficiency at the cs
+  std::vector<double> zDir{0, 0, 1};                // Unit vector in z direction 
 };
 
 // Possible adittions to scatterpoint that are not needed now
