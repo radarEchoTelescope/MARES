@@ -18,15 +18,15 @@ fi
 
 initial=$PWD
 
-# We grab Iceraytracing
-if [ -d lib/IceRayTracing ]
-then
-  echo "We have IceRayTracing already, checking if up to date"
-  cd lib/IceRayTracing && git pull
-else
-  echo "We don't have IceRayTracing yet, let's grab it"
-  cd lib && git clone https://github.com/uzairlatif90/IceRayTracing
-fi
+# # We grab Iceraytracing
+# if [ -d lib/IceRayTracing ]
+# then
+#   echo "We have IceRayTracing already, checking if up to date"
+#   cd lib/IceRayTracing && git pull
+# else
+#   echo "We don't have IceRayTracing yet, let's grab it"
+#   cd lib && git clone https://github.com/uzairlatif90/IceRayTracing
+# fi
 
 cd $initial
 
@@ -44,10 +44,11 @@ cd $initial
 
 # This forces a complete re-build
 if [ $MODE == 1 ]; then
-    rm -r ./build/*
+    rm -rf ./build/*
 fi
 
 # Now we run cmake
+mkdir -p build
 cd build
 cmake ../
 
