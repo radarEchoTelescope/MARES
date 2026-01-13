@@ -300,6 +300,11 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
   // Directivity is hardcoded as a small Herztian dipole.
   p.Directivity = 1.5*norm(p.EFieldAtRX);
   //  3/2*sin(theta_R)*sin(theta_T)
+  // Assigning all the directional angles
+  p.ThetaAngles[0]=p.TXRayStartAngle[DoR];
+  p.ThetaAngles[1]=p.RXRayStartAngle[DoR];
+  p.ThetaAngles[2]=pi-p.RXRayEndAngle[DoR];
+  p.GainFactorRX=fRX.GainDipole(p.ThetaAngles[2]);
 
   }
   //////// IRT Debugging statements, uncomment as needed (will be removed in future, but useful for now).
