@@ -25,7 +25,7 @@ initial=$PWD
 #   cd lib/IceRayTracing && git pull
 # else
 #   echo "We don't have IceRayTracing yet, let's grab it"
-#   cd lib && git clone https://github.com/uzairlatif90/IceRayTracing
+#   cd lib && git clone https://github.com/radarEchoTelescope/IceRayTracing
 # fi
 
 cd $initial
