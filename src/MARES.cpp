@@ -11,13 +11,15 @@ int main(int argc, char** argv){
   // If no argument with a specific config file has been passed, 
   // expect a "MARES_example.cfg file". 
   const char* config_file;
-  argc < 2 ? config_file = "MARES_example.cfg": config_file = argv[1];
+  assert(argc == 2 && "Missing config file, default can be found in examples/example.cfg");
+//  argc < 2 ? config_file = "../examples/example.cfg": config_file = argv[1];
+  config_file = argv[1];
 
   Config cfg;
   load_config_file(cfg, config_file);
 
   // By default, the result is stored in the same folder as the executable.
-  std::string path_out = "./";
+  std::string path_out = "../output/";
   if(cfg.lookupValue("path_out", path_out)){
     std::cout << "The output will be saved in: " << path_out << std::endl;
   } else {
