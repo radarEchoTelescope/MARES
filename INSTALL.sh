@@ -22,6 +22,7 @@ initial=$PWD
 if [ ! -d extern/IceRayTracing ]
 then
     echo "We don't have IceRayTracing yet, let's grab it"
+    mkdir -p extern
     cd extern && git clone https://github.com/radarEchoTelescope/IceRayTracing
     cd $initial
 fi
@@ -43,6 +44,11 @@ fi
 # MODE 1 forces a complete re-build
 if [ $MODE == 1 ]; then
     rm -rf ./build/*
+fi
+# Check for output directory
+
+if [ ! -d output ]; then
+    mkdir -p output
 fi
 
 # Regardless of above changes, now we run cmake
