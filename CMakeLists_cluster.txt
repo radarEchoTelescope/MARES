@@ -13,7 +13,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED YES)
 # Setup include directory for this project
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/extern/IceRayTracing/namespace/woROOT/)
-include_directories(/opt/homebrew/include/)
+include_directories(${PROJECT_SOURCE_DIR}/extern/libconfig/bin/include/)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin/)
 
