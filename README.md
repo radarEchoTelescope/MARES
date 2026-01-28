@@ -11,11 +11,11 @@ This guide assumes some familiarity with SSH and linux commands \- [see here](ht
 
 [MARES installation on a cluster](#mares-installation-on-a-cluster)
 
+[Quick installation](#quick-installation)
+
 [Full Instructions](#full-instructions)
 
 [Usage](#usage)
-
-[Quick installation](#quick-installation)
 
 [MARES installation on local systems](#mares-installation-on-local-systems)
 
@@ -30,7 +30,7 @@ In this section, the instructions for installing MARES on a cluster are detailed
 Terminal commands are signified with e.g. ```./configure``` and commands that should be adjusted for the user's choice of directory for the MARES install are signified with brackets as follows `<...>`.   
 
 Before running any of the commands below, it is necessary to choose the correct CMakeLists.txt file. 
-1. External Cluster: rename the CMake file `CMakeLists_ cluster.txt` to `CMakeLists.txt`
+1. External Cluster: rename the CMake file `CMakeLists_cluster.txt` to `CMakeLists.txt`
 2. Local MacOs system: rename the CMake file `CMakeLists_MacOS.txt` to `CMakeLists.txt`
 3. Local Linux system: rename the CMake file `CMakeLists_Linux.txt` to `CMakeLists.txt`
 
@@ -39,7 +39,9 @@ Before running any of the commands below, it is necessary to choose the correct 
 Here, only the terminal commands needed for setup are given, for quick reference. It is assumed that the user has set up the [necessary SSH key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) for the github commands to work successfully. If not, replace git clone lines with an alternative method of sourcing the necessary packages from the repositories. 
 
 Lines that should be adjusted for the user's choice of directories and path setup are signified with ```<...>```. When cloned from the repository, a new directory called MARES will be made, containing the code package. This code will create the MARES directory within a new directory of choice (MARESfolder) \- if this is not wanted, simply skip the first two lines. 
-Make the folder containing the MARES software.
+
+
+Make the folder containing the MARES software:
 
 ```
 mkdir <... /MARESfolder>   
@@ -50,32 +52,35 @@ Clone the project:
 git clone git@github.com:radarEchoTelescope/MARES.git 
 ````
 
-Download libconfig from , and copy it to the cluster:
+Clone libconfig from the GitHub repository in the correct folder in the MARES project:
 ```
 mkdir MARES/extern  
 cd MARES/extern 
-scp <.../libconfig-1.7.3.tar.gz> <user>@<ClusterAddress../MARESfolder/MARES/extern>
+git clone git@github.com:hyperrealm/libconfig.git
 ```
-Unpack and install libconfig:
+Configure and install libconfig:
 ```
-tar -xf libconfig-1.7.3.tar.gz 
-
 mkdir -p libconfig/bin
-cd libconfig-1.7.3   
-./configure --prefix=<.../MARESfolder/MARES/extern/libconfig/bin>  
+cd extern/libconfig   
+autoreconf configure.ac
+```
+If the following error occures after the last terminal command: 
+````
+error: possibly undefined macro: AC_CHECK_INCLUDES_DEFAULT If this token and others are legitimate, please use m4_pattern_allow.
+````
+replace the `AC_CHECK_INCLUDES_DEFAULT`macro by `AC_HEADER_STDC` in the `configure.ac` file.
 
+Next, configure libconfig:
+
+```
+./configure --prefix=<.../MARESfolder/MARES/extern/libconfig/bin>  
 make  
 make check  
 make install   
 make clean  
-
-cd ../  
-rm -r libconfig-1.7.3
 ```
-Create build folder and compile project:
+Compile project:
 ```
-cd ../  
-mkdir build 
 ./INSTALL.sh 1
 ```
 
@@ -101,32 +106,28 @@ A more detailed step-by-step guide can be found below.
 
    ***3a.*** We require the libconfig package to allow for the usage of config files. The full instructions can be found in the INSTALL file in the libconfig github ([https://github.com/hyperrealm/libconfig](https://github.com/hyperrealm/libconfig)), from which we have pulled the necessary sections here. 
 
-   In this case, we first have to [download the zip file](https://github.com/hyperrealm/libconfig/releases/download/v1.7.3/libconfig-1.7.3.tar.gz) to the local computer \- so make sure you are now on a local terminal. We then want to upload the zip file to the remote `/MARES/extern/` directory we have been working on (on the cluster), as we require a specific version of libconfig [(libconfig-1.7.3)](https://github.com/hyperrealm/libconfig/releases/tag/v1.7.3)[^3]. 
+   In this case, we first have to clone the libconfig repository from the GitHub page in the /`MARES/extern/` directory using the command
+   
+   ```
+   git clone git@github.com:hyperrealm/libconfig.git
+   ```
+   Which will produce a directory, `libconfig`. 
+
+   ***3b.***  Cd to the new `libconfig` directory, and make a new `bin` directory. The path should follow `/MARES/extern/libconfig/bin`.
 
    
 
-   To upload the zip file, cd to the folder where the file has been installed locally (most likely the `Downloads` folder), and then use the following scp command below, adjusting parameters to match both the correct user name, and the path to the MARES installation on the cluster: 
+   ***3c.*** We now have to configure and install libconfig. Cd back to `/MARES/extern/libconfig`, and run the command to produce the configure file:
+   ```
+   autoreconf configure.ac
+   ```
+   If the following error occures after the last terminal command: 
+   ```
+   error: possibly undefined macro: AC_CHECK_INCLUDES_DEFAULT If this token and others are legitimate, please use m4_pattern_allow.
+   ```
+   replace the `AC_CHECK_INCLUDES_DEFAULT`macro by `AC_HEADER_STDC` in the `configure.ac` file. This can occur if the version of *autoconf* is 2.69 or lower.
 
-   ```scp libconfig-1.7.3.tar.gz <username>@external_cluster:<../MARES/extern/>```
-
-   
-
-   Then switch back to the cluster terminal, and in the /`MARES/extern/` directory, unzip the file with the following command: 
-   
-    ```bash
-    tar -xf libconfig-1.7.3.tar.gz
-    ```
-   
-
-   Which will produce a directory, 'libconfig-1.7.3'. 
-
-   ***3b.*** Still within the `/MARES/extern/` directory, make a new `libconfig` directory. Cd to the new `libconfig` directory, and make a new `bin` directory. The path should follow `/MARES/extern/libconfig/bin`.
-
-   
-
-   ***3c.*** We now have to configure and install libconfig. Cd back to `/MARES/extern/libconfig-1.7.3`, and run the configure command:
-
-   
+   Next, we configure the project:
 
     ```
     ./configure prefix=<.../MARES/extern/libconfig/bin>
@@ -135,48 +136,30 @@ A more detailed step-by-step guide can be found below.
    
 
    The `<.../MARES/extern/libconfig/bin>` parameter should be adjusted to follow the path of the user's MARES installation. Next, run a series of commands which compile, check and install the libconfig package respectively:
-
-   
     ```
     make
     make check
     make install 
     ```
-   
-
    If all output looks mostly healthy (there may be some minor errors, which can generally be ignored as any fatal errors will reveal themselves later) finish the installation with: 
-
-   
     ```
     make clean 
     ```
-   
-
    This removes unnecessary files from the source code directory.  
 
-   
-
-   Within the `/MARES/extern/libconfig/bin` directory, there should now be three new directories (include, lib, share). If this is the case, then the libconfig-1.7.3 used for libconfig installation (in `/MARES/extern/libconfig-1.7.3`) can be deleted: 
-
-   
-    ```
-    rm -r /MARES/extern/libconfig-1.7.3
-    ```
+   Within the `/MARES/extern/libconfig/bin` directory, there should now be three new directories (include, lib, share).
    
 
 2. ***Compile MARES***  
    Now all necessary packages have been added to make MARES run, we should be able to compile the code. Return to the `/MARES/` directory, where an `INSTALL.sh` script can be found.   
-   Create the build directory:   
-   	```
-    mkdir build
-    ```  
-   Then run the script as follows:   
+   
+   To compile the project for the first time, run the script as follows:   
      
    	```
     ./INSTALL.sh 1
     ```  
      
-   The '1' flag after the execution command tells MARES that it should start the compilation from scratch \- it will (re)make the necessary build directory and execution scripts for the code, in this case for the first time. It will also pull the IceRayTracing module from the corresponding GitHub page. This also clears any existing build directory, completely starting over, so should mainly be used in the case something goes horribly wrong; any files in an existing build directory will be deleted.   
+   The '1' flag after the execution command tells MARES that it should start the compilation from scratch \- it will (re)make the necessary build directory and execution scripts for the code, in this case for the first time. It will also pull the IceRayTracing module from the corresponding GitHub page. This also clears any existing build and bin directories, completely starting over, so should mainly be used in the case something goes horribly wrong; any files in an existing build directory will be deleted.   
      
    The script will produce a lot of terminal output that should end with the lines:  
     ```  
@@ -184,7 +167,7 @@ A more detailed step-by-step guide can be found below.
     [100%] Linking CXX executable MARES  
     [100%] Built target MARES  
     ```
-   If this is the case, MARES can now be used\!   
+   If this is the case, MARES can now be used.   
      
    
 
@@ -194,23 +177,23 @@ Note \- it is important that the paths for all the separate packages/installs ar
 
 ## Usage
 
-Successful compilation of MARES will lead to a populated build and bin directory. in `/MARES/bin`, where the executables for the different MARES simulation options can be found. 
+Successful compilation of MARES will lead to a populated build and bin directory, where the executables for the different MARES simulation options can be found. 
 
-Running and steering a MARES simulation requires a config file, of which an example has been provided in `/MARES/examples/example.cfg`. Here, the parameters of the simulation can be set by the user and provided to the code. Additionally, the type of output produced and the chosen output directory can be specified.  
+Running and steering a MARES simulation requires a config file, of which an example has been provided in `/examples/example.cfg`. Here, the parameters of the simulation can be set by the user and provided to the code. Additionally, the type of output produced and the chosen output directory can be specified.  
 
-When the config file is set up as desired, cd to the bin directory and run: 
+When the config file is set up as desired, Move to the `MARES`directory and run: 
 ```
-./MARES <../examples/example.cfg>
+./bin/MARES examples/example.cfg
 ```
-where the path to the config file being used should be provided. There should be some terminal output declaring that the config file has been parsed successfully (or not…), after which the code should execute and produce the chosen output. Congrats!
+where the output of the simulation will be saved in the `output`directory. There should be some terminal output declaring that the config file has been parsed successfully (or not…), after which the code should execute and produce the chosen output.
 
-To change parameters of the simulation, we have to edit the contents of the example.cfg file (e.g. with a nano command; ```nano <../examples/example.cfg>``` ). Here, we can see lots of different variables to control the simulation, as well as options to change the ID of the file output and other parameters. 
+To change parameters of the simulation, edit the contents of the example.cfg file. Lots of different variables to control the simulation, as well as options to change the ID of the file output and other parameters can be set by the user. 
 
 Note \- if the source .cc, .cpp or .hh MARES scripts are modified, the code should be compiled every time before usage (or the changes will not be applied). In this scenario, the command is: 
 ```
 ./INSTALL.sh 0
 ```
-When run with the `0` flag, the `INSTALL.sh` script will only compile the scripts, and any other files in the build directory will remain untouched. 
+When run with the `0` flag, the `INSTALL.sh` script will only compile the scripts, and any other files that were changed.
 
 In order to update the external libraries (libconfig and IceRayTracing) from their github page, the command is: 
 ```
