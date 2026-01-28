@@ -23,7 +23,7 @@ struct ScatterPoint{
   double L;                                // Distance to the interaction vertex
   std::vector<double> Position{0,0,0};
 
-  // These values are set later, according to the mode of propatation of light. 
+  // These values are set later, according to the mode of propagation of light. 
   std::vector<double> TXDir{0, 0, 0};      // Vector direction to cs point.
   std::vector<double> RXDir{0, 0, 0};      // Vector direction to cs point.
   double RTX;                              // Module of distance to cs point.
@@ -36,7 +36,12 @@ struct ScatterPoint{
   double PolEff;
   std::vector<double> Polarization{0,0,0};
   std::vector<double> EFieldAtRX{0,0,0};
+// These are needed for gain implementation
 
+  double ThetaAngles[3]; // {theta_TX,theta_CS,theta_RX}
+  double PhiAngles[3]; // {phi_TX,phi_CS,phi_RX}, these are not used if using dipole gain patterns. 
+  //double GainFactorTX=1; 
+  double GainFactorRX=1;
 // These are needed for raytracing purposes (IceRayTracing)
   double TXRayTime[2];
   double TXRayDistance[2];
@@ -49,6 +54,15 @@ struct ScatterPoint{
   double RXRayStartAngle[2];
   double RXRayEndAngle[2];
   double RXRayAttenuation[2];
+
+  // Added in order to account for ray bending through the ice in the final polarisation efficiency factor
+  std::vector<double> TXRotAxis{0, 0, 0};           // Vector rotation axis from TX -> CS
+  std::vector<double> CSRotAxis{0, 0, 0};           // Vector rotation axis from CS -> RX 
+  std::vector<double> TXDir_l{0, 0, 0};             // Rotated vector direction to cs point.
+  std::vector<double> PolarizationAtTX{0, 0, 0};    // Storage vector for the polarisation efficiency at the tx
+  std::vector<double> CSDir_l{0, 0, 0};             // Rotated vector direction to rx point.
+  std::vector<double> EFieldatCS{0, 0, 0};          // Storage vector for the polarisation efficiency at the cs
+  std::vector<double> zDir{0, 0, 1};                // Unit vector in z direction 
 };
 
 // Possible adittions to scatterpoint that are not needed now
@@ -124,6 +138,7 @@ Careful, because the medium change and refraction means that the relative
 /* Computes the time integral of the interference of the points at the RX*/
   void RunScatter(const bool save2Dmatrices = false);
 
+  void CalcDirectionalAngles(ScatterPoint& p); 
   // Accessors
   Antenna TX();
   Antenna RX();
@@ -149,8 +164,12 @@ Careful, because the medium change and refraction means that the relative
   std::vector<std::vector<double>> Phase_time();
   std::vector<std::vector<double>> RCS_time();
   std::vector<std::vector<double>> E_time();
+  std::vector<std::vector<double>> E_field_time();
+  std::vector<std::vector<double>> E_field_time_with_pol();
 
-  void save_output_files(const std::string& output_path, const std::array<bool, 13>& flags = {0});
+
+
+  void save_output_files(const std::string& output_path, const std::array<bool, 14>& flags = {0});
   /*In order to save the member functions, you need to 
   pass an array of flags choosing what members to save:
 
@@ -237,6 +256,8 @@ WARNING: This does not match IRT coordinates???
   std::vector<std::vector<double>> fRCSTime;
   std::vector<std::vector<double>> fPhaseTime;
   std::vector<std::vector<double>> fVoltageTime;
+  std::vector<std::vector<double>> fEfieldTime;
+  std::vector<std::vector<double>> fEfieldTime_with_pol;
 };
 
 #endif
