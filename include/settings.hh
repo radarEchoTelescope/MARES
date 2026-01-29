@@ -42,6 +42,7 @@ extern double _rho_ice;          // Density
 
 // Mass stopping power of ice - energy loss per ionizing particle (@ 1 GeV)
 extern double _r_moliere;        // Moliere Radius in ice
+extern double _shower_age;       // Shower age of the LDF
 extern double _E_ionization;     // e- ionization energy [RS]
 extern double _E_deposition;       
 extern double _E_c;              // Critical cascade energy for ionization
@@ -51,6 +52,16 @@ extern double _X_0;              // Radiation columm density
 extern double _c_ice;  // [m/s] speed of light in ice
 extern double _Z_ice;  // Impedance of ice
 extern double _L_0;  // Radiation length = 39.22 cm
+
+extern std::string _cascade_type;
+extern std::string _epfilepath;
+extern std::string _npfilepath;
+extern std::string _faeriefilepath;
+
+static const std::string& epfilepath = _epfilepath;
+static const std::string& npfilepath = _npfilepath;
+static const std::string& cascade_type = _cascade_type;
+static const std::string& faeriefilepath = _faeriefilepath;
 
     // Air / Other constants -----------------------------------
 // extern double rho=1.168e-3;//sea level density
@@ -74,6 +85,7 @@ static const double& refindex = _refindex;
 static const double& att_length = _att_length; 
 static const double& rho_ice = _rho_ice;
 static const double& r_moliere = _r_moliere; 
+static const double& shower_age = _shower_age;
 static const double& E_ionization = _E_ionization; 
 static const double& E_deposition = _E_deposition;       
 static const double& E_c = _E_c;
@@ -184,5 +196,8 @@ void write_2D_array(std::vector<std::vector<double>> array, std::string output_p
 // Read a libconfig file and return the configuration. 
 // If there is an error, report it and exit early.
 void load_config_file(libconfig::Config& cfg, const char* config_file);
+
+// Function to read and save a txt file as a vector array
+std::vector<double> read_1D_array (std::istream & in);
 
 #endif

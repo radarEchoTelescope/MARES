@@ -108,6 +108,10 @@ protected:
   // In that case each particle carries E energy, the mean energy per primary.
   double Ne(double X, double Ep, double Np);           // [#e-/cm]
 
+
+  // Particle electron density evaluated at X for a variable density
+  double Ne_vd(double X, double Ep, double Np, double rho_vd);   // [#e-/cm]
+
   // (Classical) density, in case the cascade was orginated from 1 particle.
   // Uses 1 particle with fEnergy.
   double Density(double X, double r, double delta_r);      // [#e-/ mm^3]
@@ -184,9 +188,23 @@ namespace NKG{
 		E(step) = dr^3/ (12* imx^2) *M where M is the maximum value of the second
 		derivative of the function over the interval [r, r + dr].
  */
-  double intwiv(double r, double delta_r, double s = 1.01, double imx = 50.0);  
+  // double intwiv(double r, double delta_r, double s = 1.01, double imx = 50.0);
   // "Hard-coded" s = 1 for in-ice showers. s = 1.01 to avoid divergencies.
   // Imx is the number of steps that are used for the integral. 
+  // double intwiv(double r, double delta_r, double s = 1.01, double imx = 50.0);  //
+
+  //Adjusted LDF function to have a user-set shower age.
+  double intwiv(double r, double delta_r, double s, double imx = 50.0);
+
+  // Function to calculate the ice density at a certain depth for a South Pole density model
+  double rhoSouthPole(double depth); 
+
+  // Function to calculate the ice density at a certain depth for a Greenland density model
+  double rhoGreenland(double depth); 
+
+  // Correction function for the NKG+ cosmic ray method.
+  double removeEarlyN(double X, double a, double b);
+
 }
 
 #endif

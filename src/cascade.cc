@@ -22,15 +22,19 @@ Cascade::Cascade(double xpos, double ypos, double zpos,
 	fDirection[1] = sin(fSphericalAngles[0])*sin(fSphericalAngles[1]);
 	fDirection[2] = cos(fSphericalAngles[0]);
 
+
 	/* X_tot 	= 4* number of divisions for shower_max * interaction length
 				  = 4*(log(fEnergy/E_c)/log(2) )*X_int;
 		 			= 4*(log(fEnergy/E_c)) * X_0
  */
 
-  // Xlength formula taken from arXiv:1312.4331v2 (energy in GeV)
- 	fXtot = Ltot_factor * log(12.72 * fEnergy * pow(GeV,-1.)) * X_0;			
-	fLtot = fXtot/rho_ice; 											
-	fRtot = Rtot_factor * r_moliere;								
+ 	// fXtot = Ltot_factor * log(12.72 * fEnergy) * X_0;		
+  fXtot = Ltot_factor * log(12.72 * 5E6) * 36.08 *g/pow(cm,2) ;			
+	fLtot = fXtot/(0.488  *g/pow(cm,3)); 											
+  // fRtot = Rtot_factor * r_moliere;						
+	// fRtot = 14*cm;				
+  // fRtot = 75*cm;		
+  fRtot = 30.*cm;
 
 	/* If you want your cascade to scale with energy in both dimensions,
 	this should work for any energy above 1 PeV / 10^6 GeV/ 10^15 eV.
@@ -61,6 +65,15 @@ double Cascade::Ne(double X, double Ep, double Np){
           // # e/mm per ionising primary
 }
 
+double Cascade::Ne_vd(double X, double Ep, double Np, double rho_vd){
+	return Np * NKG::N(X,Ep) *         
+            // 1;
+          // Number of ionizing primaries
+          // ((2.75 * MeV/(g/pow(cm,2))) / E_ionization) * rho_vd;
+          (E_deposition/E_ionization) * rho_vd;
+          // # e/mm per ionising primary
+}
+
   // Usual density function, 1 particle of energy Ep.
 double Cascade::Density(double X, double r, double delta_r){
 	 return Density(X, r, delta_r, fEnergy, 1.);
@@ -73,7 +86,7 @@ double Cascade::Density(double X, double r, double delta_r, double E, double Np)
   if(r<0.0){r = -r;}
 	// s = ShowerAge(X,fEnergy);*step
   dens = Ne(X, E, Np)*
-        NKG::intwiv(r,delta_r) 
+        NKG::intwiv(r,delta_r,shower_age) 
         / (pi*(pow(delta_r,2) + 2*r*delta_r));
 	// Equivalent to:
   //  / (pi*(pow(r + delta_r,2) - pow(r,2)));
@@ -96,7 +109,7 @@ double Cascade::Absorption(const double &dens, const double &freq_obs, const dou
       a unphysical setting. Might add error code instead.
   */
   if (f_coll == 0){
-    std::cout << "You are running an unphysical collsionless model" << std::endl;
+    std::cout << "You are running an unphysical collisionless model" << std::endl;
 		fplasma > freq_obs ? q = 2*pi*fplasma/c_ice : q = 0;               // [1/mm]
 		return q;
 	}
@@ -419,5 +432,33 @@ namespace NKG{
 	  return intwiv*step;         // [Unitless]
 
 	}
+
+  double rhoSouthPole( double depth ){     // [mm]   -> Retrived from Faerie IceDensityModels.hh, by S. De Kockere. Ice model based on Southpole measurements, originally implemented in ARAsim. 
+    // Using MARES internal units (mm, g)
+    double rho_deepIce = 0.917 * g / pow(cm,3);   // [g/mm^3]
+    double rho_surface = 0.359 * g / pow(cm,3);   // [g/mm^3]
+    double t_firn      = 100.0 * m;               // [mm]
+
+    return rho_deepIce - (rho_deepIce - rho_surface) * exp(-1.9 * depth/t_firn);   // [g/mm^3]
+  }
+
+  double rhoGreenland ( double depth ){   // [mm] Greenland double exponential density profile.
+  // Using MARES internal units (mm, g)
+  double rho_vd             = 0.;
+  double Aconst             = 0.917 * g / pow(cm,3);   // [g/mm^3]
+  double TransitionBoundary = 14.9 * m;                // [mm]
+  
+  if (depth < TransitionBoundary){
+    rho_vd = Aconst - (0.594*(g/pow(cm,3)))*exp(-1.*depth/(30.8*m));
+  } else {
+    rho_vd = Aconst - (0.367*(g/pow(cm,3)))*exp(-1.*(depth - TransitionBoundary)/(40.5*m));
+  }
+    return rho_vd;  // [g/mm^3]
+  }
+
+double removeEarlyN(double X, double a, double b){
+  return -b * exp(-a * (X) ) + 1 ;
+}
+
 
 }

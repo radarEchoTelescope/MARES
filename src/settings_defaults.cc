@@ -14,8 +14,7 @@ BUT they need to be updated in the correct units described here.
 /* --------- Plasma properties  --------------- */
 
 // Mean plasma lifetime [ns] **** can have us, ms, s also
-double _lifetime = 10 *ns;      
-//double _lifetime = 50 *ns;         
+double _lifetime = 10 *ns;        
 
 // Collision frequency estimate [THz]
 // double _f_coll = 100 *THz;
@@ -29,8 +28,7 @@ double _memp = 1;
 /* --------- Medium properties  --------------- */
 
 // Refractive index (Ice)
-// double _refindex = 1.78;      //1.78         
-double _refindex = 1.78;      //1.78      
+double _refindex = 1.78;      //1.78         
 // Refractive index (HDPE)
 // double _refindex = 1.51;
 
@@ -44,8 +42,18 @@ double _att_length = 1450.0 *m;
         
 /* --------- Cascade properties  --------------- */
 
+// Cascade type
+std::string _cascade_type   = "neutrino" ;
+
+std::string _epfilepath     = "./" ;
+std::string _npfilepath     = "./" ;
+std::string _faeriefilepath = "./" ;
+
 // Moliere Radius (in ice) [cm]
 double _r_moliere = 7.0 *cm;
+
+// Shower age of the cascade LDF [unitless]
+double _shower_age = 1.01 ;
 
 // Electron ionization energy from secondary cascades 
 double _E_ionization = 20.0 *eV;
@@ -86,8 +94,9 @@ double _Z_ice = Z_0/_refindex;            // Impedance of ice
 double _L_0 = _X_0/_rho_ice;       // Radiation length = 39.22 cm
 
 // Ltot_factor can be 2 safely for speed, but 3 makes prettier plots. 
-double _Ltot_factor = 3.0;
-double _Rtot_factor = 2.0;
+double _Ltot_factor = 2.0;
+// double _Rtot_factor = 2.0;
+double _Rtot_factor = 3.0;
 
 /*
 The cascade values are computed in a frame which dimensions

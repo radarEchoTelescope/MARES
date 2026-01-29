@@ -34,3 +34,28 @@ void load_config_file(libconfig::Config& cfg, const char* config_file){
       exit(EXIT_FAILURE);
   }
 }
+
+
+// Function to read and save txt file input as a vector. Adapted from https://stackoverflow.com/questions/40539385/reading-data-from-a-file-and-storing-each-line-in-an-array
+std::vector<double> read_1D_array (std::istream & in){
+
+  std::vector<double> values;
+  std::string line; 
+
+  //Iterate through each line of the txt file
+  for ( int line_number = 1; std::getline(in, line ); line_number++){
+
+    try { //Convert the line to a double, and append to the global array
+      double value = std::stod( line );
+      values.push_back(value);
+    }
+    catch (std::bad_alloc &e) { //Handle allocation memory errors
+      std::cerr << "Memory error at line "<<line_number<< std::endl;
+      throw e ;
+    }
+    catch (std::exception &e) { //Handle general errors
+      std::cerr <<"Error at line "<< line_number << std::endl;
+    }
+  }
+  return values;
+}

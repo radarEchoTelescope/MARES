@@ -148,6 +148,7 @@ Careful, because the medium change and refraction means that the relative
 
   // TODO: ADD COORDINATES ACCESOR
   std::vector<std::vector<double>> Position();
+  // std::vector<double> Position();
   std::vector<double> Phase();
   std::vector<double> ArrivalTime();
   std::vector<double> Attenuation();

@@ -97,7 +97,7 @@ int main(int argc, char** argv){
 
     // Add position
   // p.Position = {15*m,20*m,-2*m};
-  p.Position = {15*m,20*m,-5*m};
+  p.Position = {15*m,0*m,0*m};
     // Physical dimensions. 
   p.L = 1*cm;
     // Cross section 0.5 m^2

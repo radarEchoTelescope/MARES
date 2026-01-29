@@ -65,7 +65,7 @@ double projection(std::vector<double> a, std::vector<double> b){
 
 double projection_pol(std::vector<double> a, std::vector<double> b){
   double n_b = norm(b), p = 0;
-  if (  n_b != 0){p = (a[0]*b[0] + a[1]*b[1] + a[2]*b[2])/ (n_b);}
+  if (  n_b != 0 ){p = (a[0]*b[0] + a[1]*b[1] + a[2]*b[2])/ (n_b);}
   return p;
 }
 

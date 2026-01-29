@@ -110,7 +110,7 @@ void Scatter::RunScatter(const bool save2Dmatrices){
     }
   }
   
-  t_start  = *std::min_element(fArrivalTime.begin(), fArrivalTime.end()) - 5*ns ;
+  t_start  = *std::min_element(fArrivalTime.begin(), fArrivalTime.end()) - 15*ns ;
   t_end    = *std::max_element(fArrivalTime.begin(), fArrivalTime.end()) + 5*tau + 5*ns;
 
   freq_sampling = fTX.Freq()*sampling_ratio;
@@ -195,7 +195,7 @@ void Scatter::RunScatter(const bool save2Dmatrices){
     fRCS[ts] = std::accumulate(std::begin(sqrt_rcs_time), std::end(sqrt_rcs_time), 0.0);
     fRCS[ts] = pow(fRCS[ts],2);
 
-    fVoltage[ts] = V0* std::accumulate(std::begin(voltage_time), std::end(voltage_time), 0.0);
+    fVoltage[ts] = V0 * std::accumulate(std::begin(voltage_time), std::end(voltage_time), 0.0);
     fPower[ts] = pow(fVoltage[ts],2)/fRX.Load();
 
     if(save2Dmatrices) {

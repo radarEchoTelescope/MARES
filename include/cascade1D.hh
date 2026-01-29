@@ -16,6 +16,7 @@ public:
     Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs,
         const double deltaL = _dL, const double deltaR = _dR,
         const double sampling = _sampling);
+        // const string cascade_type = _cascade_type);
 
   /* The RX re-setter
   Correctly updates direction and angle w.r.t cascade vertex
@@ -60,6 +61,14 @@ private:
 // Find the frame points and the respective density for each point.
 // This also fills the density matrix fDensity (from Cascade) to save time. 
   void SetTXFrame();
+
+// Modified version of SetTXFrame that generates the fNe and fDensity cascades for cosmic rays
+  void SetTXFrameCR();
+  void SetTXFrameFaerie();
+
+  std::vector<double> fEnergyVals;
+  std::vector<double> fNumVals;
+  std::vector<double> e_R{0, 0, 0};
 
 /* The density is computed not in  the lab frame, but in the plane between the
     tx.direction vector and the cs direction vector. Each one defines a frame

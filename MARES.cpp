@@ -42,6 +42,18 @@ int main(int argc, char** argv){
   std::string propagation = "const";
   options_list.lookupValue("propagation", propagation);
 
+  // std::string cascade_type = "neutrino";
+  options_list.lookupValue("cascade_type", _cascade_type);
+
+  if(_cascade_type == "cosmic_ray"){
+  options_list.lookupValue("epfilepath", _epfilepath);
+  options_list.lookupValue("npfilepath", _npfilepath);
+  }
+
+  if (_cascade_type == "faerie"){
+    options_list.lookupValue("faeriefilepath", _faeriefilepath);
+  }
+
   // We check the saving flags,
   //  aka what properties are going to be stored after the event is run.
 
@@ -92,13 +104,14 @@ int main(int argc, char** argv){
   if( !total_scatter_flags){ std::cout << "There will be no scatter properties being saved" << std::endl; }
   const bool save_time_profiles = {scatter_flags[10] || scatter_flags[11] || scatter_flags[12] || scatter_flags[13]};
 
+
   if( !total_cascade_flags && !total_scatter_flags){
     std::cerr << "There will be no output from this event! Please enable at least a saving flag." << std::endl;
     exit(1);
   }
 
   // We also need to check if any of our default parameters should be updated:
-    try{
+  try{
     const libconfig::Setting& resolution_list = root["properties"]["resolution"];
     if( resolution_list.lookupValue("dL", _dL)){ _dL *= cm;}
     if( resolution_list.lookupValue("dR", _dR)){ _dR *= mm;}
@@ -137,6 +150,7 @@ int main(int argc, char** argv){
     const libconfig::Setting& physics_list  = root["properties"];
     if( physics_list["cascade"].lookupValue("ionization_energy", _E_ionization)){ _E_ionization *= eV;}
     if( physics_list["cascade"].lookupValue("moliere_radius", _r_moliere)){ _r_moliere *= cm;}
+    physics_list["cascade"].lookupValue("shower_age",_shower_age);
     if( physics_list["cascade"].lookupValue("deposition_energy", _E_deposition)){ _E_deposition *= MeV/(g/pow(cm,2));}
     if( physics_list["cascade"].lookupValue("critical_energy", _E_c)){ _E_c *= MeV;}
     if( physics_list["cascade"].lookupValue("radiation_column_density", _X_0)){_X_0 *= g/pow(cm,2);_L_0 = _X_0/_rho_ice;
@@ -144,6 +158,7 @@ int main(int argc, char** argv){
   } catch(const libconfig::SettingNotFoundException &nfex) {
     std::cerr << "No user-defined cascade constants found. Running with the default physics constants." << std::endl;
   }
+
   // Load your detector from your config file.
   Detector lab = load_detector_config(cfg);
 
@@ -173,6 +188,7 @@ int main(int argc, char** argv){
         if(j == 0){
           // std::cout << _f_coll << std::endl;
           // std::cout << _E_ionization << std::endl;
+
           event = new Cascade1D(tx,rx,cs);
           
           // Here you need to run all the other cascade functions
