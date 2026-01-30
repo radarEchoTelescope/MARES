@@ -203,7 +203,7 @@ namespace NKG{
   double rhoGreenland(double depth); 
 
   // Correction function for the NKG+ cosmic ray method.
-  double removeEarlyN(double X, double a, double b);
+  double removeEarlyN(double X, double a, double b); 
 
 }
 

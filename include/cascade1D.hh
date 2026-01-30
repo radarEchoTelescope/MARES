@@ -16,7 +16,6 @@ public:
     Cascade1D(Antenna& tx, Antenna& rx, Cascade& cs,
         const double deltaL = _dL, const double deltaR = _dR,
         const double sampling = _sampling);
-        // const string cascade_type = _cascade_type);
 
   /* The RX re-setter
   Correctly updates direction and angle w.r.t cascade vertex

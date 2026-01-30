@@ -159,7 +159,6 @@ void Scatter::RunScatter(const bool save2Dmatrices){
       // You can also add an arbitrary cutoff (no smaller than 5*tau)
       if(p.ArrivalTime > 0.0 && t>p.ArrivalTime && t<=(p.ArrivalTime + 5*tau)){
 
-        // cout<<p.PolEff<<endl;
 
         phase_time[i] = cos(p.Phase - fTX.AngularFreq()*t);
   

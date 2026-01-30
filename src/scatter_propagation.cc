@@ -105,10 +105,11 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
   for(int i=0;i<2;i++){
     if((std::isnan(RayTime[i])==true)      || (std::isnan(RayPath[i])==true) || (std::isnan(LaunchAngle[i])==true) ||
        (std::isnan(RecieveAngle[i])==true) || (std::isnan(AttRay[i] )==true)){
-      cout<<"Nan found in TX -> CS IRT solutions, for Ch "<<i<<endl;
-      cout<<"IRTinput [m], z0: "<<z0<<"   x1: "<<x1<<"  z1: "<<z1<<endl;
-      cout<<"IRToutput, time: "<<RayTime[i]*s<<"  path: "<<RayPath[i]<<"   Langle:"<<LaunchAngle[i]<<"   Rangle: "<<RecieveAngle[i]<<"   Attenuation: "<<AttRay[i]<<endl;
-      exit(EXIT_FAILURE);
+      // cout<<"Nan found in TX -> CS IRT solutions, for Ch "<<i<<endl;
+      // cout<<"IRTinput [m], z0: "<<z0<<"   x1: "<<x1<<"  z1: "<<z1<<endl;
+      // cout<<"IRToutput, time: "<<RayTime[i]*s<<"  path: "<<RayPath[i]<<"   Langle:"<<LaunchAngle[i]<<"   Rangle: "<<RecieveAngle[i]<<"   Attenuation: "<<AttRay[i]<<endl;
+      p.TXRayTime[0]= -1E3 ; // if somehow still nan, turn off point solutions.
+      // exit(EXIT_FAILURE);
     }
   }
 
@@ -174,10 +175,11 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
   for(int i=0;i<2;i++){
     if((std::isnan(RayTime[i])==true) || (std::isnan(RayPath[i])==true) || (std::isnan(LaunchAngle[i])==true) ||
         (std::isnan(RecieveAngle[i])==true) || (std::isnan(AttRay[i])==true)){
-      cout<<"Nan found in CS -> RX IRT solutions, for Ch "<<i<<endl;
-      cout<<"IRTinput [m], z0: "<<z0<<"   x1: "<<x1<<"  z1: "<<z1<<endl;
-      cout<<"IRToutput, time: "<<RayTime[i]*s<<"  path: "<<RayPath[i]<<"   Langle:"<<LaunchAngle[i]<<"   Rangle: "<<RecieveAngle[i]<<"   Attenuation: "<<AttRay[i]<<endl;
-      exit(EXIT_FAILURE);
+      // cout<<"Nan found in CS -> RX IRT solutions, for Ch "<<i<<endl;
+      // cout<<"IRTinput [m], z0: "<<z0<<"   x1: "<<x1<<"  z1: "<<z1<<endl;
+      // cout<<"IRToutput, time: "<<RayTime[i]*s<<"  path: "<<RayPath[i]<<"   Langle:"<<LaunchAngle[i]<<"   Rangle: "<<RecieveAngle[i]<<"   Attenuation: "<<AttRay[i]<<endl;
+      p.RXRayTime[0]= -1E3 ; // if somehow still nan, turn off point solutions.
+      // exit(EXIT_FAILURE);
     }
   }
 
@@ -300,6 +302,7 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
   // Directivity is hardcoded as a small Herztian dipole.
   p.Directivity = 1.5*norm(p.EFieldAtRX);
   //  3/2*sin(theta_R)*sin(theta_T)
+
   // Assigning all the directional angles
   p.ThetaAngles[0]=p.TXRayStartAngle[DoR];
   p.ThetaAngles[1]=p.RXRayStartAngle[DoR];

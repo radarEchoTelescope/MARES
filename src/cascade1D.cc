@@ -134,6 +134,7 @@ void Cascade1D::SetTXFrameCR(){
   ifstream EpFile  (epfilepath);
   ifstream NpFile  (npfilepath);
 
+  // to do - add error handling if no file found.
   fEnergyVals  = read_1D_array( EpFile ) * GeV ; // convert from GeV -> MeV (MARES energy unit.)
   fNumVals     = read_1D_array( NpFile ) ;
   int nEl      = fEnergyVals.size(); // number of bins in the file
@@ -193,9 +194,8 @@ for (int i = 0; i < nR; i++){
   columnDepth[i] = 0.;
 }
 
-double X1 = 18.0 *(g/pow(cm,2)) ; // correction factor for the NKG formula. Currently hardcoded, shouldn't be changed.
-double ELowerLim = 0.2*GeV ;  // energy lower limit for NKG. Currently hardcoded, shouldn't be changed.
-
+double X1 = 18.0 *(g/pow(cm,2)) ;   // correction factor for the NKG formula. Currently hardcoded, shouldn't be changed.
+double ELowerLim = 0.2*GeV ;        // energy lower limit for NKG. Currently hardcoded, shouldn't be changed.
 
   // start the cascade generation.
   for (int i = 0; i < nL; i++){
@@ -379,7 +379,7 @@ void Cascade1D::SetTCS(){
     
     fTCS[i] = pow(tmp_tcs,2)*transparency*fDamping * thomson *1.5  /dR;
     //1.5 is (the gain of) the Herzian dipole factor
-    // dR is necessary to normaise here the number of steps/iterations that we do in this loop. 
+    // dR is necessary to normalise here the number of steps/iterations that we do in this loop. 
   }
 }
 

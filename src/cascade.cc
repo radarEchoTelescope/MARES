@@ -28,13 +28,16 @@ Cascade::Cascade(double xpos, double ypos, double zpos,
 		 			= 4*(log(fEnergy/E_c)) * X_0
  */
 
- 	// fXtot = Ltot_factor * log(12.72 * fEnergy) * X_0;		
+ // to do - adjust for new modes. 
+  // produce constant L, R values
   fXtot = Ltot_factor * log(12.72 * 5E6) * 36.08 *g/pow(cm,2) ;			
-	fLtot = fXtot/(0.488  *g/pow(cm,3)); 											
+	fLtot = fXtot/(0.488  *g/pow(cm,3)); 							
+  fRtot = 75.* cm; // approx - to be fixed in the future.
+
+  // produce E dependent L, R values.
+  // fXtot = Ltot_factor * log(12.72 * fEnergy) * X_0;		
   // fRtot = Rtot_factor * r_moliere;						
-	// fRtot = 14*cm;				
-  // fRtot = 75*cm;		
-  fRtot = 30.*cm;
+
 
 	/* If you want your cascade to scale with energy in both dimensions,
 	this should work for any energy above 1 PeV / 10^6 GeV/ 10^15 eV.
@@ -457,6 +460,7 @@ namespace NKG{
   }
 
 double removeEarlyN(double X, double a, double b){
+  // todo - hardcode a b values, shouldn't be changed.
   return -b * exp(-a * (X) ) + 1 ;
 }
 
