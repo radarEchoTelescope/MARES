@@ -14,12 +14,13 @@ Antenna::Antenna(double xpos, double ypos, double zpos,
                 fModDuration(modDuration),
                 fModBandwidth(modBandwidth){
 
-// Antenna factor as sqrt(effective area)
+  // Hardcode normalised polarisation factors 
+  fPolarization = normalize(fPolarization);                
+  // Antenna factor as sqrt(effective area)
   double factor = (c_ice/frequency)*sqrt(fGain/(4.*pi));
 
   // RS
   // double factor = sqrt(rx_gain*lambda/(4.*pi));
-
   fLeff = 1./factor;
 
   assert(modDuration != 0.0 && "The total duration of the modulation should be non-zero. If running in the CW mode, the modBandwidth should be set to zero and this parameter to a random non-zero value.");
@@ -232,7 +233,7 @@ void load_antenna_list(const libconfig::Setting& at_list, Detector& dect){
     dect.add_antenna( Antenna(
               xpos *m, ypos *m, zpos *m,
               xpol, ypol, zpol,
-              power *W, freq *Hz, gaindB, modDuration*us, modBandwidth *Hz
+              power *W, freq *GHz, gaindB, modDuration*us, modBandwidth *GHz
       )
     );
   }

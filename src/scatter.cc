@@ -100,13 +100,13 @@ void Scatter::RunScatter(const bool save2Dmatrices){
   // Memory allocation
   fDuration     = std::vector<double>(steps, 0);    // The time
   fRCS          = std::vector<double>(steps, 0);    // The RCS
-  fVoltage     = std::vector<double>(steps, 0);    // The electric field
+  fVoltage      = std::vector<double>(steps, 0);    // The electric field
   fPower        = std::vector<double>(steps, 0);    // The power
 
   if (save2Dmatrices){
     fPhaseTime    = std::vector<std::vector<double>>(steps, std::vector<double> (nP, 0));
     fRCSTime      = std::vector<std::vector<double>>(steps, std::vector<double> (nP, 0));
-    fVoltageTime = std::vector<std::vector<double>>(steps, std::vector<double> (nP, 0));
+    fVoltageTime  = std::vector<std::vector<double>>(steps, std::vector<double> (nP, 0));
   }
 
   // Radar scatter constants
@@ -181,10 +181,10 @@ Antenna Scatter::RX(){return fRX;}
 std::vector<ScatterPoint> Scatter::Points(){ return fPoints; }
 
 std::vector<std::vector<double>> Scatter::Position(){
-  std::vector<std::vector<double>> position;
+  std::vector<std::vector<double>> position (fPoints.size(), std::vector<double> (3, 0));
   std::transform(fPoints.begin(), fPoints.end(), position.begin(),
-                  [](ScatterPoint p){return p.Position;});
-  return position;
+                  [](ScatterPoint p){return p.Position * pow(m,-1) ;});
+  return position;  // Convert from mm to metres
 }
 
 std::vector<double> Scatter::Phase(){
@@ -243,7 +243,7 @@ std::vector<std::vector<double>> Scatter::E_time(){ return fVoltageTime; }
 void Scatter::save_output_files(const std::string& output_path, const std::array<bool, 13>& flags){
 
   if(flags[0]){ write_1D_array(Duration(),    output_path + "_duration.txt");}
-  if(flags[1]){ write_1D_array(Voltage(),    output_path + "_voltage.txt");}
+  if(flags[1]){ write_1D_array(Voltage(),     output_path + "_voltage.txt");}
   if(flags[2]){ write_1D_array(Power(),       output_path + "_power.txt");}
   if(flags[3]){ write_1D_array(TCS(),         output_path + "_TCS.txt");}
   if(flags[4]){ write_1D_array(RCS(),         output_path + "_RCS.txt");}

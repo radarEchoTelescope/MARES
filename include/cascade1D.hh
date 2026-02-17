@@ -23,7 +23,7 @@ public:
   void UpdateRX(const Antenna& new_RX);
 
   void SetInDirection(double rand_seed = 42);
-  void SetInMaxReflectivty();
+  void SetInMaxReflectivity();
 
 
   std::vector<double> TCS();
