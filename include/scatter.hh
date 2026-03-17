@@ -33,6 +33,7 @@ struct ScatterPoint{
   double Phase;
   double StartTime;
   double ArrivalTime;
+  double TXArrivalTime;
   double Attenuation;
   double Directivity;
   double PolEff;
@@ -128,7 +129,9 @@ Careful, because the medium change and refraction means that the relative
   
 /* Computes the time integral of the interference of the points at the RX*/
   void RunScatter(const bool save2Dmatrices = false);
-
+  void RunScatterFMCW(const bool save2Dmatrices=false);
+  void RunEvent(const bool save2Dmatrices = false);
+  
   // Accessors
   Antenna TX();
   Antenna RX();

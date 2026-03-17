@@ -22,6 +22,7 @@ void Scatter::SetInConstIce(ScatterPoint& p){
     // time where the segment starts scattering.
 */
   p.ArrivalTime = p.StartTime + p.RRX/c_ice;
+  p.TXArrivalTime= p.RTX/c_ice; 
   // std::cout<<"c_ice in propagation calc: "<<c_ice<<std::endl;
   // std::cout<<"_c_ice in propagation calc: "<<_c_ice<<std::endl;
   // std::cout<<"lifetime: "<<_lifetime<<std::endl;

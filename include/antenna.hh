@@ -11,7 +11,7 @@ class Antenna{
 public:
   Antenna(double xpos, double ypos, double zpos,
           double xpol, double ypol, double zpol,
-          double power, double frequency, double gaindB,double modDuration=0.1, double modBandwidth=0.0);
+          double power, double frequency, double gaindB,int modMode=-1, double modDuration=0.1, double modBandwidth=0.0);
 
 // Using RS approach now to define the gain in dB, but used as linear.
 // 0  dBi = 1
@@ -44,6 +44,13 @@ public:
 
   double ModBandwidth() const;
   double ModDuration() const;
+  std::string Mode() const; 
+
+  double SawtoothMod(double time) const;
+  double TriangularMod(double time) const;
+  double PhaseSawtoothMod(double time) const;
+  double PhaseTriangularMod(double time) const;
+  double PhaseFMCW(double time) const;
   double Freq(double time) const; // [Hz]
   double AngularFreq(double time)  const;  // [Hz * rad]
   double Wavelength(double time)   const;  // [m]
@@ -77,6 +84,7 @@ private:
   double fAngularFreq;             // Angular freq_obs
   double fModBandwidth; 
   double fModDuration;
+  int    fMode; 
 
   std::vector<double> fPosition{};
   // Standard antennas are vertically in the ice (Vpol)

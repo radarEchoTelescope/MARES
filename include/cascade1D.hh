@@ -31,8 +31,8 @@ public:
   std::vector<std::vector<double>> Length();
 
   void UpdateTCS(double time);
-  void RunEvent(const bool save2Dmatrices = false);
-  void RunScatterFMCW(const bool save2Dmatrices=false);
+  // void RunEvent(const bool save2Dmatrices = false);
+  // void RunScatterFMCW(const bool save2Dmatrices=false);
 
 private:
 

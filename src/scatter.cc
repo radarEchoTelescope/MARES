@@ -120,6 +120,7 @@ void Scatter::RunScatter(const bool save2Dmatrices){
     t = ts/freq_sampling + t_start;
     fDuration[ts] = t;
 
+
   	std::fill(sqrt_rcs_time.begin(), sqrt_rcs_time.end(), 0.0);
 		std::fill(voltage_time.begin(), voltage_time.end(), 0.0);
 		std::fill(phase_time.begin(), phase_time.end(), 0.0);
@@ -133,7 +134,6 @@ void Scatter::RunScatter(const bool save2Dmatrices){
       if(t>p.ArrivalTime && t<=(p.ArrivalTime + 5*tau)){
 
         phase_time[i] = cos(p.Phase - fTX.AngularFreq()*t);
-  
         sqrt_rcs_time[i] = sqrt(p.TCS) * // TCS =  Th * transparency * damping * N_e^2
                         pow(e,-(t-p.ArrivalTime)/tau) *  // Lifetime decay
                         phase_time[i];
@@ -160,6 +160,128 @@ void Scatter::RunScatter(const bool save2Dmatrices){
   }
 }
 
+void Scatter::RunScatterFMCW(const bool save2Dmatrices)
+{
+  int steps;
+  double t, t_start, t_end, freq_sampling;
+  
+	std::vector<double> phase_time    (nP, 0.0);
+	std::vector<double> sqrt_rcs_time (nP, 0.0);
+	std::vector<double> voltage_time  (nP, 0.0);
+
+  std::vector<double> fArrivalTime = ArrivalTime();
+  t_start  = *std::min_element(fArrivalTime.begin(), fArrivalTime.end()) - 5*ns ;
+  t_end    = *std::max_element(fArrivalTime.begin(), fArrivalTime.end()) + 5*tau + 5*ns;
+
+  freq_sampling = fTX.Freq()*sampling_ratio;
+  steps = (t_end - t_start)*freq_sampling;
+
+  // Memory allocation
+  fDuration     = std::vector<double>(steps, 0);    // The time
+  fRCS          = std::vector<double>(steps, 0);    // The RCS
+  fVoltage     = std::vector<double>(steps, 0);    // The electric field
+  fPower        = std::vector<double>(steps, 0);    // The power
+
+  if (save2Dmatrices){
+    fPhaseTime    = std::vector<std::vector<double>>(steps, std::vector<double> (nP, 0));
+    fRCSTime      = std::vector<std::vector<double>>(steps, std::vector<double> (nP, 0));
+    fVoltageTime = std::vector<std::vector<double>>(steps, std::vector<double> (nP, 0));
+  }
+
+  // Radar scatter constants
+  double V0 = 1.0/ pow(2*pi,1.5) * sqrt( 
+              fTX.Power() * fTX.Gain() *
+              fRX.Load() * fRX.Gain() ) ; 
+
+  // Time Loop!   
+  for (int ts = 0; ts < steps; ts++){
+    t = ts/freq_sampling + t_start;
+    fDuration[ts] = t;
+
+  	std::fill(sqrt_rcs_time.begin(), sqrt_rcs_time.end(), 0.0);
+		std::fill(voltage_time.begin(), voltage_time.end(), 0.0);
+		std::fill(phase_time.begin(), phase_time.end(), 0.0);
+    // UpdateTCS(t);
+    for (int i = 0; i < nP; i++){
+      // std::cout<<i<<std::endl;
+      ScatterPoint& p = fPoints[i];
+      double freq_eval_time; 
+      freq_eval_time= t - p.RTX/c_ice - p.RRX/c_ice;  
+      // If active, add its contribution.
+      // if(t > p.ArrivalTime){
+      // std::cout<<"Freq:"<<fTX.Freq(freq_eval_time)<<std::endl;
+
+    
+      // You can also add an arbitrary cutoff (no smaller than 5*tau)
+      if(t>p.ArrivalTime && t<=(p.ArrivalTime + 5*tau)){ 
+        // the wavenumber also changes over time. Hence, p.Phase is not a constant anymore. I make a tmp variable that keeps track of its change.
+        // p.Phase remains the cte value when running in CW mode. 
+        // std::cout<<ts<<std::endl;
+        // double tmp_phase_p= fTX.Wavenumber(freq_eval_time)*(p.RTX + p.RRX) - pi/2; 
+        double p_phase_at_time= 2*pi*(fTX.PhaseFMCW(freq_eval_time)); // fTX.AngularFreq(freq_eval_time)*(p.RTX/c_ice-p.StartTime - ts/freq_sampling) - pi/2; 
+        // phase_time[i] = cos(p.Phase - fTX.AngularFreq(t)*t); 
+        // phase_time[0] = cos(tmp_phase_p - fTX.AngularFreq(freq_eval_time)*t); 
+        phase_time[i] = cos(p_phase_at_time); 
+
+        // std::cout<<"Freq:"<<fTX.Freq(freq_eval_time)<<std::endl;
+        //   // std::cout<<"Wavenumber:"<<fTX.Wavenumber(freq_eval_time)<<std::endl;
+        // std::cout<<"Wavelength:"<<fTX.Wavelength(freq_eval_time)<<std::endl;
+
+        //   // std::cout<<"Angular freq:"<<fTX.AngularFreq(freq_eval_time)<<std::endl;
+        //   // std::cout<<"tmp_phase:"<<tmp_phase_p<<std::endl;
+        //   // std::cout<<"tmp_phase_2:"<<fTX.AngularFreq(freq_eval_time)*t<<std::endl;
+          // std::cout<<"cos_Phase:"<< phase_time[0]<<std::endl;
+        //   std::cout<<"phase_value:"<<tmp_phase_p - fTX.AngularFreq(freq_eval_time)*t<<std::endl;
+
+        //   // std::cout<<"freq_eval_time:"<<freq_eval_time<<std::endl;
+        //   // int multi = floor(freq_eval_time/fTX.ModDuration());
+        //   // double eval_time=freq_eval_time-multi*fTX.ModDuration();
+        //   // std::cout<<"eval_time:"<<eval_time<<std::endl;
+
+
+
+        // The TCS variable also becomes time depend in  the FMCW mode as it depends on frequency and its derivatives. Hence we need to update it. 
+        // I wrote a function UpdateTCS to do this. But the changes are small, so we make the assumption that we can keep this constant (ok if the bandwidth of the modulation is not too big) 
+        sqrt_rcs_time[i] = sqrt(p.TCS) * // TCS =  Th * transparency * damping * N_e^2
+                        pow(e,-(t-p.ArrivalTime)/tau) * //Lifetime decay
+                        phase_time[i];
+
+        // The voltage has to also include polarization and attenuation effects. 
+        voltage_time[i] =V0*fTX.Wavelength(freq_eval_time) * sqrt_rcs_time[i] * 1.0/(p.RTX*p.RRX) * p.PolEff * p.Attenuation;
+                            
+                            // 1;
+        // std::cout<< voltage_time[0]<<std::endl;
+      }
+    }
+
+    // The final RCS, E field value for a given timestep is the sum of the effects of all segments.
+    fRCS[ts] = std::accumulate(std::begin(sqrt_rcs_time), std::end(sqrt_rcs_time), 0.0);
+    fRCS[ts] = pow(fRCS[ts],2);
+
+    fVoltage[ts] = std::accumulate(std::begin(voltage_time), std::end(voltage_time), 0.0);
+    fPower[ts] = pow(fVoltage[ts],2)/fRX.Load();
+
+    if(save2Dmatrices) {
+      fPhaseTime[ts] = phase_time;
+      fRCSTime[ts] = sqrt_rcs_time;
+      fVoltageTime[ts] = voltage_time;
+    }
+  }
+
+}
+
+
+void Scatter::RunEvent(const bool save2Dmatrices)
+{
+  if(fTX.Mode()=="CW mode")
+  {
+    RunScatter(save2Dmatrices);
+  }
+  else
+  {
+   RunScatterFMCW(save2Dmatrices); 
+  }
+}
 // void Scatter::SetAtDirection(Antenna &at){ at.SetDirection( cs.Pos() ); }
 
 // /* Set the antennas directions, module and dot product with cs */

@@ -1,8 +1,7 @@
 #include "antenna.hh"
-
 Antenna::Antenna(double xpos, double ypos, double zpos,
                  double xpol, double ypol, double zpol,
-                 double power, double frequency, double gaindB,double modDuration, double modBandwidth ):
+                 double power, double frequency, double gaindB, int modMode, double modDuration, double modBandwidth):
                 fPower(power),
                 fFrequency(frequency),
                 fWavelength(c_ice/frequency),
@@ -11,6 +10,7 @@ Antenna::Antenna(double xpos, double ypos, double zpos,
                 fGain( pow(10., gaindB/10.) ),
                 fPosition{xpos, ypos, zpos},
                 fPolarization{xpol, ypol, zpol},
+                fMode(modMode),
                 fModDuration(modDuration),
                 fModBandwidth(modBandwidth){
 
@@ -23,8 +23,7 @@ Antenna::Antenna(double xpos, double ypos, double zpos,
   // double factor = sqrt(rx_gain*lambda/(4.*pi));
   fLeff = 1./factor;
 
-  assert(modDuration != 0.0 && "The total duration of the modulation should be non-zero. If running in the CW mode, the modBandwidth should be set to zero and this parameter to a random non-zero value.");
-
+  assert(modDuration != 0.0 && "The total duration of the modulation should be non-zero. If running in the CW mode, the mode should be set to -1 and this parameter to a random non-zero value.");
 }
 
 void Antenna::SetDirection(std::vector<double> coords){
@@ -101,22 +100,127 @@ double  Antenna::AngularFreq()const {return fAngularFreq;}
 
 double Antenna::ModBandwidth() const {return fModBandwidth;} 
 double Antenna::ModDuration() const {return fModDuration;}
+std::string Antenna::Mode() const{
+  if (fMode== -1){
+    return "CW mode";
+  }
+  if (fMode== 0){
+    return "FMCW mode : Triangular modulation";
+  }
+  if (fMode== 1){
+    return "FMCW mode : Sawtooth modulation";
+  } 
+  else
+  {
+    return "Frequency modulation mode was set incorrectly";
+  }   
+}
+double Antenna::PhaseTriangularMod(double time) const {
+// The time here is general. This means it can correspond with the retarded TX time, or the observation (RX) time ,... 
+  double slopeMod= 0.5* fModBandwidth/(fModDuration/2);
+  // std::cout<<"SlopeMod:"<<slopeMod<<std::endl;
+  double tmp_phase;
+  double eval_time;
 
-double Antenna::Freq(double time) const // this function returns the frequency at a specific time given a triangular modulation
+  // Note: the eval_time is calculated to make the modulation periodic. It is defined as 0 < eval_time < fModDuration. 
+  // The two lines of code below work both in case of negative or positive time values. 
+  int multi = floor(time/fModDuration);
+  eval_time=time-multi*fModDuration; 
+  if(eval_time<fModDuration/2)
+  {
+  tmp_phase= fFrequency*eval_time + (slopeMod * pow(eval_time,2));
+  }
+  else {
+  tmp_phase= (fFrequency + fModBandwidth)*(eval_time-fModDuration/2) - (slopeMod *pow(eval_time-fModDuration/2,2));
+  }
+  return tmp_phase; 
+}
+
+double Antenna::PhaseSawtoothMod(double time) const {
+// The time here is general. This means it can correspond with the retarded TX time, or the observation (RX) time ,... 
+  double slopeMod= 0.5*fModBandwidth/fModDuration;
+  double tmp_phase;
+  double eval_time;
+
+  // Note: the eval_time is calculated to make the modulation periodic. It is defined as 0 < eval_time < fModDuration. 
+  // The two lines of code below work both in case of negative or positive time values. 
+  int multi = floor(time/fModDuration);
+  eval_time=time-multi*fModDuration; 
+
+  tmp_phase= fFrequency*eval_time + (slopeMod * pow(eval_time,2));
+
+  return tmp_phase; 
+}
+
+double Antenna::PhaseFMCW(double time) const
+ // this function returns the frequency at a specific time given a modulation. 0: Triangular, 1: Sawtooth
 {
-double freqTime; 
-double slopeMod= fModBandwidth/(fModDuration/2);
-double tmp_freq;
-if(time<fModDuration/2)
+  double freq_t;
+  if(fMode==0){
+    freq_t=PhaseTriangularMod(time);
+  }
+  else if(fMode==1){
+    freq_t=PhaseSawtoothMod(time);
+  }
+  else{
+    return std::numeric_limits<double>::quiet_NaN();
+  }
+  return freq_t ;
+}
+
+double Antenna::TriangularMod(double time) const {
+// The time here is general. This means it can correspond with the retarded TX time, or the observation (RX) time ,... 
+  double slopeMod= fModBandwidth/(fModDuration/2);
+  // std::cout<<"SlopeMod:"<<slopeMod<<std::endl;
+  double tmp_freq;
+  double eval_time;
+
+  // Note: the eval_time is calculated to make the modulation periodic. It is defined as 0 < eval_time < fModDuration. 
+  // The two lines of code below work both in case of negative or positive time values. 
+  int multi = floor(time/fModDuration);
+  eval_time=time-multi*fModDuration; 
+  if(eval_time<fModDuration/2)
+  {
+  tmp_freq= fFrequency + (slopeMod * eval_time);
+  }
+  else {
+  tmp_freq= (fFrequency + fModBandwidth) - slopeMod *(eval_time-fModDuration/2);
+  }
+  return tmp_freq; 
+}
+
+double Antenna::SawtoothMod(double time) const {
+// The time here is general. This means it can correspond with the retarded TX time, or the observation (RX) time ,... 
+  double slopeMod= fModBandwidth/fModDuration;
+  double tmp_freq;
+  double eval_time;
+
+  // Note: the eval_time is calculated to make the modulation periodic. It is defined as 0 < eval_time < fModDuration. 
+  // The two lines of code below work both in case of negative or positive time values. 
+  int multi = floor(time/fModDuration);
+  eval_time=time-multi*fModDuration; 
+
+  tmp_freq= fFrequency + (slopeMod * eval_time);
+
+  return tmp_freq; 
+}
+
+double Antenna::Freq(double time) const
+ // this function returns the frequency at a specific time given a modulation. 0: Triangular, 1: Sawtooth
 {
-tmp_freq= fFrequency + (slopeMod * time);
-  
+  double freq_t;
+  if(fMode==0){
+    freq_t=TriangularMod(time);
+  }
+  else if(fMode==1){
+    freq_t=SawtoothMod(time);
+  }
+  else{
+    return std::numeric_limits<double>::quiet_NaN();
+  }
+  return freq_t ;
 }
-else {
-tmp_freq= fFrequency- (slopeMod *time);
-}
-return tmp_freq; 
-}
+
 
 double Antenna::AngularFreq(double time) const // angular frequency for a triangular modulation. 
 {
@@ -200,6 +304,7 @@ void Detector::add_antenna(Antenna at){
 void load_antenna_list(const libconfig::Setting& at_list, Detector& dect){
   // Antenna placeholder variables.
   double xpos, ypos, zpos, xpol, ypol, zpol, power, freq, gaindB,modBandwidth,modDuration;
+  int modMode;
    for (int i = 0; i < at_list.getLength(); i++){
     power = NAN;
     // Grab the next antenna
@@ -217,7 +322,8 @@ void load_antenna_list(const libconfig::Setting& at_list, Detector& dect){
           at.lookupValue("frequency", freq)         &&
           at.lookupValue("gaindB", gaindB)          &&
           at.lookupValue("modBandwidth",modBandwidth)&&
-          at.lookupValue("modDuration",modDuration)
+          at.lookupValue("modDuration",modDuration) &&
+          at.lookupValue("modMode",modMode)
 
         )
     ){
@@ -233,7 +339,7 @@ void load_antenna_list(const libconfig::Setting& at_list, Detector& dect){
     dect.add_antenna( Antenna(
               xpos *m, ypos *m, zpos *m,
               xpol, ypol, zpol,
-              power *W, freq *GHz, gaindB, modDuration*us, modBandwidth *GHz
+              power *W, freq *GHz, gaindB, modMode, modDuration*ns, modBandwidth *GHz
       )
     );
   }
