@@ -100,6 +100,14 @@ std::vector<double> cross_product(std::vector<double> a, std::vector<double> b){
     return ab;
 }
 
+double dot_product(std::vector<double> a, std::vector<double> b){
+    // Check for the size of u and v;
+    double dot;
+
+    dot=a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+    return dot;
+}
+
 std::vector<double> cross_product(double a1, double a2, double a3, double b1, double b2, double b3){
   std::vector<double> a = {a1, a2, a3};
   std::vector<double> b = {b1, b2, b3};

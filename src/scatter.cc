@@ -49,6 +49,7 @@ void Scatter::SetInDirection(std::vector<double> vertex,
     p.Position[1] = p.L*direction[1] + vertex[1];
     p.Position[2] = p.L*direction[2] + vertex[2];
 
+
   }
 }
 
@@ -85,13 +86,30 @@ void Scatter::SetInPlane(std::vector<double> vertex,
 /* Run time loop */
 void Scatter::RunScatter(const bool save2Dmatrices){
   int steps;
-  double t, t_start, t_end, freq_sampling;
-  
+  double t, t_start, t_end, freq_sampling, C_Efield_conversion;
+  std::vector<double> Efield_vector_time (3,0.0);
+  std::vector<double> Efield_vector_time_with_pol (3,0.0);
 	std::vector<double> phase_time    (nP, 0.0);
 	std::vector<double> sqrt_rcs_time (nP, 0.0);
 	std::vector<double> voltage_time  (nP, 0.0);
 
   std::vector<double> fArrivalTime = ArrivalTime();
+
+  /* Temporary timing fix for IRT segments with no ray solution. 
+  We remove all -ve elements from the arrival time array here (where -ve time indicates that no solution was found)
+  so that the total duration array (t_start -> t_end) is not made considering these -ve times.
+  Then later in the scatter for loop, only positive times are used, so that the -ve segments are ignored. */
+
+  int timeN = fArrivalTime.size();
+  int timeP = 0;
+
+  for (int i = 0; i < timeN; i ++){
+    if (fArrivalTime[i] >= 0.0){ 
+      fArrivalTime[timeP] = fArrivalTime[i];
+      timeP++;
+    }
+  }
+  
   t_start  = *std::min_element(fArrivalTime.begin(), fArrivalTime.end()) - 5*ns ;
   t_end    = *std::max_element(fArrivalTime.begin(), fArrivalTime.end()) + 5*tau + 5*ns;
 
@@ -107,14 +125,20 @@ void Scatter::RunScatter(const bool save2Dmatrices){
   if (save2Dmatrices){
     fPhaseTime    = std::vector<std::vector<double>>(steps, std::vector<double> (nP, 0));
     fRCSTime      = std::vector<std::vector<double>>(steps, std::vector<double> (nP, 0));
-    fVoltageTime  = std::vector<std::vector<double>>(steps, std::vector<double> (nP, 0));
+    fVoltageTime = std::vector<std::vector<double>>(steps, std::vector<double> (nP, 0));
+    fEfieldTime= std::vector<std::vector<double>>(steps, std::vector<double> (3, 0));
+    fEfieldTime_with_pol= std::vector<std::vector<double>>(steps, std::vector<double> (3, 0));
+
+    C_Efield_conversion=fTX.Wavelength()*sqrt((fRX.Load()*fRX.Gain())/(pi*Z_0/refindex));
   }
 
   // Radar scatter constants
   double V0 = fTX.Wavelength()/ pow(2*pi,1.5) *
                         sqrt( 
                         fTX.Power() * fTX.Gain() *
-                        fRX.Load() * fRX.Gain() ) ;
+                        fRX.Load() ) ;
+  double E0 = 1.0/ (4*pi)*
+                        sqrt( 2* fTX.Power() * fTX.Gain() * Z_0/refindex ) ;
 
   // Time Loop!   
   for (int ts = 0; ts < steps; ts++){
@@ -124,14 +148,18 @@ void Scatter::RunScatter(const bool save2Dmatrices){
   	std::fill(sqrt_rcs_time.begin(), sqrt_rcs_time.end(), 0.0);
 		std::fill(voltage_time.begin(), voltage_time.end(), 0.0);
 		std::fill(phase_time.begin(), phase_time.end(), 0.0);
+    std::fill(Efield_vector_time.begin(), Efield_vector_time.end(), 0.0);
+    std::fill(Efield_vector_time_with_pol.begin(), Efield_vector_time_with_pol.end(), 0.0);
+
     for (int i = 0; i < nP; i++){
       ScatterPoint& p = fPoints[i];
-
       // If active, add its contribution.
-      // if(t > p.ArrivalTime){
+      // if(p.ArrivalTime < 0.0){
     
       // You can also add an arbitrary cutoff (no smaller than 5*tau)
-      if(t>p.ArrivalTime && t<=(p.ArrivalTime + 5*tau)){
+      if(p.ArrivalTime > 0.0 && t>p.ArrivalTime && t<=(p.ArrivalTime + 5*tau)){
+
+        // cout<<p.PolEff<<endl;
 
         phase_time[i] = cos(p.Phase - fTX.AngularFreq()*t);
   
@@ -141,9 +169,26 @@ void Scatter::RunScatter(const bool save2Dmatrices){
 
         // The voltage has to also include polarization and attenuation effects. 
         voltage_time[i] =  sqrt_rcs_time[i] * 1.0/(p.RTX*p.RRX) *
-                            p.PolEff * p.Attenuation;
+                            p.PolEff * p.Attenuation * sqrt(p.GainFactorRX);
                             // 1;
+        // here we calculate the total Efield vector at the receiver. 
+        Efield_vector_time[0] +=  E0* 1.0/(p.RTX*p.RRX) * sqrt_rcs_time[i]*p.Attenuation*p.EFieldAtRX[0];
+        Efield_vector_time[1] +=  E0* 1.0/(p.RTX*p.RRX) * sqrt_rcs_time[i]*p.Attenuation*p.EFieldAtRX[1];
+        Efield_vector_time[2] +=  E0* 1.0/(p.RTX*p.RRX) * sqrt_rcs_time[i]*p.Attenuation*p.EFieldAtRX[2];
+
+
+        // double factor=dot_product(E0* 1.0/(p.RTX*p.RRX) * sqrt_rcs_time[i]*p.Attenuation*p.EFieldAtRX,fRX.Pol()) /dot_product(fRX.Pol(),fRX.Pol());
+        // Efield_vector_time_with_pol[0] += C_Efield_conversion*E0* 1.0/(p.RTX*p.RRX) * sqrt_rcs_time[i]*p.Attenuation*p.PolEff*fRX.Pol()[0]/norm(fRX.Pol());
+        // Efield_vector_time_with_pol[1] += C_Efield_conversion*E0* 1.0/(p.RTX*p.RRX) * sqrt_rcs_time[i]*p.Attenuation*p.PolEff*fRX.Pol()[1]/norm(fRX.Pol());
+        // Efield_vector_time_with_pol[2] += C_Efield_conversion*E0* 1.0/(p.RTX*p.RRX) * sqrt_rcs_time[i]*p.Attenuation*p.PolEff*fRX.Pol()[2]/norm(fRX.Pol());
+        
+        // double factor=E0* 1.0/(p.RTX*p.RRX) * sqrt_rcs_time[i]*p.Attenuation*abs(dot_product(p.EFieldAtRX,fRX.Pol())/dot_product(fRX.Pol(),fRX.Pol()));
+        // Efield_vector_time_with_pol[0] += factor*fRX.Pol()[0];
+        // Efield_vector_time_with_pol[1] += factor*fRX.Pol()[1];
+        // Efield_vector_time_with_pol[2] += factor*fRX.Pol()[2];
       }
+      // std::cout<<"New point"<<std::endl;
+      // std::cout<<p.PolEff<<std::endl;
     }
 
     // The final RCS, E field value for a given timestep is the sum of the effects of all segments.
@@ -157,9 +202,30 @@ void Scatter::RunScatter(const bool save2Dmatrices){
       fPhaseTime[ts] = phase_time;
       fRCSTime[ts] = sqrt_rcs_time;
       fVoltageTime[ts] = V0*voltage_time;
+      fEfieldTime[ts] = Efield_vector_time;
+      fEfieldTime_with_pol[ts] = Efield_vector_time_with_pol;
+
+      // std::cout<<fEfieldTime[ts]<<std::endl;
     }
   }
 }
+
+
+
+  void Scatter::CalcDirectionalAngles(ScatterPoint& p){
+    // Calculating the zenith angles
+    std::vector<double> RxCsDirection=direction(fRX.Pos(),p.Position);
+    p.ThetaAngles[0]=acos(projection(fTX.Pol(),p.TXDir));
+    p.ThetaAngles[1]=acos(projection(p.Polarization,p.RXDir)); 
+    p.ThetaAngles[2]=acos(projection(fRX.Pol(),RxCsDirection)); // note that we need the angle here between the polarisation vector of the RX and the RX-CS vector
+    
+    // Calculating the azimuth angles, here we assume it is defined w.r.t the positve x-axis
+    p.PhiAngles[0]=atan2(p.TXDir[1],p.TXDir[0]);
+    p.PhiAngles[1]=atan2(p.RXDir[1],p.RXDir[0]); // As the electron is always an oscillating dipole, this angle is redundant for the gain pattern. Hence, we set it to zero. 
+    p.PhiAngles[2]=atan2(RxCsDirection[1],RxCsDirection[0]);
+  }
+
+
 
 // void Scatter::SetAtDirection(Antenna &at){ at.SetDirection( cs.Pos() ); }
 
@@ -240,8 +306,11 @@ std::vector<double> Scatter::RCS(){return fRCS;}
 std::vector<std::vector<double>> Scatter::RCS_time(){ return fRCSTime; }
 std::vector<std::vector<double>> Scatter::Phase_time(){ return fPhaseTime; }
 std::vector<std::vector<double>> Scatter::E_time(){ return fVoltageTime; }
+std::vector<std::vector<double>> Scatter::E_field_time(){ return fEfieldTime; }
+std::vector<std::vector<double>> Scatter::E_field_time_with_pol(){ return fEfieldTime_with_pol; }
 
-void Scatter::save_output_files(const std::string& output_path, const std::array<bool, 13>& flags){
+
+void Scatter::save_output_files(const std::string& output_path, const std::array<bool, 14>& flags){
 
   if(flags[0]){ write_1D_array(Duration(),    output_path + "_duration.txt");}
   if(flags[1]){ write_1D_array(Voltage(),     output_path + "_voltage.txt");}
@@ -257,6 +326,7 @@ void Scatter::save_output_files(const std::string& output_path, const std::array
 
   if(flags[10]){ write_2D_array(Phase_time(),  output_path + "_phase_time.txt");}
   if(flags[11]){ write_2D_array(RCS_time(),    output_path + "_RCS_time.txt");}
-  if(flags[12]){ write_2D_array(E_time(),      output_path + "_E_time.txt");}
-  
+  if(flags[12]){ write_2D_array(E_time(),      output_path + "_voltage_time.txt");}
+  if(flags[13]){ write_2D_array(E_field_time(),output_path + "_E_field_time.txt");}
+  // if(flags[13]){ write_2D_array(E_field_time_with_pol(),output_path + "_E_field_time_with_pol.txt");}
 }
