@@ -68,7 +68,7 @@ int main(int argc, char** argv){
   
     // Scatter flags
   int total_scatter_flags;
-  std::array<bool,14> scatter_flags{0};
+  std::array<bool,15> scatter_flags{0};
   try{
     const Setting& scatter_flag_list = root["save"]["scatter"];
     scatter_flag_list.lookupValue("duration",             scatter_flags[0]);
@@ -85,6 +85,7 @@ int main(int argc, char** argv){
     scatter_flag_list.lookupValue("radar_vs_time",        scatter_flags[11]);
     scatter_flag_list.lookupValue("voltage_vs_time",      scatter_flags[12]);
     scatter_flag_list.lookupValue("e_field_vs_time",      scatter_flags[13]);
+    scatter_flag_list.lookupValue("radar_angles",         scatter_flags[14]);
 
     total_scatter_flags = std::count(scatter_flags.begin(), scatter_flags.end(), true);
 

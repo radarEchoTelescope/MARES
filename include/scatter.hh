@@ -26,6 +26,7 @@ struct ScatterPoint{
   // These values are set later, according to the mode of propagation of light. 
   std::vector<double> TXDir{0, 0, 0};      // Vector direction to cs point.
   std::vector<double> RXDir{0, 0, 0};      // Vector direction to cs point.
+  std::vector<double> CSDir{0, 0, 0};      // Vector direction to cs point.
   double RTX;                              // Module of distance to cs point.
   double RRX ;                             // Module of distance to cs point.
   double Phase;
@@ -36,6 +37,8 @@ struct ScatterPoint{
   double PolEff;
   std::vector<double> Polarization{0,0,0};
   std::vector<double> EFieldAtRX{0,0,0};
+  std::vector<double> RadarAngles{0,0};         //  rvp, tvp angles  
+  std::vector<double> ScatterDirection{0,0,0};  //  cascade direction 
 // These are needed for gain implementation
 
   double ThetaAngles[3]; // {theta_TX,theta_CS,theta_RX}
@@ -155,6 +158,7 @@ Careful, because the medium change and refraction means that the relative
   std::vector<double> Directivity();
   std::vector<double> Polarization();
   std::vector<double> TCS();
+  std::vector<std::vector<double>> RadarAngles();
 
   // The time integral results after RunScatter()
   std::vector<double> Duration();
@@ -169,7 +173,7 @@ Careful, because the medium change and refraction means that the relative
 
 
 
-  void save_output_files(const std::string& output_path, const std::array<bool, 14>& flags = {0});
+  void save_output_files(const std::string& output_path, const std::array<bool, 15>& flags = {0});
   /*In order to save the member functions, you need to 
   pass an array of flags choosing what members to save:
 

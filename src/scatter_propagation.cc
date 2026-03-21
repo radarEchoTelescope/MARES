@@ -7,6 +7,8 @@ void Scatter::SetInConstIce(ScatterPoint& p){
   p.TXDir = direction( fTX.Pos(), p.Position) ;
   p.RTX = norm(p.TXDir);
 
+  p.CSDir = direction(p.Position,fTX.Pos()) ; //also just equal to -(TXDir)...
+
   p.RXDir = direction(p.Position, fRX.Pos());
   p.RRX = norm(p.RXDir);
 
@@ -69,6 +71,9 @@ void Scatter::SetInConstIce(ScatterPoint& p){
   // Here we calculate the spherical angles needed for taking into account the gain. These are the last directional dependencies of the radar scatter. 
   CalcDirectionalAngles(p);
   p.GainFactorRX=fRX.GainDipole(p.ThetaAngles[2]); // fGain*sin(theta_RX)^2.6, where fgain is set in the configfile and the 2.6 power is a modified dipole
+
+  p.RadarAngles[0] = acos(projection(p.RXDir, p.ScatterDirection)); // point rvp
+  p.RadarAngles[1] = acos(projection(p.CSDir, p.ScatterDirection)); // point tvp
   
 }
 

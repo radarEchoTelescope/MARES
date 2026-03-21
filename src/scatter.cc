@@ -49,6 +49,10 @@ void Scatter::SetInDirection(std::vector<double> vertex,
     p.Position[1] = p.L*direction[1] + vertex[1];
     p.Position[2] = p.L*direction[2] + vertex[2];
 
+    p.ScatterDirection[0] = direction[0]; //tmp. solution for carrying forward the cascade dir.
+    p.ScatterDirection[1] = direction[1];
+    p.ScatterDirection[2] = direction[2];
+
 
   }
 }
@@ -254,6 +258,13 @@ std::vector<std::vector<double>> Scatter::Position(){
   return position;  // Convert from mm to metres
 }
 
+std::vector<std::vector<double>> Scatter::RadarAngles(){
+  std::vector<std::vector<double>> rangles (fPoints.size(), std::vector<double> (2, 0));
+  std::transform(fPoints.begin(), fPoints.end(), rangles.begin(),
+                  [](ScatterPoint p){return p.RadarAngles ;});
+  return rangles;  
+}
+
 std::vector<double> Scatter::Phase(){
   std::vector<double> phase (fPoints.size(), 0);
   std::transform(fPoints.begin(), fPoints.end(), phase.begin(),
@@ -310,7 +321,7 @@ std::vector<std::vector<double>> Scatter::E_field_time(){ return fEfieldTime; }
 std::vector<std::vector<double>> Scatter::E_field_time_with_pol(){ return fEfieldTime_with_pol; }
 
 
-void Scatter::save_output_files(const std::string& output_path, const std::array<bool, 14>& flags){
+void Scatter::save_output_files(const std::string& output_path, const std::array<bool, 15>& flags){
 
   if(flags[0]){ write_1D_array(Duration(),    output_path + "_duration.txt");}
   if(flags[1]){ write_1D_array(Voltage(),     output_path + "_voltage.txt");}
@@ -329,4 +340,5 @@ void Scatter::save_output_files(const std::string& output_path, const std::array
   if(flags[12]){ write_2D_array(E_time(),      output_path + "_voltage_time.txt");}
   if(flags[13]){ write_2D_array(E_field_time(),output_path + "_E_field_time.txt");}
   // if(flags[13]){ write_2D_array(E_field_time_with_pol(),output_path + "_E_field_time_with_pol.txt");}
+  if(flags[14]){ write_2D_array(RadarAngles(),    output_path + "_radar_angles.txt");}
 }
