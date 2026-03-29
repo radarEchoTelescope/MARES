@@ -308,7 +308,7 @@ void Scatter::SetWithIRT(ScatterPoint& p) {
   // Assigning all the directional angles
   p.ThetaAngles[0]=p.TXRayStartAngle[DoR];
   p.ThetaAngles[1]=p.RXRayStartAngle[DoR];
-  p.ThetaAngles[2]=pi-p.RXRayEndAngle[DoR];
+  p.ThetaAngles[2]=p.RXRayEndAngle[DoR];
   p.GainFactorRX=fRX.GainDipole(p.ThetaAngles[2]);
 
   }
