@@ -50,6 +50,8 @@ public:
   double TriangularMod(double time) const;
   double PhaseSawtoothMod(double time) const;
   double PhaseTriangularMod(double time) const;
+  double FreqTriangularMod(double time) const;
+  double FreqSawtoothMod(double time) const; 
   double PhaseFMCW(double time) const;
   double Freq(double time) const; // [Hz]
   double AngularFreq(double time)  const;  // [Hz * rad]

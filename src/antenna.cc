@@ -115,6 +115,7 @@ std::string Antenna::Mode() const{
     return "Frequency modulation mode was set incorrectly";
   }   
 }
+
 double Antenna::PhaseTriangularMod(double time) const {
 // The time here is general. This means it can correspond with the retarded TX time, or the observation (RX) time ,... 
   double slopeMod= 0.5* fModBandwidth/(fModDuration/2);
@@ -170,7 +171,7 @@ double Antenna::PhaseFMCW(double time) const
 
 double Antenna::TriangularMod(double time) const {
 // The time here is general. This means it can correspond with the retarded TX time, or the observation (RX) time ,... 
-  double slopeMod= fModBandwidth/(fModDuration/2);
+  double slopeMod= 0.5*fModBandwidth/(fModDuration/2);
   // std::cout<<"SlopeMod:"<<slopeMod<<std::endl;
   double tmp_freq;
   double eval_time;
@@ -184,14 +185,14 @@ double Antenna::TriangularMod(double time) const {
   tmp_freq= fFrequency + (slopeMod * eval_time);
   }
   else {
-  tmp_freq= (fFrequency + fModBandwidth) - slopeMod *(eval_time-fModDuration/2);
+  tmp_freq= (fFrequency + fModBandwidth) - slopeMod * (eval_time-fModDuration/2);
   }
   return tmp_freq; 
 }
 
 double Antenna::SawtoothMod(double time) const {
 // The time here is general. This means it can correspond with the retarded TX time, or the observation (RX) time ,... 
-  double slopeMod= fModBandwidth/fModDuration;
+  double slopeMod= 0.5*fModBandwidth/fModDuration;
   double tmp_freq;
   double eval_time;
 

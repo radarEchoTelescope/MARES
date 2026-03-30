@@ -164,6 +164,8 @@ void Scatter::RunScatterFMCW(const bool save2Dmatrices)
 {
   int steps;
   double t, t_start, t_end, freq_sampling;
+  double freq_eval_time; 
+  double p_phase_at_time;
   
 	std::vector<double> phase_time    (nP, 0.0);
 	std::vector<double> sqrt_rcs_time (nP, 0.0);
@@ -205,22 +207,19 @@ void Scatter::RunScatterFMCW(const bool save2Dmatrices)
     for (int i = 0; i < nP; i++){
       // std::cout<<i<<std::endl;
       ScatterPoint& p = fPoints[i];
-      double freq_eval_time; 
       freq_eval_time= t - p.RTX/c_ice - p.RRX/c_ice;  
-      // If active, add its contribution.
-      // if(t > p.ArrivalTime){
-      // std::cout<<"Freq:"<<fTX.Freq(freq_eval_time)<<std::endl;
-
-    
+   
       // You can also add an arbitrary cutoff (no smaller than 5*tau)
       if(t>p.ArrivalTime && t<=(p.ArrivalTime + 5*tau)){ 
         // the wavenumber also changes over time. Hence, p.Phase is not a constant anymore. I make a tmp variable that keeps track of its change.
         // p.Phase remains the cte value when running in CW mode. 
-        // std::cout<<ts<<std::endl;
         // double tmp_phase_p= fTX.Wavenumber(freq_eval_time)*(p.RTX + p.RRX) - pi/2; 
-        double p_phase_at_time= 2*pi*(fTX.PhaseFMCW(freq_eval_time)); // fTX.AngularFreq(freq_eval_time)*(p.RTX/c_ice-p.StartTime - ts/freq_sampling) - pi/2; 
+        // double p_phase_at_time= 2*pi*(fTX.PhaseFMCW(freq_eval_time)); // 
         // phase_time[i] = cos(p.Phase - fTX.AngularFreq(t)*t); 
         // phase_time[0] = cos(tmp_phase_p - fTX.AngularFreq(freq_eval_time)*t); 
+        //fTX.Wavenumber(freq_eval_time)*(p.RTX+p.RRX) - fTX.AngularFreq(freq_eval_time)*t - pi/2; 
+        
+        p_phase_at_time= fTX.AngularFreq(freq_eval_time)*(p.RTX/c_ice-p.StartTime - ts/freq_sampling) - pi/2;  
         phase_time[i] = cos(p_phase_at_time); 
 
         // std::cout<<"Freq:"<<fTX.Freq(freq_eval_time)<<std::endl;
