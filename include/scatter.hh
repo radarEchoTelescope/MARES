@@ -162,7 +162,7 @@ Careful, because the medium change and refraction means that the relative
   std::vector<std::vector<double>> AngularFreq_time();
 
 
-  void save_output_files(const std::string& output_path, const std::array<bool, 13>& flags = {0});
+  void save_output_files(const std::string& output_path, const std::array<bool, 17>& flags = {0});
   /*In order to save the member functions, you need to 
   pass an array of flags choosing what members to save:
 

@@ -68,7 +68,7 @@ int main(int argc, char** argv){
   
     // Scatter flags
   int total_scatter_flags;
-  std::array<bool,13> scatter_flags{0};
+  std::array<bool,17> scatter_flags{0};
   try{
     const Setting& scatter_flag_list = root["save"]["scatter"];
     scatter_flag_list.lookupValue("duration",             scatter_flags[0]);
@@ -84,8 +84,10 @@ int main(int argc, char** argv){
     scatter_flag_list.lookupValue("phase_vs_time",        scatter_flags[10]);
     scatter_flag_list.lookupValue("radar_vs_time",        scatter_flags[11]);
     scatter_flag_list.lookupValue("voltage_vs_time",      scatter_flags[12]);
-    scatter_flag_list.lookupValue("angularfreq_vs_time",  scatter_flags[13]);
-    scatter_flag_list.lookupValue("transmit_signal",      scatter_flags[14]);
+    scatter_flag_list.lookupValue("e_field_vs_time",      scatter_flags[13]);
+    scatter_flag_list.lookupValue("radar_angles",         scatter_flags[14]);
+    scatter_flag_list.lookupValue("angularfreq_vs_time",  scatter_flags[15]);
+    scatter_flag_list.lookupValue("transmit_signal",      scatter_flags[16]);
 
     total_scatter_flags = std::count(scatter_flags.begin(), scatter_flags.end(), true);
 
@@ -93,7 +95,7 @@ int main(int argc, char** argv){
     std::cout << "No scatter flags found. There will be no scatter properties being saved" << std::endl;
   }
   if( !total_scatter_flags){ std::cout << "There will be no scatter properties being saved" << std::endl; }
-  const bool save_time_profiles = {scatter_flags[10] || scatter_flags[11] || scatter_flags[12]};
+  const bool save_time_profiles = {scatter_flags[10] || scatter_flags[11] || scatter_flags[12] ||  scatter_flags[13]};
 
   if( !total_cascade_flags && !total_scatter_flags){
     std::cerr << "There will be no output from this event! Please enable at least a saving flag." << std::endl;

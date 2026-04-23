@@ -346,7 +346,7 @@ std::vector<std::vector<double>> Scatter::AngularFreq_time(){ return fAngularFre
 std::vector<std::vector<double>> Scatter::E_time(){ return fVoltageTime; }
 std::vector<double> Scatter::TransmitSignal(){ return fTransmitSignal; }
 
-void Scatter::save_output_files(const std::string& output_path, const std::array<bool, 13>& flags){
+void Scatter::save_output_files(const std::string& output_path, const std::array<bool, 17>& flags){
 
   if(flags[0]){ write_1D_array(Duration(),               output_path + "_duration.txt");}
   if(flags[1]){ write_1D_array(Voltage(),                output_path + "_voltage.txt");}
@@ -363,6 +363,8 @@ void Scatter::save_output_files(const std::string& output_path, const std::array
   if(flags[10]){ write_2D_array(Phase_time(),            output_path + "_phase_time.txt");}
   if(flags[11]){ write_2D_array(RCS_time(),              output_path + "_RCS_time.txt");}
   if(flags[12]){ write_2D_array(E_time(),                output_path + "_E_time.txt");}
-  if(flags[13]) {write_2D_array(AngularFreq_time(),      output_path + "_angularfreq_time.txt");}
-  if(flags[14]) {write_1D_array(TransmitSignal(),        output_path + "_transmit_signal.txt");}
+  // if(flags[13]){ write_2D_array(E_field_time_with_pol(),output_path + "_E_field_time_with_pol.txt");}
+  // if(flags[14]){ write_2D_array(RadarAngles(),    output_path + "_radar_angles.txt");}
+  if(flags[15]) {write_2D_array(AngularFreq_time(),      output_path + "_angularfreq_time.txt");}
+  if(flags[16]) {write_1D_array(TransmitSignal(),        output_path + "_transmit_signal.txt");}
 }
