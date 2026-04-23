@@ -132,9 +132,9 @@ double Antenna::PhaseTriangularMod(double time) const {
   tmp_phase= fFrequency*eval_time + (slopeMod * pow(eval_time,2));
   }
   else {
-  tmp_phase= (fFrequency + fModBandwidth)*(eval_time-fModDuration/2) - (slopeMod *pow(eval_time-fModDuration/2,2));
+  tmp_phase= fFrequency*(abs(eval_time-fModDuration)) + (slopeMod *pow(abs(eval_time-fModDuration),2)); // this implementation makes sure the phase oscillates correctly for a triangular modulation on the downward slope
   }
-  return tmp_phase; 
+  return 2*pi*tmp_phase; 
 }
 
 double Antenna::PhaseSawtoothMod(double time) const {
@@ -150,7 +150,7 @@ double Antenna::PhaseSawtoothMod(double time) const {
 
   tmp_phase= fFrequency*eval_time + (slopeMod * pow(eval_time,2));
 
-  return tmp_phase; 
+  return 2*pi*tmp_phase; 
 }
 
 double Antenna::PhaseFMCW(double time) const
@@ -171,7 +171,7 @@ double Antenna::PhaseFMCW(double time) const
 
 double Antenna::TriangularMod(double time) const {
 // The time here is general. This means it can correspond with the retarded TX time, or the observation (RX) time ,... 
-  double slopeMod= 0.5*fModBandwidth/(fModDuration/2);
+  double slopeMod= fModBandwidth/(fModDuration/2);
   // std::cout<<"SlopeMod:"<<slopeMod<<std::endl;
   double tmp_freq;
   double eval_time;
@@ -192,7 +192,7 @@ double Antenna::TriangularMod(double time) const {
 
 double Antenna::SawtoothMod(double time) const {
 // The time here is general. This means it can correspond with the retarded TX time, or the observation (RX) time ,... 
-  double slopeMod= 0.5*fModBandwidth/fModDuration;
+  double slopeMod= fModBandwidth/fModDuration;
   double tmp_freq;
   double eval_time;
 

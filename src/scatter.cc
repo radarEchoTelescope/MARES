@@ -166,10 +166,12 @@ void Scatter::RunScatterFMCW(const bool save2Dmatrices)
   double t, t_start, t_end, freq_sampling;
   double freq_eval_time; 
   double p_phase_at_time;
+  double ref_signal_phase;
   
 	std::vector<double> phase_time    (nP, 0.0);
 	std::vector<double> sqrt_rcs_time (nP, 0.0);
 	std::vector<double> voltage_time  (nP, 0.0);
+  std::vector<double> angularfreq_time  (nP, 0.0);
 
   std::vector<double> fArrivalTime = ArrivalTime();
   t_start  = *std::min_element(fArrivalTime.begin(), fArrivalTime.end()) - 5*ns ;
@@ -179,15 +181,17 @@ void Scatter::RunScatterFMCW(const bool save2Dmatrices)
   steps = (t_end - t_start)*freq_sampling;
 
   // Memory allocation
-  fDuration     = std::vector<double>(steps, 0);    // The time
-  fRCS          = std::vector<double>(steps, 0);    // The RCS
-  fVoltage     = std::vector<double>(steps, 0);    // The electric field
-  fPower        = std::vector<double>(steps, 0);    // The power
+  fDuration       = std::vector<double>(steps, 0);    // The time
+  fRCS            = std::vector<double>(steps, 0);    // The RCS
+  fVoltage        = std::vector<double>(steps, 0);    // The electric field
+  fPower          = std::vector<double>(steps, 0);    // The power
+  fTransmitSignal = std::vector<double>(steps, 0); 
 
   if (save2Dmatrices){
     fPhaseTime    = std::vector<std::vector<double>>(steps, std::vector<double> (nP, 0));
     fRCSTime      = std::vector<std::vector<double>>(steps, std::vector<double> (nP, 0));
     fVoltageTime = std::vector<std::vector<double>>(steps, std::vector<double> (nP, 0));
+    fAngularFreqTime = std::vector<std::vector<double>>(steps, std::vector<double> (nP, 0));
   }
 
   // Radar scatter constants
@@ -203,41 +207,21 @@ void Scatter::RunScatterFMCW(const bool save2Dmatrices)
   	std::fill(sqrt_rcs_time.begin(), sqrt_rcs_time.end(), 0.0);
 		std::fill(voltage_time.begin(), voltage_time.end(), 0.0);
 		std::fill(phase_time.begin(), phase_time.end(), 0.0);
+    std::fill(angularfreq_time.begin(), angularfreq_time.end(), 0.0);
     // UpdateTCS(t);
     for (int i = 0; i < nP; i++){
       // std::cout<<i<<std::endl;
       ScatterPoint& p = fPoints[i];
-      freq_eval_time= t - p.RTX/c_ice - p.RRX/c_ice;  
-   
+      freq_eval_time= ts/freq_sampling - p.RTX/c_ice + fTX.ModDuration()/4 ;
+      if (i == 0){ // This means we chose the vertex as our point of reference. In simulations we need to chose this refenence point
+        // future: mayeb the shower max is more accurate as it is the strongest refelector. In general, we will have an error on the ranging comparable to the distance to shower max (I believe)
+        ref_signal_phase= -1.0*fTX.PhaseFMCW(freq_eval_time +p.RTX/c_ice + p.RRX/c_ice);
+        fTransmitSignal[ts]= cos(ref_signal_phase); 
+      }
       // You can also add an arbitrary cutoff (no smaller than 5*tau)
       if(t>p.ArrivalTime && t<=(p.ArrivalTime + 5*tau)){ 
-        // the wavenumber also changes over time. Hence, p.Phase is not a constant anymore. I make a tmp variable that keeps track of its change.
-        // p.Phase remains the cte value when running in CW mode. 
-        // double tmp_phase_p= fTX.Wavenumber(freq_eval_time)*(p.RTX + p.RRX) - pi/2; 
-        // double p_phase_at_time= 2*pi*(fTX.PhaseFMCW(freq_eval_time)); // 
-        // phase_time[i] = cos(p.Phase - fTX.AngularFreq(t)*t); 
-        // phase_time[0] = cos(tmp_phase_p - fTX.AngularFreq(freq_eval_time)*t); 
-        //fTX.Wavenumber(freq_eval_time)*(p.RTX+p.RRX) - fTX.AngularFreq(freq_eval_time)*t - pi/2; 
-        
-        p_phase_at_time= fTX.AngularFreq(freq_eval_time)*(p.RTX/c_ice-p.StartTime - ts/freq_sampling) - pi/2;  
+        p_phase_at_time= -1.0*fTX.PhaseFMCW(freq_eval_time) -pi/2 ; 
         phase_time[i] = cos(p_phase_at_time); 
-
-        // std::cout<<"Freq:"<<fTX.Freq(freq_eval_time)<<std::endl;
-        //   // std::cout<<"Wavenumber:"<<fTX.Wavenumber(freq_eval_time)<<std::endl;
-        // std::cout<<"Wavelength:"<<fTX.Wavelength(freq_eval_time)<<std::endl;
-
-        //   // std::cout<<"Angular freq:"<<fTX.AngularFreq(freq_eval_time)<<std::endl;
-        //   // std::cout<<"tmp_phase:"<<tmp_phase_p<<std::endl;
-        //   // std::cout<<"tmp_phase_2:"<<fTX.AngularFreq(freq_eval_time)*t<<std::endl;
-          // std::cout<<"cos_Phase:"<< phase_time[0]<<std::endl;
-        //   std::cout<<"phase_value:"<<tmp_phase_p - fTX.AngularFreq(freq_eval_time)*t<<std::endl;
-
-        //   // std::cout<<"freq_eval_time:"<<freq_eval_time<<std::endl;
-        //   // int multi = floor(freq_eval_time/fTX.ModDuration());
-        //   // double eval_time=freq_eval_time-multi*fTX.ModDuration();
-        //   // std::cout<<"eval_time:"<<eval_time<<std::endl;
-
-
 
         // The TCS variable also becomes time depend in  the FMCW mode as it depends on frequency and its derivatives. Hence we need to update it. 
         // I wrote a function UpdateTCS to do this. But the changes are small, so we make the assumption that we can keep this constant (ok if the bandwidth of the modulation is not too big) 
@@ -247,8 +231,7 @@ void Scatter::RunScatterFMCW(const bool save2Dmatrices)
 
         // The voltage has to also include polarization and attenuation effects. 
         voltage_time[i] =V0*fTX.Wavelength(freq_eval_time) * sqrt_rcs_time[i] * 1.0/(p.RTX*p.RRX) * p.PolEff * p.Attenuation;
-                            
-                            // 1;
+        angularfreq_time[i]= fTX.Freq(freq_eval_time) ;              
         // std::cout<< voltage_time[0]<<std::endl;
       }
     }
@@ -264,9 +247,9 @@ void Scatter::RunScatterFMCW(const bool save2Dmatrices)
       fPhaseTime[ts] = phase_time;
       fRCSTime[ts] = sqrt_rcs_time;
       fVoltageTime[ts] = voltage_time;
+      fAngularFreqTime[ts] = angularfreq_time;
     }
   }
-
 }
 
 
@@ -359,24 +342,27 @@ std::vector<double> Scatter::Power(){return fPower;}
 std::vector<double> Scatter::RCS(){return fRCS;}
 std::vector<std::vector<double>> Scatter::RCS_time(){ return fRCSTime; }
 std::vector<std::vector<double>> Scatter::Phase_time(){ return fPhaseTime; }
+std::vector<std::vector<double>> Scatter::AngularFreq_time(){ return fAngularFreqTime; }
 std::vector<std::vector<double>> Scatter::E_time(){ return fVoltageTime; }
+std::vector<double> Scatter::TransmitSignal(){ return fTransmitSignal; }
 
 void Scatter::save_output_files(const std::string& output_path, const std::array<bool, 13>& flags){
 
-  if(flags[0]){ write_1D_array(Duration(),    output_path + "_duration.txt");}
-  if(flags[1]){ write_1D_array(Voltage(),     output_path + "_voltage.txt");}
-  if(flags[2]){ write_1D_array(Power(),       output_path + "_power.txt");}
-  if(flags[3]){ write_1D_array(TCS(),         output_path + "_TCS.txt");}
-  if(flags[4]){ write_1D_array(RCS(),         output_path + "_RCS.txt");}
+  if(flags[0]){ write_1D_array(Duration(),               output_path + "_duration.txt");}
+  if(flags[1]){ write_1D_array(Voltage(),                output_path + "_voltage.txt");}
+  if(flags[2]){ write_1D_array(Power(),                  output_path + "_power.txt");}
+  if(flags[3]){ write_1D_array(TCS(),                    output_path + "_TCS.txt");}
+  if(flags[4]){ write_1D_array(RCS(),                    output_path + "_RCS.txt");}
 
-  if(flags[5]){ write_2D_array(Position(),    output_path + "_position.txt");}
-  if(flags[6]){ write_1D_array(Phase(),       output_path + "_phase.txt");}
-  if(flags[7]){ write_1D_array(ArrivalTime(), output_path + "_arrival_t.txt");}
-  if(flags[8]){ write_1D_array(Attenuation(), output_path + "_attenuation.txt");}
-  if(flags[9]){ write_1D_array(Polarization(),output_path + "_polarization.txt");}
+  if(flags[5]){ write_2D_array(Position(),               output_path + "_position.txt");}
+  if(flags[6]){ write_1D_array(Phase(),                  output_path + "_phase.txt");}
+  if(flags[7]){ write_1D_array(ArrivalTime(),            output_path + "_arrival_t.txt");}
+  if(flags[8]){ write_1D_array(Attenuation(),            output_path + "_attenuation.txt");}
+  if(flags[9]){ write_1D_array(Polarization(),           output_path + "_polarization.txt");}
 
-  if(flags[10]){ write_2D_array(Phase_time(),  output_path + "_phase_time.txt");}
-  if(flags[11]){ write_2D_array(RCS_time(),    output_path + "_RCS_time.txt");}
-  if(flags[12]){ write_2D_array(E_time(),      output_path + "_E_time.txt");}
-  
+  if(flags[10]){ write_2D_array(Phase_time(),            output_path + "_phase_time.txt");}
+  if(flags[11]){ write_2D_array(RCS_time(),              output_path + "_RCS_time.txt");}
+  if(flags[12]){ write_2D_array(E_time(),                output_path + "_E_time.txt");}
+  if(flags[13]) {write_2D_array(AngularFreq_time(),      output_path + "_angularfreq_time.txt");}
+  if(flags[14]) {write_1D_array(TransmitSignal(),        output_path + "_transmit_signal.txt");}
 }

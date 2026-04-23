@@ -154,9 +154,13 @@ Careful, because the medium change and refraction means that the relative
   std::vector<double> Voltage();
   std::vector<double> Power();
   std::vector<double> RCS();
+  std::vector<double> TransmitSignal();
+  
   std::vector<std::vector<double>> Phase_time();
   std::vector<std::vector<double>> RCS_time();
   std::vector<std::vector<double>> E_time();
+  std::vector<std::vector<double>> AngularFreq_time();
+
 
   void save_output_files(const std::string& output_path, const std::array<bool, 13>& flags = {0});
   /*In order to save the member functions, you need to 
@@ -241,9 +245,11 @@ WARNING: This does not match IRT coordinates???
   std::vector<double> fVoltage;   // [V/m]
   std::vector<double> fPower;     // [W]
   std::vector<double> fRCS;       // [m^2]
+  std::vector<double> fTransmitSignal; // a reference signal so unit is not important as it will be normalised when doing the FMCW analysis
 
   std::vector<std::vector<double>> fRCSTime;
   std::vector<std::vector<double>> fPhaseTime;
+  std::vector<std::vector<double>> fAngularFreqTime;
   std::vector<std::vector<double>> fVoltageTime;
 };
 

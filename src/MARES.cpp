@@ -84,6 +84,9 @@ int main(int argc, char** argv){
     scatter_flag_list.lookupValue("phase_vs_time",        scatter_flags[10]);
     scatter_flag_list.lookupValue("radar_vs_time",        scatter_flags[11]);
     scatter_flag_list.lookupValue("voltage_vs_time",      scatter_flags[12]);
+    scatter_flag_list.lookupValue("angularfreq_vs_time",  scatter_flags[13]);
+    scatter_flag_list.lookupValue("transmit_signal",      scatter_flags[14]);
+
     total_scatter_flags = std::count(scatter_flags.begin(), scatter_flags.end(), true);
 
   } catch(const libconfig::SettingNotFoundException &nfex) {
