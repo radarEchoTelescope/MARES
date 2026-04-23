@@ -76,7 +76,7 @@ void Antenna::SetAngle(std::vector<double> dir){
 
 // 1.643
 double Antenna::GainDipole(double theta){
-  return fGain * pow(sin(theta),2.6);
+  return fGain * pow(sin(theta),2);
 }
 
 // double Antenna::GainDipole(std::vector<double> dir){

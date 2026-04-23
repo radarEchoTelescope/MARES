@@ -95,7 +95,7 @@ int main(int argc, char** argv){
     std::cout << "No scatter flags found. There will be no scatter properties being saved" << std::endl;
   }
   if( !total_scatter_flags){ std::cout << "There will be no scatter properties being saved" << std::endl; }
-  const bool save_time_profiles = {scatter_flags[10] || scatter_flags[11] || scatter_flags[12] ||  scatter_flags[13]};
+  const bool save_time_profiles = {scatter_flags[10] || scatter_flags[11] || scatter_flags[12] || scatter_flags[13]};
 
   if( !total_cascade_flags && !total_scatter_flags){
     std::cerr << "There will be no output from this event! Please enable at least a saving flag." << std::endl;

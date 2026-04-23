@@ -297,10 +297,10 @@ std::vector<std::vector<double>> Cascade::Transparency(){
 
 void Cascade::save_output_files(const std::string& output_path, const std::array<bool, 8>& flags){
 
-  if(flags[0]){ write_2D_array(Ne(),          output_path + "_e_number.txt");}
-  if(flags[1]){ write_2D_array(Density(),     output_path + "_density_tx.txt");}
-  if(flags[2]){ write_2D_array(PlasmaFreq(),  output_path + "_plasma_freq.txt");}
-  if(flags[3]){ write_2D_array(Absorption(),  output_path + "_absorption.txt");}
+  if(flags[0]){ write_2D_array(Ne(),          output_path + "_electron_number.txt");}
+  if(flags[1]){ write_2D_array(Density(),     output_path + "_electron_density.txt");}
+  if(flags[2]){ write_2D_array(PlasmaFreq(),  output_path + "_plasma_frequency.txt");}
+  if(flags[3]){ write_2D_array(Absorption(),  output_path + "_plasma_absorption.txt");}
   if(flags[4]){ write_2D_array(SkinDepth(),   output_path + "_skin_depth.txt");}
   if(flags[5]){ write_2D_array(Reflectance(), output_path + "_reflectance.txt");}
   if(flags[6]){ write_2D_array(Opacity(),     output_path + "_opacity.txt");}

@@ -66,7 +66,7 @@ public:
 // W.r.t the interaction vertex / direction of interest
   double Dot()   const;
   double Delta() const;
-  double  Dist() const;
+  double Dist() const;
   std::vector<double> Dir() const;
   std::vector<double> Sph() const;
 
