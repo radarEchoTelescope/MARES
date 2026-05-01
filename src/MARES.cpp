@@ -171,6 +171,7 @@ int main(int argc, char** argv){
     Cascade& cs = cascade_list[k];
     for (int i = 0; i < tx_number; i++){
       auto tx = lab.Transmitters()[i];
+      std::cout<< "TX: "<< i <<std::endl;
       for (int j = 0; j < rx_number; j++){
         auto rx = lab.Receivers()[j];
 

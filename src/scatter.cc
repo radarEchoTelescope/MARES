@@ -265,15 +265,15 @@ void Scatter::RunScatterFMCW(const bool save2Dmatrices)
     for (int i = 0; i < nP; i++){
       // std::cout<<i<<std::endl;
       ScatterPoint& p = fPoints[i];
-      freq_eval_time= ts/freq_sampling - p.RTX/c_ice + fTX.ModDuration()/4 ;
+      freq_eval_time= t- (p.RTX + p.RRX)/c_ice  + fTX.ModDuration()/2; //ts/freq_sampling - p.RTX/c_ice + fTX.ModDuration()/2 ;
       if (i == 0){ // This means we chose the vertex as our point of reference. In simulations we need to chose this refenence point
         // future: mayeb the shower max is more accurate as it is the strongest refelector. In general, we will have an error on the ranging comparable to the distance to shower max (I believe)
-        ref_signal_phase= -1.0*fTX.PhaseFMCW(freq_eval_time +p.RTX/c_ice + p.RRX/c_ice);
+        ref_signal_phase= fTX.PhaseFMCW(freq_eval_time + p.RTX/c_ice + p.RRX/c_ice); //-1.0*fTX.PhaseFMCW(freq_eval_time +p.RTX/c_ice + p.RRX/c_ice);
         fTransmitSignal[ts]= cos(ref_signal_phase); 
       }
       // You can also add an arbitrary cutoff (no smaller than 5*tau)
       if(t>p.ArrivalTime && t<=(p.ArrivalTime + 5*tau)){ 
-        p_phase_at_time= -1.0*fTX.PhaseFMCW(freq_eval_time) -pi/2 ; 
+        p_phase_at_time= fTX.PhaseFMCW(freq_eval_time) -pi/2 ; 
         phase_time[i] = cos(p_phase_at_time); 
 
         // The TCS variable also becomes time depend in  the FMCW mode as it depends on frequency and its derivatives. Hence we need to update it. 
@@ -284,7 +284,7 @@ void Scatter::RunScatterFMCW(const bool save2Dmatrices)
 
         // The voltage has to also include polarization and attenuation effects. 
         voltage_time[i] =V0*fTX.Wavelength(freq_eval_time) * sqrt_rcs_time[i] * 1.0/(p.RTX*p.RRX) * p.PolEff * p.Attenuation;
-        angularfreq_time[i]= fTX.Freq(freq_eval_time) ;              
+        angularfreq_time[i]= fTX.Freq(freq_eval_time) ;               
         // std::cout<< voltage_time[0]<<std::endl;
       }
     }
