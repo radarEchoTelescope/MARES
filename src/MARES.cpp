@@ -169,6 +169,7 @@ int main(int argc, char** argv){
   int cs_number = cascade_list.size();
   for (int k = 0; k < cs_number; k++){
     Cascade& cs = cascade_list[k];
+    std::cout<< "CS: "<< k <<std::endl;
     for (int i = 0; i < tx_number; i++){
       auto tx = lab.Transmitters()[i];
       std::cout<< "TX: "<< i <<std::endl;
