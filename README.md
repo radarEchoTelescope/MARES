@@ -1,7 +1,7 @@
 This branch will implement the hadronic flavour parametrisation for the three neutrino flavours. The parametrisations that will be used can be found in the arXiv paper:
-https://arxiv.org/abs/astro-ph/9906347v1
-
+https://arxiv.org/abs/astro-ph/9906347v1.
 The long-term goal is to establish the framework to simulate flavour-specific neutrino signals, accounting for multiple depositions and different cascade topologies (e.g. hadronic, electromagnetic). This will be controlled by external input from a MonteCarlo event generator, or by user input. Eventually, this will be consolidated as part of the overall MARES output file format. 
+
 ---
 # **MARES Installation Instructions**
 
