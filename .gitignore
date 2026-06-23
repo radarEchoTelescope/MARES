@@ -31,9 +31,13 @@
 *.out
 *.app
 
+CMakeLists.txt
 lib/*
 build/*
-.vscode
-
+bin/*
+output/*
+extern/*
 Cascade1D*
+
+.vscode
 .DS_Store
