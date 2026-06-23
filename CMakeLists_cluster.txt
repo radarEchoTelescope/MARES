@@ -1,7 +1,9 @@
 #----------------------------------------------------------------------------
 # Setup the project
-cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
-project(MS_single_event)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
+
+#project(MS_single_event)
+project(MARES_lib)
 
 
 set(CMAKE_CXX_STANDARD 11)
@@ -10,17 +12,22 @@ set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
 # Setup include directory for this project
 include_directories(${PROJECT_SOURCE_DIR}/include)
-include_directories(${PROJECT_SOURCE_DIR}/lib/IceRayTracing/namespace/woROOT/)
-include_directories(${PROJECT_SOURCE_DIR}/lib/libconfig/bin/include/)
+include_directories(${PROJECT_SOURCE_DIR}/extern/IceRayTracing/namespace/woROOT/)
+include_directories(${PROJECT_SOURCE_DIR}/extern/libconfig/bin/include/)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin/)
 
 find_package(PkgConfig)
 find_package(GSL REQUIRED)
+
 pkg_check_modules(LIBCONFIG_PLUSPLUS libconfig++)
+
+
 if(NOT LIBCONFIG_PLUSPLUS_FOUND)
-    set(LIBCONFIG_PLUSPLUS ${PROJECT_SOURCE_DIR}/lib/libconfig/bin/lib/libconfig++.so)
+    include_directories(${PROJECT_SOURCE_DIR}/extern/libconfig/bin/include/)
+    set(LIBCONFIG_PLUSPLUS ${PROJECT_SOURCE_DIR}/extern/libconfig/bin/lib/libconfig++.so)
     message( "Using local libconfig at: " ${LIBCONFIG_PLUSPLUS})
 endif()
-
 
 
 #----------------------------------------------------------------------------
@@ -32,7 +39,7 @@ endif()
 #file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 
 set( LIB_SOURCES
-    ${PROJECT_SOURCE_DIR}/lib/IceRayTracing/namespace/woROOT/IceRayTracing.cc
+    ${PROJECT_SOURCE_DIR}/extern/IceRayTracing/namespace/woROOT/IceRayTracing.cc
     ${PROJECT_SOURCE_DIR}/src/antenna.cc
     ${PROJECT_SOURCE_DIR}/src/cascade.cc
     ${PROJECT_SOURCE_DIR}/src/cascade1D.cc
@@ -45,18 +52,20 @@ set( LIB_SOURCES
 )
 
 set( LIB_HEADERS
-    ${PROJECT_SOURCE_DIR}/lib/IceRayTracing/namespace/woROOT/IceRayTracing.hh
+    ${PROJECT_SOURCE_DIR}/extern/IceRayTracing/namespace/woROOT/IceRayTracing.hh
     ${PROJECT_SOURCE_DIR}/include/antenna.hh
     ${PROJECT_SOURCE_DIR}/include/cascade.hh
     ${PROJECT_SOURCE_DIR}/include/cascade1D.hh
     ${PROJECT_SOURCE_DIR}/include/scatter.hh
     ${PROJECT_SOURCE_DIR}/include/settings.hh
     ${PROJECT_SOURCE_DIR}/include/settings_units_constants.hh
-    ${PROJECT_SOURCE_DIR}/lib/libconfig/bin/include/libconfig.h++
-
+    ${PROJECT_SOURCE_DIR}/extern/libconfig/bin/include/libconfig.h++
 )
 
 add_library(libMARES ${LIB_SOURCES} ${LIB_HEADERS})
+set_target_properties(libMARES PROPERTIES
+    OUTPUT_NAME MARES
+)
 
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the MARES library
@@ -64,11 +73,11 @@ add_library(libMARES ${LIB_SOURCES} ${LIB_HEADERS})
 # message( "This is the message " ${PROJECT_SOURCE_DIR})
 
 set( EXEC_SOURCES
-    ${PROJECT_SOURCE_DIR}/MARES_single_point.cpp
-    ${PROJECT_SOURCE_DIR}/MARES_single_event.cpp
-    ${PROJECT_SOURCE_DIR}/MARES_beam_event.cpp
-    ${PROJECT_SOURCE_DIR}/MARES_single_event_extern.cpp
-    ${PROJECT_SOURCE_DIR}/MARES.cpp
+    ${PROJECT_SOURCE_DIR}/src/MARES.cpp
+    ${PROJECT_SOURCE_DIR}/examples/MARES_single_point.cpp
+    ${PROJECT_SOURCE_DIR}/examples/MARES_single_event.cpp
+    ${PROJECT_SOURCE_DIR}/examples/MARES_single_event_extern.cpp
+    ${PROJECT_SOURCE_DIR}/examples/MARES_beam_event.cpp
  )
 
 
@@ -80,7 +89,6 @@ foreach( testsourcefile ${EXEC_SOURCES} )
     # Make sure MARES is linked to each app
     target_link_libraries( ${testname} 
         libMARES
-       # ${LIBCONFIG_PLUSPLUS_LIBRARIES}
         ${LIBCONFIG_PLUSPLUS} 
         GSL::gsl
     )

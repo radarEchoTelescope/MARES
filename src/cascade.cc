@@ -27,7 +27,8 @@ Cascade::Cascade(double xpos, double ypos, double zpos,
 		 			= 4*(log(fEnergy/E_c)) * X_0
  */
 
- 	fXtot = Ltot_factor * log(12.72 * fEnergy) * X_0;			
+  // Xlength formula taken from arXiv:1312.4331v2 (energy in GeV)
+ 	fXtot = Ltot_factor * log(12.72 * fEnergy * pow(GeV,-1.)) * X_0;			
 	fLtot = fXtot/rho_ice; 											
 	fRtot = Rtot_factor * r_moliere;								
 
@@ -122,38 +123,38 @@ double Cascade::SkinDepth(const double &dens, const double &freq_obs, const doub
 }
 
 //-------- These are the matrix methods for the 2D storage variables ----------
+// The functions void Cascade::Ne and void Cascade::Density should not be used as implemented here. All other functions call the correct cascade generation methods.
+// void Cascade::Ne( const std::vector<std::vector<double>> &length_vals,
+//                        const std::vector<std::vector<double>> &radius_vals,
+// 										   const double delta_r){
+//   fNe = std::vector<std::vector<double>> (length_vals.size(),
+//               std::vector<double> (length_vals[0].size(), 0));
 
-void Cascade::Ne( const std::vector<std::vector<double>> &length_vals,
-                       const std::vector<std::vector<double>> &radius_vals,
-										   const double delta_r){
-  fNe = std::vector<std::vector<double>> (length_vals.size(),
-              std::vector<double> (length_vals[0].size(), 0));
+//   for (int i = 0; i < fNe.size(); i++){
+//     for (int j = 0; j < fNe[i].size(); j++){
+//       // Simple check to avoid computing values too far out from the cascade direction
+//       if ( abs(radius_vals[i][j]) <= fRtot ) {
+//         fNe[i][j] = Ne(rho_ice*length_vals[i][j], radius_vals[i][j], delta_r);
+//       }
+//     }
+//   }
+// }
 
-  for (int i = 0; i < fNe.size(); i++){
-    for (int j = 0; j < fNe[i].size(); j++){
-      // Simple check to avoid computing values too far out from the cascade direction
-      if ( abs(radius_vals[i][j]) <= fRtot ) {
-        fNe[i][j] = Ne(rho_ice*length_vals[i][j], radius_vals[i][j], delta_r);
-      }
-    }
-  }
-}
+// void Cascade::Density( const std::vector<std::vector<double>> &length_vals,
+//                        const std::vector<std::vector<double>> &radius_vals,
+// 										   const double delta_r){
+//   fDensity = std::vector<std::vector<double>> (length_vals.size(),
+//               std::vector<double> (length_vals[0].size(), 0));
 
-void Cascade::Density( const std::vector<std::vector<double>> &length_vals,
-                       const std::vector<std::vector<double>> &radius_vals,
-										   const double delta_r){
-  fDensity = std::vector<std::vector<double>> (length_vals.size(),
-              std::vector<double> (length_vals[0].size(), 0));
-
-  for (int i = 0; i < fDensity.size(); i++){
-    for (int j = 0; j < fDensity[i].size(); j++){
-      // Simple check to avoid computing values too far out from the cascade direction
-      if ( abs(radius_vals[i][j]) <= fRtot ) {
-        fDensity[i][j] = Density(rho_ice*length_vals[i][j], radius_vals[i][j], delta_r);
-      }
-    }
-  }
-}
+//   for (int i = 0; i < fDensity.size(); i++){
+//     for (int j = 0; j < fDensity[i].size(); j++){
+//       // Simple check to avoid computing values too far out from the cascade direction
+//       if ( abs(radius_vals[i][j]) <= fRtot ) {
+//         fDensity[i][j] = Density(rho_ice*length_vals[i][j], radius_vals[i][j], delta_r);
+//       }
+//     }
+//   }
+// }
 
 void Cascade::PlasmaFreq(const std::vector<std::vector<double>> &density){
   fPlasmaFrequency = std::vector<std::vector<double>> (density.size(),
@@ -201,14 +202,14 @@ the layers.
 /* For consistency and usefulness, the transparency and opacity are defined
 ___before___ reaching a certain layer.
 
-transparency after layer = transparency before layer * transmitivity
+transparency after layer = transparency before layer * transmissivity
 power scattered per later = transparency before layer * reflectivity
 This was the old "reflectivity" definition.
 */
 
 void Cascade::Transparency(const std::vector<std::vector<double>> &density,
                             const double & freq, const double & delta_r){
-  double transparency, transmitivity;
+  double transparency, transmissivity;
   fTransparency = std::vector<std::vector<double>> (density.size(),
                   std::vector<double> (density[0].size(), 1));
   fOpacity = std::vector<std::vector<double>> (density.size(),
@@ -218,17 +219,17 @@ void Cascade::Transparency(const std::vector<std::vector<double>> &density,
 
 	// Loop over the density matrix
   for (int i = 0; i < density.size(); i++){
-    transmitivity = 1; transparency = 1;
+    transmissivity = 1; transparency = 1;
     for (int j = 0; j < density[0].size(); j++){
       if(density[i][j] == 0){continue;}
 
       fTransparency[i][j] = transparency;
       fOpacity[i][j] = 1 - transparency;
 
-      transmitivity = exp(-1.0 * delta_r * Absorption( density[i][j], freq) );
-      transparency *= transmitivity;
+      transmissivity = exp(-1.0 * delta_r * Absorption( density[i][j], freq) );
+      transparency *= transmissivity;
       assert(transparency > 0 && "Opacity larger than 1!");   // sanity check
-      fReflectance[i][j] = 1 - transmitivity;
+      fReflectance[i][j] = 1 - transmissivity;
 		}
 	}
 }
@@ -356,7 +357,7 @@ std::vector<Cascade> load_cascade_config(libconfig::Config& cs_config, std::ostr
       Cascade( 
         xpos *m, ypos *m, zpos *m,
         zenith *deg, azimuth *deg,
-        energy * GeV, primaries, 
+        energy * PeV, primaries, 
         n_num, t_num, p_id, i_type, channel, 
         inelasticity, oneweight
       )

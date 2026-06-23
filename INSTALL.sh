@@ -9,7 +9,7 @@ ERROR_FLAG=0
 # Handeling the argument passed to the script
 MODE=$1
 if [ -z "$1" ]; then
-    echo "Useage " $0 " 0 <re-build modified bin / libs> 1 <re-build all>"
+    echo "Useage " $0 " 0 <re-build modified lib(s) and bin(s)> 1 <re-build all> / 2 <update>"
     ERROR_FLAG=1
 fi
 if [ $ERROR_FLAG == 1 ]; then
@@ -18,38 +18,41 @@ fi
 
 initial=$PWD
 
-# We grab Iceraytracing
-if [ -d lib/IceRayTracing ]
+# Add Iceraytracing
+if [ ! -d extern/IceRayTracing ]
 then
-  echo "We have IceRayTracing already, checking if up to date"
-  cd lib/IceRayTracing && git pull
-else
-  echo "We don't have IceRayTracing yet, let's grab it"
-  cd lib && git clone https://github.com/uzairlatif90/IceRayTracing
+    echo "We don't have IceRayTracing yet, let's grab it"
+    mkdir -p extern
+    cd extern && git clone https://github.com/radarEchoTelescope/IceRayTracing
+    cd $initial
 fi
 
-cd $initial
+# MODE 2 upgrades all dependencies and re-builds
+if [ $MODE == 2 ]; then 
+    echo "Checking if IceRayTracing is up to date"
+    cd extern/IceRayTracing && git pull
+    cd $initial
+# If we have user-installed libconfig, update that too
+    if [ -d extern/libconfig ]; then
+        echo "Checking if libconfig is up to date"
+        cd extern/libconfig && git pull
+        cd $initial
+    fi
+    MODE=1
+fi
 
-# We grab libconfig
-#if [ -d lib/libconfig ]
-#then
- # echo "We have libconfig already, checking if up to date"
- # cd lib/libconfig && git pull
-#else
- # echo "We don't have libconfig yet, let's grab it"
- # cd lib && git clone git@github.com:hyperrealm/libconfig.git
-#fi
-
-#cd $initial
-
-# This forces a complete re-build
+# MODE 1 forces a complete re-build
 if [ $MODE == 1 ]; then
-    rm -r ./build/*
+    rm -rf ./build/*
+fi
+# Check for output directory
+
+if [ ! -d output ]; then
+    mkdir -p output
 fi
 
-# Now we run cmake
+# Regardless of above changes, now we run cmake
+mkdir -p build
 cd build
 cmake ../
-
-# Now we make
 make 
