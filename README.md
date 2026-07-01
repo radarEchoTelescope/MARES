@@ -2,6 +2,7 @@ This branch will implement the three extra contributions from surface reflection
 1. TX -> surface -> cascade -> RX
 2. TX -> cascade -> surface -> RX
 3. TX -> surface -> cascade -> surface -> RX
+
 It will also correctly take into account their interference (already at the cascade).  
 
 # **MARES Installation Instructions**
